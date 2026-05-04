@@ -1,4 +1,4 @@
-import { HeadContent, Scripts, createRootRoute, useRouterState } from '@tanstack/react-router'
+import { HeadContent, Outlet, Scripts, createRootRoute, useRouterState } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
@@ -44,16 +44,18 @@ function RootApp() {
         | undefined,
     }),
   })
+  const routeApp = routeAppFromPathname(pathname)
 
-  return <Desktop initialGithubData={githubData ?? null} routeApp={routeAppFromPathname(pathname)} />
+  return routeApp ? <Desktop initialGithubData={githubData ?? null} routeApp={routeApp} /> : <Outlet />
 }
 
-function routeAppFromPathname(pathname: string): RouteApp {
+function routeAppFromPathname(pathname: string): RouteApp | null {
+  if (pathname === '/') return 'none'
   if (pathname === '/home') return 'home'
   if (pathname === '/github') return 'github'
   if (pathname === '/strava') return 'strava'
 
-  return 'none'
+  return null
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
