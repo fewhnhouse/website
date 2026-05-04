@@ -465,7 +465,7 @@ a {
 
 .os-menubar {
   position: relative;
-  z-index: 20;
+  z-index: 10000;
   display: grid;
   grid-template-columns: 1fr minmax(180px, 340px) 1fr;
   align-items: center;
@@ -870,7 +870,7 @@ a {
   position: absolute;
   left: 50%;
   bottom: 1rem;
-  z-index: 20;
+  z-index: 10000;
   display: flex;
   gap: 0.42rem;
   max-width: calc(100% - 1rem);
