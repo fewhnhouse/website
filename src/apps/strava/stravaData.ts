@@ -1,16 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 
-const STRAVA_OAUTH_URL = 'https://www.strava.com/oauth/token'
 const STRAVA_API_URL = 'https://www.strava.com/api/v3'
-const STRAVA_CACHE_MS = 20 * 60 * 1000
-
-type StravaTokenResponse = {
-  access_token: string
-  expires_at: number
-  expires_in: number
-  refresh_token: string
-  token_type: string
-}
+const STRAVA_CACHE_MS = 60 * 60 * 1000
 
 type StravaAthleteResponse = {
   id: number
@@ -102,28 +93,30 @@ export type StravaDataResult =
       status: 'ready'
       data: StravaData
       cacheMaxAgeSeconds: number
-      tokenStorage: 'env' | 'memory'
+      tokenStorage: 'env'
     }
   | {
       status: 'missing_config'
       missing: string[]
     }
 
-let latestToken: StravaTokenResponse | null = null
 let cachedResult: { expiresAt: number; result: Extract<StravaDataResult, { status: 'ready' }> } | null =
   null
 
 function getStravaConfig() {
+  const accessToken = process.env.STRAVA_OAUTH_ACCESS_TOKEN
   const clientId = process.env.STRAVA_OAUTH_CLIENT_ID
   const clientSecret = process.env.STRAVA_OAUTH_CLIENT_SECRET
-  const refreshToken = latestToken?.refresh_token ?? process.env.STRAVA_OAUTH_REFRESH_TOKEN
+  const refreshToken = process.env.STRAVA_OAUTH_REFRESH_TOKEN
   const missing = [
+    accessToken ? null : 'STRAVA_OAUTH_ACCESS_TOKEN',
     clientId ? null : 'STRAVA_OAUTH_CLIENT_ID',
     clientSecret ? null : 'STRAVA_OAUTH_CLIENT_SECRET',
     refreshToken ? null : 'STRAVA_OAUTH_REFRESH_TOKEN',
   ].filter((value): value is string => Boolean(value))
 
   return {
+    accessToken,
     clientId,
     clientSecret,
     missing,
@@ -136,42 +129,6 @@ async function parseJsonResponse<T>(response: Response, fallbackMessage: string)
 
   const details = await response.text().catch(() => '')
   throw new Error(details ? `${fallbackMessage}: ${details}` : fallbackMessage)
-}
-
-async function refreshAccessToken(): Promise<{ storage: 'env' | 'memory'; token: StravaTokenResponse }> {
-  const { clientId, clientSecret, missing, refreshToken } = getStravaConfig()
-
-  if (missing.length > 0 || !clientId || !clientSecret) {
-    throw new Error(`Missing Strava configuration: ${missing.join(', ')}`)
-  }
-
-  if (!refreshToken) {
-    throw new Error('Missing STRAVA_OAUTH_REFRESH_TOKEN')
-  }
-
-  if (latestToken && latestToken.expires_at * 1000 > Date.now() + 60_000) {
-    return { storage: 'memory', token: latestToken }
-  }
-
-  const response = await fetch(STRAVA_OAUTH_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      grant_type: 'refresh_token',
-      refresh_token: refreshToken,
-    }),
-  })
-  const token = await parseJsonResponse<StravaTokenResponse>(response, 'Unable to refresh Strava token')
-  latestToken = token
-
-  return {
-    storage: refreshToken === process.env.STRAVA_OAUTH_REFRESH_TOKEN ? 'env' : 'memory',
-    token,
-  }
 }
 
 async function getStravaApi<T>(path: string, accessToken: string): Promise<T> {
@@ -230,11 +187,16 @@ function toActivity(activity: StravaActivityResponse): StravaActivity {
 async function loadStravaData(): Promise<Extract<StravaDataResult, { status: 'ready' }>> {
   if (cachedResult && cachedResult.expiresAt > Date.now()) return cachedResult.result
 
-  const { storage, token } = await refreshAccessToken()
-  const athlete = await getStravaApi<StravaAthleteResponse>('/athlete', token.access_token)
+  const { accessToken } = getStravaConfig()
+
+  if (!accessToken) {
+    throw new Error('Missing STRAVA_OAUTH_ACCESS_TOKEN')
+  }
+
+  const athlete = await getStravaApi<StravaAthleteResponse>('/athlete', accessToken)
   const [activities, stats] = await Promise.all([
-    getStravaApi<StravaActivityResponse[]>('/athlete/activities?per_page=8', token.access_token),
-    getStravaApi<StravaStatsResponse>(`/athletes/${athlete.id}/stats`, token.access_token),
+    getStravaApi<StravaActivityResponse[]>('/athlete/activities?per_page=8', accessToken),
+    getStravaApi<StravaStatsResponse>(`/athletes/${athlete.id}/stats`, accessToken),
   ])
   const location = [athlete.city, athlete.country].filter(Boolean).join(', ')
   const data: StravaData = {
@@ -260,7 +222,7 @@ async function loadStravaData(): Promise<Extract<StravaDataResult, { status: 're
     cacheMaxAgeSeconds: STRAVA_CACHE_MS / 1000,
     data,
     status: 'ready',
-    tokenStorage: storage,
+    tokenStorage: 'env',
   }
 
   cachedResult = {

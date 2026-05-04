@@ -61,6 +61,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   const [stravaResult, setStravaResult] = useState<StravaDataResult | null>(null)
   const [stravaError, setStravaError] = useState<string | null>(null)
   const [stravaLoading, setStravaLoading] = useState(false)
+  const stravaRequestAttempted = useRef(false)
   const editorDocumentRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
@@ -98,8 +99,9 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   useEffect(() => {
     const stravaIsVisible = windows.some((window) => window.app === 'strava' && !window.minimized)
 
-    if (!stravaIsVisible || stravaResult || stravaLoading) return
+    if (!stravaIsVisible || stravaResult || stravaLoading || stravaRequestAttempted.current) return
 
+    stravaRequestAttempted.current = true
     setStravaError(null)
     setStravaLoading(true)
     getStravaData()
@@ -179,6 +181,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
                 setGithubError(null)
               }}
               onStravaRefresh={() => {
+                stravaRequestAttempted.current = false
                 setStravaResult(null)
                 setStravaError(null)
               }}
