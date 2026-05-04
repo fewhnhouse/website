@@ -8,11 +8,37 @@ import type { AppId, DesktopSearch, RouteApp, WindowState } from './types'
 let rememberedWindows: WindowState[] | null = null
 let rememberedFocusedApp: AppId | null = null
 
+type DesktopWindowMemory = {
+  focusedApp: AppId | null
+  windows: WindowState[] | null
+}
+
+declare global {
+  interface Window {
+    __felixDesktopWindowMemory?: DesktopWindowMemory
+  }
+}
+
+const getDesktopWindowMemory = () => {
+  if (typeof window === 'undefined') return null
+
+  window.__felixDesktopWindowMemory ??= {
+    focusedApp: null,
+    windows: null,
+  }
+
+  return window.__felixDesktopWindowMemory
+}
+
+const getRememberedWindows = () => getDesktopWindowMemory()?.windows ?? rememberedWindows
+const getRememberedFocusedApp = () =>
+  getDesktopWindowMemory()?.focusedApp ?? rememberedFocusedApp
+
 export function useDesktopWindows(routeApp: RouteApp) {
   const search = useSearch({ strict: false }) as DesktopSearch
   const navigate = useNavigate()
   const [windows, setWindows] = useState<WindowState[]>(() =>
-    rememberedWindows ??
+    getRememberedWindows() ??
     (routeApp === 'none'
       ? []
       : [
@@ -24,7 +50,7 @@ export function useDesktopWindows(routeApp: RouteApp) {
         ]),
   )
   const [focusedApp, setFocusedApp] = useState<AppId | null>(
-    rememberedFocusedApp ?? (routeApp === 'none' || search.minimized ? null : routeApp),
+    getRememberedFocusedApp() ?? (routeApp === 'none' || search.minimized ? null : routeApp),
   )
   const [windowExit, setWindowExit] = useState<'close' | 'minimize'>('close')
   const dragOffset = useRef({ x: 0, y: 0 })
@@ -33,28 +59,36 @@ export function useDesktopWindows(routeApp: RouteApp) {
   const windowsRef = useRef(windows)
   const focusedAppRef = useRef(focusedApp)
   const zCounter = useRef(
-    Math.max(1, ...(rememberedWindows ?? []).map((window) => window.z)) + 1,
+    Math.max(1, ...(getRememberedWindows() ?? []).map((window) => window.z)) + 1,
   )
 
   useEffect(() => {
     windowsRef.current = windows
     rememberedWindows = windows
+    const memory = getDesktopWindowMemory()
+    if (memory) memory.windows = windows
   }, [windows])
 
   useEffect(() => {
     focusedAppRef.current = focusedApp
     rememberedFocusedApp = focusedApp
+    const memory = getDesktopWindowMemory()
+    if (memory) memory.focusedApp = focusedApp
   }, [focusedApp])
 
   const commitWindows = (nextWindows: WindowState[]) => {
     windowsRef.current = nextWindows
     rememberedWindows = nextWindows
+    const memory = getDesktopWindowMemory()
+    if (memory) memory.windows = nextWindows
     setWindows(nextWindows)
   }
 
   const commitFocusedApp = (nextApp: AppId | null) => {
     focusedAppRef.current = nextApp
     rememberedFocusedApp = nextApp
+    const memory = getDesktopWindowMemory()
+    if (memory) memory.focusedApp = nextApp
     setFocusedApp(nextApp)
   }
 

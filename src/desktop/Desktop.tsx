@@ -1,6 +1,6 @@
 import { Activity, Battery, FileText, Github, Search, Wifi } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent, RefObject } from 'react'
 
 import { GithubApp } from '@/apps/github/GithubApp'
@@ -14,27 +14,21 @@ import { desktopApps, dockApps } from './apps'
 import type { RouteApp, WindowState } from './types'
 import { useDesktopWindows } from './useDesktopWindows'
 
-const osShellClass =
-  'relative min-h-[100svh] overflow-hidden text-[#14262d] bg-[radial-gradient(circle_at_16%_18%,rgba(246,200,95,0.55),transparent_22%),radial-gradient(circle_at_84%_12%,rgba(96,215,207,0.42),transparent_26%),linear-gradient(135deg,#cbded8_0%,#ecf4ec_46%,#a9d4cd_100%)]'
-const wallpaperClass =
-  'pointer-events-none absolute inset-0 opacity-[0.92] bg-[linear-gradient(115deg,transparent_0_48%,rgba(20,38,45,0.08)_48.2%_48.7%,transparent_49%),linear-gradient(28deg,transparent_0_52%,rgba(255,255,255,0.38)_52.2%_52.6%,transparent_53%),radial-gradient(900px_520px_at_50%_78%,rgba(47,106,74,0.28),transparent_62%)] after:absolute after:inset-0 after:bg-[linear-gradient(rgba(255,255,255,0.5)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.46)_1px,transparent_1px)] after:bg-[length:42px_42px] after:opacity-15 after:[mask-image:linear-gradient(180deg,black,transparent_86%)] after:content-[""]'
-const menuBarClass =
-  'relative z-[2147483000] grid h-[42px] grid-cols-[1fr_minmax(180px,340px)_1fr] items-center gap-4 border-b border-[rgba(20,38,45,0.13)] bg-[rgba(239,249,244,0.72)] px-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] backdrop-blur-[18px] max-[720px]:grid-cols-[1fr_auto]'
 const menuButtonClass =
-  'cursor-pointer appearance-none border-0 bg-transparent font-[inherit] text-[0.82rem] font-extrabold text-[rgba(20,38,45,0.72)] max-[720px]:hidden'
+  'cursor-pointer appearance-none border-0 bg-transparent font-[inherit] text-window font-extrabold text-os-ink-muted max-[720px]:hidden'
 const desktopIconClass =
-  'grid min-h-[94px] w-[86px] cursor-pointer appearance-none justify-items-center gap-1 rounded-[10px] border border-transparent bg-transparent text-center font-[inherit] text-[#14262d] hover:border-[rgba(255,255,255,0.44)] hover:bg-[rgba(255,255,255,0.2)] focus-visible:border-[rgba(255,255,255,0.44)] focus-visible:bg-[rgba(255,255,255,0.2)] focus-visible:outline-none max-[720px]:w-[74px]'
+  'grid min-h-[94px] w-desktop-icon cursor-pointer appearance-none justify-items-center gap-1 rounded-[10px] border border-transparent bg-transparent text-center font-[inherit] text-os-ink hover:border-white/45 hover:bg-white/20 focus-visible:border-white/45 focus-visible:bg-white/20 focus-visible:outline-none max-[720px]:w-[74px]'
 const desktopIconTileClass =
-  'grid h-[58px] w-[58px] place-items-center rounded-[17px] border border-[rgba(255,255,255,0.48)] bg-[linear-gradient(145deg,rgba(255,255,255,0.68),rgba(255,255,255,0.12)),linear-gradient(135deg,color-mix(in_oklab,var(--accent)_82%,white),var(--accent))] text-[#14262d] shadow-[0_18px_34px_rgba(20,38,45,0.14),inset_0_1px_0_rgba(255,255,255,0.8)] max-[720px]:h-12 max-[720px]:w-12 max-[720px]:rounded-[14px]'
+  'grid size-desktop-tile place-items-center rounded-icon border border-white/50 bg-[image:var(--desktop-tile-bg)] text-os-ink shadow-desktop-tile max-[720px]:size-12 max-[720px]:rounded-[14px]'
 const windowBaseClass =
-  'absolute top-0 left-0 z-10 flex w-[min(720px,calc(100vw_-_1.5rem))] max-h-[min(640px,calc(100svh_-_7.25rem))] origin-center flex-col overflow-hidden rounded-xl border border-[rgba(20,38,45,0.18)] bg-[rgba(250,252,247,0.9)] shadow-[0_34px_92px_rgba(20,38,45,0.28),inset_0_1px_0_rgba(255,255,255,0.76)] backdrop-blur-[22px] will-change-[transform,opacity,filter,width,height] max-[720px]:w-[calc(100vw_-_1rem)] max-[720px]:max-h-[calc(100svh_-_8.4rem)]'
+  'absolute top-0 left-0 z-10 flex w-[min(720px,calc(100vw_-_1.5rem))] max-h-[min(640px,calc(100svh_-_7.25rem))] origin-center flex-col overflow-hidden rounded-window border border-os-border-strong bg-os-panel shadow-window backdrop-blur-[22px] will-change-[transform,opacity,filter,width,height] max-[720px]:w-[calc(100vw_-_1rem)] max-[720px]:max-h-[calc(100svh_-_8.4rem)]'
 const maximizedWindowClass = 'max-h-[calc(100svh_-_132px)] rounded-[14px] max-[720px]:max-h-[calc(100svh_-_7rem)]'
 const titlebarClass =
-  'grid min-h-[42px] cursor-grab select-none grid-cols-[104px_1fr_78px] items-center border-b border-[rgba(20,38,45,0.1)] bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(235,244,238,0.72))] px-3 active:cursor-grabbing max-[720px]:grid-cols-[74px_1fr_44px]'
+  'grid min-h-titlebar cursor-grab select-none grid-cols-[104px_1fr_78px] items-center border-b border-os-border bg-[image:var(--os-titlebar-bg)] px-3 active:cursor-grabbing max-[720px]:grid-cols-[74px_1fr_44px]'
 const trafficClass =
-  'relative grid h-[0.82rem] w-[0.82rem] cursor-pointer appearance-none place-items-center rounded-full border border-[rgba(20,38,45,0.16)] font-[inherit] text-[rgba(20,38,45,0.58)] before:absolute before:scale-50 before:opacity-0 before:transition before:content-[""] after:absolute after:scale-50 after:opacity-0 after:transition after:content-[""] group-hover/titlebar:before:scale-100 group-hover/titlebar:before:opacity-100 group-hover/titlebar:after:scale-100 group-hover/titlebar:after:opacity-100 focus-visible:before:scale-100 focus-visible:before:opacity-100 focus-visible:after:scale-100 focus-visible:after:opacity-100'
+  'relative grid h-[0.82rem] w-[0.82rem] cursor-pointer appearance-none place-items-center rounded-full border border-os-border font-[inherit] text-os-ink-soft before:absolute before:scale-50 before:opacity-0 before:transition before:content-[""] after:absolute after:scale-50 after:opacity-0 after:transition after:content-[""] group-hover/titlebar:before:scale-100 group-hover/titlebar:before:opacity-100 group-hover/titlebar:after:scale-100 group-hover/titlebar:after:opacity-100 focus-visible:before:scale-100 focus-visible:before:opacity-100 focus-visible:after:scale-100 focus-visible:after:opacity-100'
 const dockButtonClass =
-  'group relative grid h-[54px] w-[54px] cursor-pointer appearance-none place-items-center rounded-[14px] border border-[rgba(20,38,45,0.1)] bg-[rgba(255,255,255,0.58)] font-[inherit] text-[#173a40] transition hover:-translate-y-1 hover:outline-none focus-visible:-translate-y-1 focus-visible:outline-none max-[720px]:h-12 max-[720px]:w-12'
+  'group relative grid size-dock-icon cursor-pointer appearance-none place-items-center rounded-[14px] border border-os-border bg-white/60 font-[inherit] text-ink transition hover:-translate-y-1 hover:outline-none focus-visible:-translate-y-1 focus-visible:outline-none max-[720px]:size-12'
 
 type DesktopProps = {
   initialGithubData?: GithubData | null
@@ -128,13 +122,24 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
     openApp('strava')
   }
 
+  const refreshGithub = useCallback(() => {
+    setGithubData(null)
+    setGithubError(null)
+  }, [])
+
+  const refreshStrava = useCallback(() => {
+    stravaRequestAttempted.current = false
+    setStravaResult(null)
+    setStravaError(null)
+  }, [])
+
   return (
-    <main className={osShellClass}>
-      <div className={wallpaperClass} />
-      <header className={menuBarClass}>
+    <main className="relative min-h-[100svh] overflow-hidden bg-[image:var(--os-shell-bg)] text-os-ink">
+      <div className="pointer-events-none absolute inset-0 bg-[image:var(--os-wallpaper-bg)] opacity-90 after:absolute after:inset-0 after:bg-[image:var(--os-grid-bg)] after:bg-[length:42px_42px] after:opacity-15 after:[mask-image:linear-gradient(180deg,black,transparent_86%)] after:content-['']" />
+      <header className="relative z-[2147483000] grid h-titlebar grid-cols-[1fr_minmax(180px,340px)_1fr] items-center gap-4 border-b border-os-border bg-os-glass px-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] backdrop-blur-[18px] max-[720px]:grid-cols-[1fr_auto]">
         <div className="flex min-w-0 items-center gap-2">
           <img
-            className="h-[1.55rem] w-[1.55rem] rounded-full border border-[rgba(255,255,255,0.78)] object-cover object-[50%_31%] shadow-[0_3px_10px_rgba(20,38,45,0.16),0_0_0_1px_rgba(20,38,45,0.08)]"
+            className="size-[1.55rem] rounded-full border border-white/80 object-cover object-[50%_31%] shadow-os-logo"
             src="/felix-portrait.jpg"
             alt="Felix Wohnhaas"
           />
@@ -149,11 +154,11 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
             Help
           </button>
         </div>
-        <div className="flex min-h-7 w-full items-center justify-center gap-2 justify-self-center rounded-full border border-[rgba(20,38,45,0.1)] bg-[rgba(255,255,255,0.54)] text-[0.78rem] font-bold text-[rgba(20,38,45,0.58)] max-[720px]:hidden">
+        <div className="flex min-h-7 w-full items-center justify-center gap-2 justify-self-center rounded-full border border-os-border bg-white/55 text-meta font-bold text-os-ink-soft max-[720px]:hidden">
           <Search aria-hidden="true" size={15} />
           <span>Search Felix&apos;s computer</span>
         </div>
-        <div className="flex items-center gap-2.5 justify-self-end text-[0.82rem] font-extrabold text-[rgba(20,38,45,0.68)]">
+        <div className="flex items-center gap-2.5 justify-self-end text-window font-extrabold text-os-ink-muted">
           <Wifi aria-hidden="true" size={16} />
           <Battery aria-hidden="true" size={17} />
           <time dateTime="2026-05-04T13:30">13:30</time>
@@ -176,15 +181,8 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
               githubLoading={githubLoading}
               minimizeWindow={minimizeWindow}
               moveWindow={moveWindow}
-              onGithubRefresh={() => {
-                setGithubData(null)
-                setGithubError(null)
-              }}
-              onStravaRefresh={() => {
-                stravaRequestAttempted.current = false
-                setStravaResult(null)
-                setStravaError(null)
-              }}
+              onGithubRefresh={refreshGithub}
+              onStravaRefresh={refreshStrava}
               startDrag={startDrag}
               stopDrag={stopDrag}
               stravaError={stravaError}
@@ -245,10 +243,10 @@ function DesktopShortcuts({
             >
               <Icon aria-hidden="true" size={28} />
             </span>
-            <span className="max-w-[82px] overflow-hidden text-ellipsis whitespace-nowrap text-[0.76rem] font-black leading-tight text-[rgba(20,38,45,0.88)]">
+            <span className="max-w-[82px] overflow-hidden text-ellipsis whitespace-nowrap text-[0.76rem] font-black leading-tight text-os-ink">
               {app.title}
             </span>
-            <small className="text-[0.64rem] font-extrabold text-[rgba(20,38,45,0.58)]">
+            <small className="text-[0.64rem] font-extrabold text-os-ink-soft">
               {app.subtitle}
             </small>
           </button>
@@ -312,7 +310,7 @@ function DesktopWindow({
         window.app === 'github'
           ? 'bg-[rgba(246,248,250,0.94)]'
           : window.app === 'strava'
-            ? 'border-[#fc4c02]/45 bg-[#111]'
+            ? 'border-strava/45 bg-strava-bg'
             : ''
       } ${window.maximized ? maximizedWindowClass : ''}`}
       style={{ zIndex: window.z }}
@@ -365,11 +363,11 @@ function DesktopWindow({
             onClick={() => toggleMaximizeWindow(window.app)}
           />
         </div>
-        <div className="flex items-center justify-center gap-2 text-[0.82rem] font-black text-[rgba(20,38,45,0.74)]">
+        <div className="flex items-center justify-center gap-2 text-window font-black text-os-ink-muted">
           <ActiveAppIcon aria-hidden="true" size={16} />
           <span>{activeAppTitle}</span>
         </div>
-        <span className="justify-self-end text-[0.72rem] font-black text-[rgba(20,38,45,0.5)] max-[720px]:hidden">
+        <span className="justify-self-end text-caption font-black text-os-ink-soft max-[720px]:hidden">
           saved
         </span>
       </div>
@@ -430,7 +428,7 @@ function Dock({
 }) {
   return (
     <nav
-      className="absolute bottom-4 left-1/2 z-[2147483000] flex max-w-[calc(100%_-_1rem)] -translate-x-1/2 gap-1.5 rounded-[18px] border border-[rgba(255,255,255,0.44)] bg-[rgba(239,249,244,0.62)] p-2 shadow-[0_18px_52px_rgba(20,38,45,0.2)] backdrop-blur-[22px]"
+      className="absolute bottom-4 left-1/2 z-[2147483000] flex max-w-[calc(100%_-_1rem)] -translate-x-1/2 gap-1.5 rounded-dock border border-white/45 bg-os-dock p-2 shadow-dock backdrop-blur-[22px]"
       aria-label="Application dock"
     >
       {dockApps.map((app) => {
@@ -461,7 +459,7 @@ function Dock({
             }
           >
             <Icon aria-hidden="true" size={24} />
-            <span className="pointer-events-none absolute bottom-[calc(100%_+_0.48rem)] translate-y-[3px] whitespace-nowrap rounded-[7px] bg-[rgba(20,38,45,0.9)] px-1.5 py-1 text-[0.68rem] font-black text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
+            <span className="pointer-events-none absolute bottom-[calc(100%_+_0.48rem)] translate-y-[3px] whitespace-nowrap rounded-control bg-os-tooltip px-1.5 py-1 text-[0.68rem] font-black text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
               {app.label}
             </span>
           </button>

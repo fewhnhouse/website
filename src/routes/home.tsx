@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { Desktop } from '@/desktop/Desktop'
 import { desktopSearchValidator } from '@/desktop/routeState'
 
 export const Route = createFileRoute('/home')({
@@ -9,5 +8,5 @@ export const Route = createFileRoute('/home')({
 })
 
 function HomeRoute() {
-  return <Desktop routeApp="home" />
+  return null
 }

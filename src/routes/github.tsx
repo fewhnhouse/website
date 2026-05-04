@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { GITHUB_CACHE_CONTROL, GITHUB_CACHE_MS, getGithubData } from '@/apps/github/githubData'
-import { Desktop } from '@/desktop/Desktop'
 import { desktopSearchValidator } from '@/desktop/routeState'
 
 export const Route = createFileRoute('/github')({
@@ -16,7 +15,5 @@ export const Route = createFileRoute('/github')({
 })
 
 function GithubRoute() {
-  const githubData = Route.useLoaderData()
-
-  return <Desktop initialGithubData={githubData} routeApp="github" />
+  return null
 }

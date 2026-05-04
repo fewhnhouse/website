@@ -1,12 +1,17 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRoute, useRouterState } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+
+import type { GithubData } from '@/apps/github/types'
+import { Desktop } from '@/desktop/Desktop'
+import type { RouteApp } from '@/desktop/types'
 
 import appCss from '../styles.css?url'
 
 const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='auto')?stored:'auto';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`
 
 export const Route = createRootRoute({
+  component: RootApp,
   head: () => ({
     meta: [
       {
@@ -29,6 +34,27 @@ export const Route = createRootRoute({
   }),
   shellComponent: RootDocument,
 })
+
+function RootApp() {
+  const { githubData, pathname } = useRouterState({
+    select: (state) => ({
+      pathname: state.location.pathname,
+      githubData: state.matches.find((match) => match.routeId === '/github')?.loaderData as
+        | GithubData
+        | undefined,
+    }),
+  })
+
+  return <Desktop initialGithubData={githubData ?? null} routeApp={routeAppFromPathname(pathname)} />
+}
+
+function routeAppFromPathname(pathname: string): RouteApp {
+  if (pathname === '/home') return 'home'
+  if (pathname === '/github') return 'github'
+  if (pathname === '/strava') return 'strava'
+
+  return 'none'
+}
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (

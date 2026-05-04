@@ -5,15 +5,15 @@ type HomeEditorProps = {
 }
 
 const toolbarButtonClass =
-  'rounded-[7px] border border-[rgba(20,38,45,0.11)] bg-[rgba(255,255,255,0.66)] px-2.5 py-1.5 text-[0.72rem] font-black text-[rgba(20,38,45,0.7)]'
+  'rounded-control border border-os-border bg-white/65 px-2.5 py-1.5 text-caption font-black text-os-ink-muted'
 const documentClass =
-  'min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-6 pt-5 pb-6 text-[rgba(20,38,45,0.84)] [max-height:calc(min(640px,calc(100svh_-_7.25rem))_-_86px)] [scrollbar-color:rgba(50,143,151,0.46)_transparent] [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[3px] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-[rgba(50,143,151,0.44)] [&::-webkit-scrollbar-thumb]:bg-clip-padding [&::-webkit-scrollbar-track]:bg-transparent [&_h1]:mt-0 [&_h2]:mt-0 [&_p]:mt-0 [&_pre]:mt-0 [&_ul]:mt-0 [.os-window--maximized_&]:[max-height:calc(100svh_-_218px)] max-[720px]:p-4 max-[720px]:[max-height:calc(100svh_-_14rem)]'
+  'min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-6 pt-5 pb-6 text-os-ink [max-height:calc(min(640px,calc(100svh_-_7.25rem))_-_86px)] [scrollbar-color:rgba(50,143,151,0.46)_transparent] [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[3px] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-lagoon-deep/45 [&::-webkit-scrollbar-thumb]:bg-clip-padding [&::-webkit-scrollbar-track]:bg-transparent [&_h1]:mt-0 [&_h2]:mt-0 [&_p]:mt-0 [&_pre]:mt-0 [&_ul]:mt-0 [.os-window--maximized_&]:[max-height:calc(100svh_-_218px)] max-[720px]:p-4 max-[720px]:[max-height:calc(100svh_-_14rem)]'
 
 export function HomeEditor({ documentRef }: HomeEditorProps) {
   return (
     <>
       <div
-        className="flex flex-wrap gap-2 border-b border-[rgba(20,38,45,0.09)] bg-[rgba(245,250,245,0.78)] px-3 py-2.5"
+        className="flex flex-wrap gap-2 border-b border-os-border bg-foam/80 px-3 py-2.5"
         aria-label="Editor toolbar"
       >
         <button type="button" className={toolbarButtonClass}>
@@ -28,17 +28,17 @@ export function HomeEditor({ documentRef }: HomeEditorProps) {
       </div>
 
       <article ref={documentRef} className={documentClass}>
-        <p className="font-mono text-[0.76rem] font-extrabold text-[rgba(50,143,151,0.9)]">
+        <p className="font-mono text-[0.76rem] font-extrabold text-lagoon-deep">
           ~/felix-website/home.mdx
         </p>
         <div className="mb-5 grid grid-cols-[10.5rem_minmax(0,1fr)] items-center gap-5 max-[720px]:grid-cols-1 max-[720px]:justify-items-start">
           <img
-            className="aspect-square w-[10.5rem] rounded-full border border-[rgba(20,38,45,0.12)] object-cover object-[50%_30%] shadow-[0_18px_38px_rgba(20,38,45,0.16),inset_0_1px_0_rgba(255,255,255,0.82)] max-[720px]:w-30"
+            className="aspect-square w-[10.5rem] rounded-full border border-os-border object-cover object-[50%_30%] shadow-avatar max-[720px]:w-30"
             src="/felix-portrait.jpg"
             alt="Felix Wohnhaas"
           />
           <div>
-            <p className="mb-1.5 font-mono text-[0.78rem] font-black text-[rgba(47,106,74,0.82)]">
+            <p className="mb-1.5 font-mono text-meta font-black text-palm">
               home.mdx
             </p>
             <h1 className="mb-3.5 text-[clamp(1.85rem,4vw,3.3rem)] leading-none tracking-normal">

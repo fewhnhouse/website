@@ -2,8 +2,73 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-@theme {
+@theme inline {
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+
+  --color-ink: var(--sea-ink);
+  --color-ink-soft: var(--sea-ink-soft);
+  --color-lagoon: var(--lagoon);
+  --color-lagoon-deep: var(--lagoon-deep);
+  --color-palm: var(--palm);
+  --color-sand: var(--sand);
+  --color-foam: var(--foam);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-line: var(--line);
+  --color-kicker: var(--kicker);
+  --color-bg-base: var(--bg-base);
+  --color-header-bg: var(--header-bg);
+  --color-chip-bg: var(--chip-bg);
+  --color-chip-line: var(--chip-line);
+  --color-link-hover-bg: var(--link-bg-hover);
+
+  --color-os-ink: #14262d;
+  --color-os-ink-muted: rgba(20, 38, 45, 0.68);
+  --color-os-ink-soft: rgba(20, 38, 45, 0.58);
+  --color-os-glass: rgba(239, 249, 244, 0.72);
+  --color-os-panel: rgba(250, 252, 247, 0.9);
+  --color-os-panel-strong: rgba(255, 255, 255, 0.72);
+  --color-os-border: rgba(20, 38, 45, 0.13);
+  --color-os-border-strong: rgba(20, 38, 45, 0.18);
+  --color-os-dock: rgba(239, 249, 244, 0.62);
+  --color-os-tooltip: rgba(20, 38, 45, 0.9);
+  --color-github-ink: #24292f;
+  --color-github-muted: #57606a;
+  --color-github-border: #d0d7de;
+  --color-github-link: #0969da;
+  --color-github-surface: #f6f8fa;
+  --color-github-panel: #ffffff;
+  --color-github-danger: #cf222e;
+  --color-strava: #fc4c02;
+  --color-strava-bg: #111111;
+  --color-strava-panel: #171717;
+  --color-strava-text: #f7f7f4;
+  --color-strava-muted: rgba(215, 215, 209, 0.7);
+
+  --text-caption: 0.72rem;
+  --text-meta: 0.78rem;
+  --text-window: 0.82rem;
+  --text-body-compact: 0.94rem;
+
+  --radius-control: 7px;
+  --radius-card: 8px;
+  --radius-window: 12px;
+  --radius-dock: 18px;
+  --radius-icon: 17px;
+
+  --spacing-titlebar: 42px;
+  --spacing-dock-icon: 54px;
+  --spacing-desktop-icon: 86px;
+  --spacing-desktop-tile: 58px;
+
+  --shadow-chip: 0 8px 24px rgba(30, 90, 72, 0.08);
+  --shadow-island: inset 0 1px 0 var(--inset-glint), 0 22px 44px rgba(30, 90, 72, 0.1), 0 6px 18px rgba(23, 58, 64, 0.08);
+  --shadow-window: 0 34px 92px rgba(20, 38, 45, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.76);
+  --shadow-dock: 0 18px 52px rgba(20, 38, 45, 0.2);
+  --shadow-desktop-tile: 0 18px 34px rgba(20, 38, 45, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --shadow-avatar: 0 18px 38px rgba(20, 38, 45, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  --shadow-os-logo: 0 3px 10px rgba(20, 38, 45, 0.16), 0 0 0 1px rgba(20, 38, 45, 0.08);
 }
 
 :root {
@@ -26,6 +91,21 @@
   --link-bg-hover: rgba(255, 255, 255, 0.9);
   --hero-a: rgba(79, 184, 178, 0.36);
   --hero-b: rgba(47, 106, 74, 0.2);
+  --os-shell-bg:
+    radial-gradient(circle at 16% 18%, rgba(246, 200, 95, 0.55), transparent 22%),
+    radial-gradient(circle at 84% 12%, rgba(96, 215, 207, 0.42), transparent 26%),
+    linear-gradient(135deg, #cbded8 0%, #ecf4ec 46%, #a9d4cd 100%);
+  --os-wallpaper-bg:
+    linear-gradient(115deg, transparent 0 48%, rgba(20, 38, 45, 0.08) 48.2% 48.7%, transparent 49%),
+    linear-gradient(28deg, transparent 0 52%, rgba(255, 255, 255, 0.38) 52.2% 52.6%, transparent 53%),
+    radial-gradient(900px 520px at 50% 78%, rgba(47, 106, 74, 0.28), transparent 62%);
+  --os-grid-bg:
+    linear-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.46) 1px, transparent 1px);
+  --os-titlebar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(235, 244, 238, 0.72));
+  --desktop-tile-bg:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.12)),
+    linear-gradient(135deg, color-mix(in oklab, var(--accent) 82%, white), var(--accent));
 }
 
 :root[data-theme="dark"] {

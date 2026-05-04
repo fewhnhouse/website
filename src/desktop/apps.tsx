@@ -41,7 +41,7 @@ export const desktopApps = [
     title: 'Strava',
     subtitle: 'Live efforts',
     icon: Activity,
-    accent: '#fc4c02',
+    accent: 'var(--color-strava)',
   },
 ] as const
 

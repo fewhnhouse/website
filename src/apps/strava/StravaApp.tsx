@@ -3,10 +3,10 @@ import type { ComponentType, ReactNode } from 'react'
 
 import type { StravaActivity, StravaDataResult, StravaTotals } from './stravaData'
 
-const panelClass = 'rounded-xl border border-[#fc4c02]/25 bg-white/[0.06] p-4'
-const mutedTextClass = 'text-[#d7d7d1]/70'
+const panelClass = 'rounded-xl border border-strava/25 bg-white/[0.06] p-4'
+const mutedTextClass = 'text-strava-muted'
 const metricCardClass =
-  'rounded-xl border border-[#fc4c02]/25 bg-[linear-gradient(145deg,rgba(252,76,2,0.22),rgba(255,255,255,0.06))] p-4'
+  'rounded-xl border border-strava/25 bg-[linear-gradient(145deg,rgba(252,76,2,0.22),rgba(255,255,255,0.06))] p-4'
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat('en').format(value)
@@ -31,7 +31,7 @@ function sportIconClassName(value: string) {
 
   if (normalized.includes('run')) return `${base} border-emerald-300/30 bg-emerald-300/15 text-emerald-200`
   if (normalized.includes('bike') || normalized.includes('ride')) {
-    return `${base} border-[#fc4c02]/40 bg-[#fc4c02]/20 text-[#ff9a66]`
+    return `${base} border-strava/40 bg-strava/20 text-[#ff9a66]`
   }
   if (normalized.includes('ski')) return `${base} border-sky-300/35 bg-sky-300/15 text-sky-200`
 
@@ -41,11 +41,11 @@ function sportIconClassName(value: string) {
 function StatTile({ label, totals }: { label: string; totals: StravaTotals }) {
   return (
     <article className="rounded-lg border border-white/10 bg-black/20 p-3">
-      <span className={`block text-[0.72rem] font-extrabold uppercase tracking-[0.12em] ${mutedTextClass}`}>
+      <span className={`block text-caption font-extrabold uppercase tracking-[0.12em] ${mutedTextClass}`}>
         {label}
       </span>
       <strong className="mt-1 block text-lg text-white">{formatNumber(totals.distanceKm)} km</strong>
-      <small className={`mt-1 block text-[0.72rem] font-bold ${mutedTextClass}`}>
+      <small className={`mt-1 block text-caption font-bold ${mutedTextClass}`}>
         {formatNumber(totals.activities)} activities / {formatNumber(totals.elevationMeters)} m
       </small>
     </article>
@@ -61,14 +61,14 @@ function ActivityRow({ activity }: { activity: StravaActivity }) {
       <div className="min-w-0">
         <header className="flex items-start justify-between gap-3">
           <h3 className="m-0 line-clamp-2 text-sm font-extrabold text-white">{activity.name}</h3>
-          <span className={`shrink-0 text-[0.72rem] font-bold ${mutedTextClass}`}>
+          <span className={`shrink-0 text-caption font-bold ${mutedTextClass}`}>
             {formatDate(activity.startedAt)}
           </span>
         </header>
         <p className={`mt-1 mb-2 text-[0.76rem] font-bold ${mutedTextClass}`}>
           {formatSportType(activity.sportType)}
         </p>
-        <footer className={`flex flex-wrap gap-2 text-[0.72rem] font-bold ${mutedTextClass}`}>
+        <footer className={`flex flex-wrap gap-2 text-caption font-bold ${mutedTextClass}`}>
           <span>{activity.distanceKm} km</span>
           <span>{activity.elevationMeters} m</span>
           <span>{activity.movingMinutes} min</span>
@@ -100,17 +100,17 @@ export function StravaApp({
 
   return (
     <section
-      className="flex min-h-0 flex-1 flex-col bg-[#111] text-[#f7f7f4] [max-height:calc(min(700px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:[max-height:calc(100svh_-_174px)]"
+      className="flex min-h-0 flex-1 flex-col bg-strava-bg text-strava-text [max-height:calc(min(700px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:[max-height:calc(100svh_-_174px)]"
       aria-label="Strava live data"
     >
-      <div className="flex items-center justify-between gap-4 border-b border-[#fc4c02]/30 bg-[#171717] px-4 py-3">
+      <div className="flex items-center justify-between gap-4 border-b border-strava/30 bg-strava-panel px-4 py-3">
         <div>
-          <p className="m-0 text-[0.72rem] font-black tracking-[0.14em] text-[#fc4c02]">STRAVA</p>
+          <p className="m-0 text-caption font-black tracking-[0.14em] text-strava">STRAVA</p>
           <strong className="block text-[0.95rem]">{data ? data.athlete.name : 'Athlete dashboard'}</strong>
         </div>
         <button
           type="button"
-          className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[#fc4c02]/35 bg-[#fc4c02] px-2.5 py-1.5 text-[0.78rem] font-extrabold text-white"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-strava/35 bg-strava px-2.5 py-1.5 text-meta font-extrabold text-white"
           onClick={onRefresh}
           aria-label="Refresh Strava data"
         >
@@ -121,7 +121,7 @@ export function StravaApp({
 
       {loading ? (
         <StatusPanel>
-          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/20 border-t-[#fc4c02]" />
+          <span className="size-3.5 animate-spin rounded-full border-2 border-white/20 border-t-strava" />
           Syncing Strava data...
         </StatusPanel>
       ) : null}
@@ -142,13 +142,13 @@ export function StravaApp({
           <header className="mb-4 grid grid-cols-[4.5rem_minmax(0,1fr)_auto] items-center gap-3.5 max-sm:grid-cols-1">
             {data.athlete.avatarUrl ? (
               <img
-                className="aspect-square w-[4.5rem] rounded-full border border-[#fc4c02]/35 object-cover"
+                className="aspect-square w-[4.5rem] rounded-full border border-strava/35 object-cover"
                 src={data.athlete.avatarUrl}
                 alt={data.athlete.name}
               />
             ) : null}
             <div>
-              <p className="m-0 text-[0.72rem] font-black tracking-[0.14em] text-[#fc4c02]">
+              <p className="m-0 text-caption font-black tracking-[0.14em] text-strava">
                 Live from Strava
               </p>
               <h2 className="m-0 text-[1.4rem] tracking-normal text-white">{data.athlete.name}</h2>
@@ -212,7 +212,7 @@ export function StravaApp({
 
 function StatusPanel({ children }: { children: ReactNode }) {
   return (
-    <div className="m-4 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.06] p-4 font-extrabold text-[#d7d7d1]">
+    <div className="m-4 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.06] p-4 font-extrabold text-strava-muted">
       {children}
     </div>
   )
@@ -239,7 +239,7 @@ function HeroStat({
   return (
     <article className={metricCardClass}>
       <Icon aria-hidden={true} size={20} />
-      <span className={`mt-3 block text-[0.72rem] font-black uppercase tracking-[0.12em] ${mutedTextClass}`}>
+      <span className={`mt-3 block text-caption font-black uppercase tracking-[0.12em] ${mutedTextClass}`}>
         {label}
       </span>
       <strong className="mt-1 block text-xl text-white">{value}</strong>
