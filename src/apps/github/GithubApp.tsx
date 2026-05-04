@@ -47,7 +47,7 @@ export function GithubApp({ data, error, loading, onRefresh }: GithubAppProps) {
 
   return (
     <section
-      className="flex min-h-0 flex-1 flex-col text-[#24292f] [max-height:calc(min(680px,calc(100svh-7.25rem))-42px)] [.os-window--maximized_&]:[max-height:calc(100svh-174px)]"
+      className="flex min-h-0 flex-1 flex-col text-[#24292f] [max-height:calc(min(680px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:[max-height:calc(100svh_-_174px)]"
       aria-label="GitHub live data"
     >
       <div className="flex items-center justify-between gap-4 border-b border-[#d0d7de] bg-[#f6f8fae0] px-3.5 py-2.5">

@@ -5,7 +5,7 @@ export type DesktopSearch = {
   y: number
 }
 
-export type AppId = 'home' | 'github'
+export type AppId = 'home' | 'github' | 'strava'
 
 export type RouteApp = AppId | 'none'
 

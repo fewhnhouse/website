@@ -9,11 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StravaRouteImport } from './routes/strava'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as GithubRouteImport } from './routes/github'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiStravaCallbackRouteImport } from './routes/api.strava.callback'
 
+const StravaRoute = StravaRouteImport.update({
+  id: '/strava',
+  path: '/strava',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HomeRoute = HomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -34,18 +41,27 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStravaCallbackRoute = ApiStravaCallbackRouteImport.update({
+  id: '/api/strava/callback',
+  path: '/api/strava/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/github': typeof GithubRoute
   '/home': typeof HomeRoute
+  '/strava': typeof StravaRoute
+  '/api/strava/callback': typeof ApiStravaCallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/github': typeof GithubRoute
   '/home': typeof HomeRoute
+  '/strava': typeof StravaRoute
+  '/api/strava/callback': typeof ApiStravaCallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +69,28 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/github': typeof GithubRoute
   '/home': typeof HomeRoute
+  '/strava': typeof StravaRoute
+  '/api/strava/callback': typeof ApiStravaCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/github' | '/home'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/github'
+    | '/home'
+    | '/strava'
+    | '/api/strava/callback'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/github' | '/home'
-  id: '__root__' | '/' | '/about' | '/github' | '/home'
+  to: '/' | '/about' | '/github' | '/home' | '/strava' | '/api/strava/callback'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/github'
+    | '/home'
+    | '/strava'
+    | '/api/strava/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,10 +98,19 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   GithubRoute: typeof GithubRoute
   HomeRoute: typeof HomeRoute
+  StravaRoute: typeof StravaRoute
+  ApiStravaCallbackRoute: typeof ApiStravaCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/strava': {
+      id: '/strava'
+      path: '/strava'
+      fullPath: '/strava'
+      preLoaderRoute: typeof StravaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/home': {
       id: '/home'
       path: '/home'
@@ -99,6 +139,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/strava/callback': {
+      id: '/api/strava/callback'
+      path: '/api/strava/callback'
+      fullPath: '/api/strava/callback'
+      preLoaderRoute: typeof ApiStravaCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +154,8 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   GithubRoute: GithubRoute,
   HomeRoute: HomeRoute,
+  StravaRoute: StravaRoute,
+  ApiStravaCallbackRoute: ApiStravaCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

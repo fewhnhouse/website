@@ -2,10 +2,15 @@ import { Link } from '@tanstack/react-router'
 import ThemeToggle from './ThemeToggle'
 import SocialLinks from './SocialLinks'
 
+const pageWrapClass = 'mx-auto w-[min(1080px,calc(100%_-_2rem))]'
+const navLinkClass =
+  'relative inline-flex items-center text-[var(--sea-ink-soft)] no-underline after:absolute after:left-0 after:bottom-[-6px] after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-[linear-gradient(90deg,var(--lagoon),#7ed3bf)] after:transition-transform after:duration-200 after:content-[""] hover:text-[var(--sea-ink)] hover:after:scale-x-100 max-sm:after:bottom-[-4px]'
+const activeNavLinkClass = `${navLinkClass} text-[var(--sea-ink)] after:scale-x-100`
+
 export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--header-bg)] px-4 backdrop-blur-lg">
-      <nav className="page-wrap flex flex-wrap items-center gap-x-3 gap-y-2 py-3 sm:py-4">
+      <nav className={`${pageWrapClass} flex flex-wrap items-center gap-x-3 gap-y-2 py-3 sm:py-4`}>
         <h2 className="m-0 flex-shrink-0 text-base font-semibold tracking-tight">
           <Link
             to="/home"
@@ -28,19 +33,19 @@ export default function Header() {
           <Link
             to="/home"
             search={{ minimized: false, maximized: false, x: 84, y: 92 }}
-            className="nav-link"
-            activeProps={{ className: 'nav-link is-active' }}
+            className={navLinkClass}
+            activeProps={{ className: activeNavLinkClass }}
           >
             Home
           </Link>
           <Link
             to="/about"
-            className="nav-link"
-            activeProps={{ className: 'nav-link is-active' }}
+            className={navLinkClass}
+            activeProps={{ className: activeNavLinkClass }}
           >
             About
           </Link>
-          <a href="#contact" className="nav-link">
+          <a href="#contact" className={navLinkClass}>
             Contact
           </a>
         </div>
