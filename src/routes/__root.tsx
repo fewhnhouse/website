@@ -51,9 +51,11 @@ function RootApp() {
 
 function routeAppFromPathname(pathname: string): RouteApp | null {
   if (pathname === '/') return 'none'
-  if (pathname === '/home') return 'home'
-  if (pathname === '/github') return 'github'
-  if (pathname === '/strava') return 'strava'
+  if (pathname === '/home') return { app: 'notes', document: 'home' }
+  if (pathname === '/cv') return { app: 'notes', document: 'cv' }
+  if (pathname === '/github') return { app: 'github' }
+  if (pathname === '/skills') return { app: 'skills' }
+  if (pathname === '/strava') return { app: 'strava' }
 
   return null
 }

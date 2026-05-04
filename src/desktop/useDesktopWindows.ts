@@ -3,13 +3,13 @@ import { useEffect, useRef, useState } from 'react'
 import type { PointerEvent } from 'react'
 
 import { defaultWindow } from './routeState'
-import type { AppId, DesktopSearch, RouteApp, WindowState } from './types'
+import { windowKey, type AppId, type DesktopSearch, type NotesDocumentId, type RouteApp, type WindowState } from './types'
 
 let rememberedWindows: WindowState[] | null = null
-let rememberedFocusedApp: AppId | null = null
+let rememberedFocusedWindow: string | null = null
 
 type DesktopWindowMemory = {
-  focusedApp: AppId | null
+  focusedWindow: string | null
   windows: WindowState[] | null
 }
 
@@ -23,7 +23,7 @@ const getDesktopWindowMemory = () => {
   if (typeof window === 'undefined') return null
 
   window.__felixDesktopWindowMemory ??= {
-    focusedApp: null,
+    focusedWindow: null,
     windows: null,
   }
 
@@ -31,12 +31,16 @@ const getDesktopWindowMemory = () => {
 }
 
 const getRememberedWindows = () => getDesktopWindowMemory()?.windows ?? rememberedWindows
-const getRememberedFocusedApp = () =>
-  getDesktopWindowMemory()?.focusedApp ?? rememberedFocusedApp
+const getRememberedFocusedWindow = () =>
+  getDesktopWindowMemory()?.focusedWindow ?? rememberedFocusedWindow
 
 export function useDesktopWindows(routeApp: RouteApp) {
   const search = useSearch({ strict: false }) as DesktopSearch
   const navigate = useNavigate()
+  const routeAppId = routeApp === 'none' ? null : routeApp.app
+  const routeDocument = routeApp === 'none' ? undefined : routeApp.document
+  const routeWindowKey =
+    routeApp === 'none' ? null : windowKey({ app: routeApp.app, document: routeApp.document })
   const [windows, setWindows] = useState<WindowState[]>(() =>
     getRememberedWindows() ??
     (routeApp === 'none'
@@ -44,20 +48,21 @@ export function useDesktopWindows(routeApp: RouteApp) {
       : [
           {
             ...search,
-            app: routeApp,
+            app: routeApp.app,
+            document: routeApp.document,
             z: 1,
           },
         ]),
   )
-  const [focusedApp, setFocusedApp] = useState<AppId | null>(
-    getRememberedFocusedApp() ?? (routeApp === 'none' || search.minimized ? null : routeApp),
+  const [focusedWindow, setFocusedWindowState] = useState<string | null>(
+    getRememberedFocusedWindow() ?? (search.minimized ? null : routeWindowKey),
   )
   const [windowExit, setWindowExit] = useState<'close' | 'minimize'>('close')
   const dragOffset = useRef({ x: 0, y: 0 })
   const dragging = useRef(false)
-  const draggingApp = useRef<AppId | null>(null)
+  const draggingWindow = useRef<string | null>(null)
   const windowsRef = useRef(windows)
-  const focusedAppRef = useRef(focusedApp)
+  const focusedWindowRef = useRef(focusedWindow)
   const zCounter = useRef(
     Math.max(1, ...(getRememberedWindows() ?? []).map((window) => window.z)) + 1,
   )
@@ -70,11 +75,11 @@ export function useDesktopWindows(routeApp: RouteApp) {
   }, [windows])
 
   useEffect(() => {
-    focusedAppRef.current = focusedApp
-    rememberedFocusedApp = focusedApp
+    focusedWindowRef.current = focusedWindow
+    rememberedFocusedWindow = focusedWindow
     const memory = getDesktopWindowMemory()
-    if (memory) memory.focusedApp = focusedApp
-  }, [focusedApp])
+    if (memory) memory.focusedWindow = focusedWindow
+  }, [focusedWindow])
 
   const commitWindows = (nextWindows: WindowState[]) => {
     windowsRef.current = nextWindows
@@ -84,28 +89,29 @@ export function useDesktopWindows(routeApp: RouteApp) {
     setWindows(nextWindows)
   }
 
-  const commitFocusedApp = (nextApp: AppId | null) => {
-    focusedAppRef.current = nextApp
-    rememberedFocusedApp = nextApp
+  const commitFocusedWindow = (nextWindow: string | null) => {
+    focusedWindowRef.current = nextWindow
+    rememberedFocusedWindow = nextWindow
     const memory = getDesktopWindowMemory()
-    if (memory) memory.focusedApp = nextApp
-    setFocusedApp(nextApp)
+    if (memory) memory.focusedWindow = nextWindow
+    setFocusedWindowState(nextWindow)
   }
 
   useEffect(() => {
-    if (routeApp === 'none') return
+    if (!routeAppId || !routeWindowKey) return
 
     const current = windowsRef.current
-    const existing = current.find((window) => window.app === routeApp)
+    const existing = current.find((window) => windowKey(window) === routeWindowKey)
     const nextZ = zCounter.current++
     const routeWindow: WindowState = {
       ...search,
-      app: routeApp,
+      app: routeAppId,
+      document: routeDocument,
       z: nextZ,
     }
     const nextWindows = existing
       ? current.map((window) =>
-          window.app === routeApp
+          windowKey(window) === routeWindowKey
             ? {
                 ...window,
                 ...routeWindow,
@@ -116,15 +122,23 @@ export function useDesktopWindows(routeApp: RouteApp) {
 
     commitWindows(nextWindows)
     if (!search.minimized) {
-      commitFocusedApp(routeApp)
+      commitFocusedWindow(routeWindowKey)
     }
-  }, [routeApp, search.maximized, search.minimized, search.x, search.y])
+  }, [routeAppId, routeDocument, routeWindowKey, search.maximized, search.minimized, search.x, search.y])
 
-  const routeForApp = (app: AppId | null) => (app ? `/${app}` : '/')
+  const routeForWindow = (window: WindowState | undefined) => {
+    if (!window) return '/'
+    if (window.app === 'notes') return window.document === 'cv' ? '/cv' : '/home'
+    if (window.app === 'github') return '/github'
+    if (window.app === 'skills') return '/skills'
+    if (window.app === 'strava') return '/strava'
+
+    return '/'
+  }
 
   const persistFocusedWindow = (window: WindowState | undefined) => {
     void navigate({
-      to: routeForApp(window?.app ?? null),
+      to: routeForWindow(window),
       search: window
         ? {
             maximized: window.maximized,
@@ -140,13 +154,14 @@ export function useDesktopWindows(routeApp: RouteApp) {
     [...windows].sort((a, b) => b.z - a.z).find((window) => !window.minimized)
 
   const setFocusedWindow = (window: WindowState | undefined) => {
-    commitFocusedApp(window?.app ?? null)
+    commitFocusedWindow(window ? windowKey(window) : null)
     persistFocusedWindow(window)
   }
 
-  const focusWindow = (app: AppId) => {
+  const focusWindow = (target: WindowState) => {
     const current = windowsRef.current
-    const existing = current.find((window) => window.app === app)
+    const targetKey = windowKey(target)
+    const existing = current.find((window) => windowKey(window) === targetKey)
 
     if (!existing) return
 
@@ -157,43 +172,60 @@ export function useDesktopWindows(routeApp: RouteApp) {
       z: nextZ,
     }
 
-    commitWindows(current.map((window) => (window.app === app ? focused : window)))
+    commitWindows(current.map((window) => (windowKey(window) === targetKey ? focused : window)))
     setFocusedWindow(focused)
   }
 
-  const openApp = (app: AppId) => {
+  const openApp = (app: AppId, document?: NotesDocumentId) => {
     const current = windowsRef.current
-    const existing = current.find((window) => window.app === app)
+    const targetKey = windowKey({ app, document })
+    const existing = current.find((window) => windowKey(window) === targetKey)
     const nextZ = zCounter.current++
     const focused: WindowState = existing
       ? {
           ...existing,
+          document: document ?? existing.document,
           minimized: false,
           z: nextZ,
         }
       : {
           ...defaultWindow,
           app,
-          x: app === 'github' ? 362 : app === 'strava' ? 214 : defaultWindow.x,
-          y: app === 'github' ? 110 : app === 'strava' ? 126 : defaultWindow.y,
+          document,
+          x:
+            app === 'github'
+              ? 362
+              : app === 'strava'
+                ? 214
+                : app === 'notes' && document === 'cv'
+                  ? 132
+                  : defaultWindow.x,
+          y:
+            app === 'github'
+              ? 110
+              : app === 'strava'
+                ? 126
+                : app === 'notes' && document === 'cv'
+                  ? 118
+                  : defaultWindow.y,
           z: nextZ,
         }
 
     commitWindows(
       existing
-        ? current.map((window) => (window.app === app ? focused : window))
+        ? current.map((window) => (windowKey(window) === targetKey ? focused : window))
         : [...current, focused],
     )
     setFocusedWindow(focused)
   }
 
   const startDrag = (event: PointerEvent<HTMLDivElement>, window: WindowState) => {
-    focusWindow(window.app)
+    focusWindow(window)
 
     if (event.button !== 0 || window.maximized) return
 
     dragging.current = true
-    draggingApp.current = window.app
+    draggingWindow.current = windowKey(window)
     dragOffset.current = {
       x: event.clientX - window.x,
       y: event.clientY - window.y,
@@ -202,15 +234,15 @@ export function useDesktopWindows(routeApp: RouteApp) {
   }
 
   const moveWindow = (event: PointerEvent<HTMLDivElement>) => {
-    if (!dragging.current || !draggingApp.current) return
+    if (!dragging.current || !draggingWindow.current) return
 
     const nextX = Math.max(12, Math.min(event.clientX - dragOffset.current.x, window.innerWidth - 360))
     const nextY = Math.max(54, Math.min(event.clientY - dragOffset.current.y, window.innerHeight - 180))
-    const app = draggingApp.current
+    const targetKey = draggingWindow.current
 
     const current = windowsRef.current
     const nextWindows = current.map((window) =>
-      window.app === app
+      windowKey(window) === targetKey
         ? {
             ...window,
             x: nextX,
@@ -223,37 +255,39 @@ export function useDesktopWindows(routeApp: RouteApp) {
   }
 
   const stopDrag = (event: PointerEvent<HTMLDivElement>) => {
-    if (!dragging.current || !draggingApp.current) return
+    if (!dragging.current || !draggingWindow.current) return
 
-    const app = draggingApp.current
+    const targetKey = draggingWindow.current
     dragging.current = false
-    draggingApp.current = null
+    draggingWindow.current = null
     event.currentTarget.releasePointerCapture(event.pointerId)
 
-    const movedWindow = windowsRef.current.find((window) => window.app === app)
+    const movedWindow = windowsRef.current.find((window) => windowKey(window) === targetKey)
 
-    if (movedWindow && focusedAppRef.current === app) {
+    if (movedWindow && focusedWindowRef.current === targetKey) {
       persistFocusedWindow(movedWindow)
     }
   }
 
-  const closeWindow = (app: AppId) => {
+  const closeWindow = (target: WindowState) => {
     setWindowExit('close')
+    const targetKey = windowKey(target)
     const current = windowsRef.current
-    const remaining = current.filter((window) => window.app !== app)
+    const remaining = current.filter((window) => windowKey(window) !== targetKey)
     const nextFocused =
-      focusedAppRef.current === app
+      focusedWindowRef.current === targetKey
         ? topmostVisibleWindow(remaining) ?? remaining.at(-1)
-        : current.find((window) => window.app === focusedAppRef.current)
+        : current.find((window) => windowKey(window) === focusedWindowRef.current)
 
     commitWindows(remaining)
     setFocusedWindow(nextFocused)
   }
 
-  const minimizeWindow = (app: AppId) => {
+  const minimizeWindow = (target: WindowState) => {
     setWindowExit('minimize')
+    const targetKey = windowKey(target)
     const current = windowsRef.current
-    const minimizedWindow = current.find((window) => window.app === app)
+    const minimizedWindow = current.find((window) => windowKey(window) === targetKey)
 
     if (!minimizedWindow) return
 
@@ -261,18 +295,21 @@ export function useDesktopWindows(routeApp: RouteApp) {
       ...minimizedWindow,
       minimized: true,
     }
-    const nextWindows = current.map((window) => (window.app === app ? nextWindow : window))
+    const nextWindows = current.map((window) =>
+      windowKey(window) === targetKey ? nextWindow : window,
+    )
 
     commitWindows(nextWindows)
 
-    if (focusedAppRef.current === app) {
+    if (focusedWindowRef.current === targetKey) {
       setFocusedWindow(topmostVisibleWindow(nextWindows) ?? nextWindow)
     }
   }
 
-  const toggleMaximizeWindow = (app: AppId) => {
+  const toggleMaximizeWindow = (target: WindowState) => {
     const current = windowsRef.current
-    const existing = current.find((window) => window.app === app)
+    const targetKey = windowKey(target)
+    const existing = current.find((window) => windowKey(window) === targetKey)
 
     if (!existing) return
 
@@ -284,13 +321,13 @@ export function useDesktopWindows(routeApp: RouteApp) {
       z: nextZ,
     }
 
-    commitWindows(current.map((window) => (window.app === app ? changedWindow : window)))
+    commitWindows(current.map((window) => (windowKey(window) === targetKey ? changedWindow : window)))
     setFocusedWindow(changedWindow)
   }
 
   return {
     closeWindow,
-    focusedApp,
+    focusedWindow,
     focusWindow,
     minimizeWindow,
     moveWindow,

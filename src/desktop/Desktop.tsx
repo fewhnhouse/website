@@ -1,4 +1,4 @@
-import { Activity, Battery, FileText, Github, Search, Wifi } from 'lucide-react'
+import { Activity, Battery, FileText, Gauge, Github, Search, Wifi } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent, RefObject } from 'react'
@@ -6,16 +6,17 @@ import type { CSSProperties, PointerEvent, RefObject } from 'react'
 import { GithubApp } from '@/apps/github/GithubApp'
 import { getGithubData } from '@/apps/github/githubData'
 import type { GithubData } from '@/apps/github/types'
-import { HomeEditor } from '@/apps/home/HomeEditor'
+import { NotesApp } from '@/apps/notes/NotesApp'
+import { SkillsApp } from '@/apps/skills/SkillsApp'
 import { StravaApp } from '@/apps/strava/StravaApp'
 import { getStravaData, type StravaDataResult } from '@/apps/strava/stravaData'
 
 import { desktopApps, dockApps } from './apps'
-import type { RouteApp, WindowState } from './types'
+import { windowKey, type NotesDocumentId, type RouteApp, type WindowState } from './types'
 import { useDesktopWindows } from './useDesktopWindows'
 
 const menuButtonClass =
-  'cursor-pointer appearance-none border-0 bg-transparent font-[inherit] text-window font-extrabold text-os-ink-muted max-[720px]:hidden'
+  'cursor-pointer appearance-none whitespace-nowrap border-0 bg-transparent font-[inherit] text-window font-extrabold text-os-ink-muted max-[900px]:hidden'
 const desktopIconClass =
   'grid min-h-[94px] w-desktop-icon cursor-pointer appearance-none justify-items-center gap-1 rounded-[10px] border border-transparent bg-transparent text-center font-[inherit] text-os-ink hover:border-white/45 hover:bg-white/20 focus-visible:border-white/45 focus-visible:bg-white/20 focus-visible:outline-none max-[720px]:w-[74px]'
 const desktopIconTileClass =
@@ -38,7 +39,7 @@ type DesktopProps = {
 export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   const {
     closeWindow,
-    focusedApp,
+    focusedWindow,
     focusWindow,
     minimizeWindow,
     moveWindow,
@@ -64,12 +65,6 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
       setGithubError(null)
     }
   }, [initialGithubData])
-
-  useEffect(() => {
-    if (focusedApp === 'home') {
-      editorDocumentRef.current?.scrollTo({ top: 0 })
-    }
-  }, [focusedApp])
 
   useEffect(() => {
     const githubIsVisible = windows.some((window) => window.app === 'github' && !window.minimized)
@@ -111,11 +106,19 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   }, [stravaLoading, stravaResult, windows])
 
   const openHome = () => {
-    openApp('home')
+    openApp('notes', 'home')
+  }
+
+  const openNotesDocument = (document: NotesDocumentId) => {
+    openApp('notes', document)
   }
 
   const openGithub = () => {
     openApp('github')
+  }
+
+  const openSkills = () => {
+    openApp('skills')
   }
 
   const openStrava = () => {
@@ -136,14 +139,14 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   return (
     <main className="relative min-h-[100svh] overflow-hidden bg-[image:var(--os-shell-bg)] text-os-ink">
       <div className="pointer-events-none absolute inset-0 bg-[image:var(--os-wallpaper-bg)] opacity-90 after:absolute after:inset-0 after:bg-[image:var(--os-grid-bg)] after:bg-[length:42px_42px] after:opacity-15 after:[mask-image:linear-gradient(180deg,black,transparent_86%)] after:content-['']" />
-      <header className="relative z-[2147483000] grid h-titlebar grid-cols-[1fr_minmax(180px,340px)_1fr] items-center gap-4 border-b border-os-border bg-os-glass px-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] backdrop-blur-[18px] max-[720px]:grid-cols-[1fr_auto]">
+      <header className="relative z-[2147483000] grid h-titlebar grid-cols-[minmax(0,1fr)_minmax(180px,340px)_minmax(0,1fr)] items-center gap-4 border-b border-os-border bg-os-glass px-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] backdrop-blur-[18px] max-[900px]:grid-cols-[auto_minmax(180px,1fr)_auto] max-[900px]:gap-3 max-[640px]:grid-cols-[1fr_auto]">
         <div className="flex min-w-0 items-center gap-2">
           <img
             className="size-[1.55rem] rounded-full border border-white/80 object-cover object-[50%_31%] shadow-os-logo"
             src="/felix-portrait.jpg"
             alt="Felix Wohnhaas"
           />
-          <strong>FelixOS</strong>
+          <strong className="whitespace-nowrap">FelixOS</strong>
           <button type="button" className={menuButtonClass} onClick={openHome}>
             File
           </button>
@@ -154,9 +157,9 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
             Help
           </button>
         </div>
-        <div className="flex min-h-7 w-full items-center justify-center gap-2 justify-self-center rounded-full border border-os-border bg-white/55 text-meta font-bold text-os-ink-soft max-[720px]:hidden">
+        <div className="flex min-h-7 w-full min-w-0 items-center justify-center gap-2 justify-self-center rounded-full border border-os-border bg-white/55 px-3 text-meta font-bold text-os-ink-soft max-[640px]:hidden">
           <Search aria-hidden="true" size={15} />
-          <span>Search Felix&apos;s computer</span>
+          <span className="truncate">Search Felix&apos;s computer</span>
         </div>
         <div className="flex items-center gap-2.5 justify-self-end text-window font-extrabold text-os-ink-muted">
           <Wifi aria-hidden="true" size={16} />
@@ -165,23 +168,30 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
         </div>
       </header>
 
-      <DesktopShortcuts openGithub={openGithub} openHome={openHome} openStrava={openStrava} />
+      <DesktopShortcuts
+        openGithub={openGithub}
+        openHome={openHome}
+        openNotesDocument={openNotesDocument}
+        openSkills={openSkills}
+        openStrava={openStrava}
+      />
 
       <AnimatePresence>
         {windows
           .filter((window) => !window.minimized)
           .map((window) => (
             <DesktopWindow
-              key={`${window.app}-window`}
+              key={`${windowKey(window)}-window`}
+              active={focusedWindow === windowKey(window)}
               closeWindow={closeWindow}
               focusWindow={focusWindow}
-              focused={focusedApp === window.app}
               githubData={githubData}
               githubError={githubError}
               githubLoading={githubLoading}
               minimizeWindow={minimizeWindow}
               moveWindow={moveWindow}
               onGithubRefresh={refreshGithub}
+              onOpenNotesDocument={openNotesDocument}
               onStravaRefresh={refreshStrava}
               startDrag={startDrag}
               stopDrag={stopDrag}
@@ -196,7 +206,13 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
           ))}
       </AnimatePresence>
 
-      <Dock openGithub={openGithub} openHome={openHome} openStrava={openStrava} windows={windows} />
+      <Dock
+        openGithub={openGithub}
+        openHome={openHome}
+        openSkills={openSkills}
+        openStrava={openStrava}
+        windows={windows}
+      />
     </main>
   )
 }
@@ -204,10 +220,14 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
 function DesktopShortcuts({
   openGithub,
   openHome,
+  openNotesDocument,
+  openSkills,
   openStrava,
 }: {
   openGithub: () => void
   openHome: () => void
+  openNotesDocument: (document: NotesDocumentId) => void
+  openSkills: () => void
   openStrava: () => void
 }) {
   return (
@@ -218,7 +238,9 @@ function DesktopShortcuts({
       {desktopApps.map((app) => {
         const Icon = app.icon
         const isHome = app.id === 'home'
+        const isCv = app.id === 'cv'
         const isGithub = app.id === 'github'
+        const isSkills = app.id === 'skills'
         const isStrava = app.id === 'strava'
 
         return (
@@ -226,15 +248,31 @@ function DesktopShortcuts({
             key={app.id}
             type="button"
             className={desktopIconClass}
-            onClick={isHome ? openHome : isGithub ? openGithub : isStrava ? openStrava : undefined}
+            onClick={
+              isHome
+                ? openHome
+                : isCv
+                  ? () => openNotesDocument('cv')
+                : isGithub
+                  ? openGithub
+                  : isSkills
+                    ? openSkills
+                    : isStrava
+                      ? openStrava
+                      : undefined
+            }
             aria-label={
               isHome
                 ? 'Open home.mdx'
-                : isGithub
-                  ? 'Open GitHub'
-                  : isStrava
-                    ? 'Open Strava'
-                    : `${app.title} coming soon`
+                : isCv
+                  ? 'Open cv.mdx'
+                  : isGithub
+                    ? 'Open GitHub'
+                    : isSkills
+                      ? 'Open Skills'
+                      : isStrava
+                        ? 'Open Strava'
+                        : `${app.title} coming soon`
             }
           >
             <span
@@ -257,31 +295,32 @@ function DesktopShortcuts({
 }
 
 type DesktopWindowProps = {
-  closeWindow: (app: WindowState['app']) => void
+  active: boolean
+  closeWindow: (window: WindowState) => void
   editorDocumentRef: RefObject<HTMLElement | null>
-  focused: boolean
-  focusWindow: (app: WindowState['app']) => void
+  focusWindow: (window: WindowState) => void
   githubData: GithubData | null
   githubError: string | null
   githubLoading: boolean
-  minimizeWindow: (app: WindowState['app']) => void
+  minimizeWindow: (window: WindowState) => void
   moveWindow: (event: PointerEvent<HTMLDivElement>) => void
   onGithubRefresh: () => void
+  onOpenNotesDocument: (document: NotesDocumentId) => void
   onStravaRefresh: () => void
   startDrag: (event: PointerEvent<HTMLDivElement>, window: WindowState) => void
   stopDrag: (event: PointerEvent<HTMLDivElement>) => void
   stravaError: string | null
   stravaLoading: boolean
   stravaResult: StravaDataResult | null
-  toggleMaximizeWindow: (app: WindowState['app']) => void
+  toggleMaximizeWindow: (window: WindowState) => void
   window: WindowState
   windowExit: 'close' | 'minimize'
 }
 
 function DesktopWindow({
+  active,
   closeWindow,
   editorDocumentRef,
-  focused,
   focusWindow,
   githubData,
   githubError,
@@ -289,6 +328,7 @@ function DesktopWindow({
   minimizeWindow,
   moveWindow,
   onGithubRefresh,
+  onOpenNotesDocument,
   onStravaRefresh,
   startDrag,
   stopDrag,
@@ -300,8 +340,21 @@ function DesktopWindow({
   windowExit,
 }: DesktopWindowProps) {
   const activeAppTitle =
-    window.app === 'github' ? 'github.app' : window.app === 'strava' ? 'strava.app' : 'home.mdx'
-  const ActiveAppIcon = window.app === 'github' ? Github : window.app === 'strava' ? Activity : FileText
+    window.app === 'github'
+      ? 'github.app'
+      : window.app === 'skills'
+        ? 'skills.app'
+        : window.app === 'strava'
+          ? 'strava.app'
+          : 'notes.app'
+  const ActiveAppIcon =
+    window.app === 'github'
+      ? Github
+      : window.app === 'skills'
+        ? Gauge
+        : window.app === 'strava'
+          ? Activity
+          : FileText
 
   return (
     <motion.section
@@ -309,9 +362,11 @@ function DesktopWindow({
       className={`${windowBaseClass} ${
         window.app === 'github'
           ? 'bg-[rgba(246,248,250,0.94)]'
-          : window.app === 'strava'
-            ? 'border-strava/45 bg-strava-bg'
-            : ''
+          : window.app === 'skills'
+            ? 'bg-[rgba(247,252,249,0.94)]'
+            : window.app === 'strava'
+              ? 'border-strava/45 bg-strava-bg'
+              : ''
       } ${window.maximized ? maximizedWindowClass : ''}`}
       style={{ zIndex: window.z }}
       initial={{
@@ -333,8 +388,8 @@ function DesktopWindow({
         mass: 0.9,
       }}
       onPointerDownCapture={(event) => {
-        if (event.target instanceof Element && event.target.closest('a')) return
-        if (!focused) focusWindow(window.app)
+        if (event.target instanceof Element && event.target.closest('a,button')) return
+        if (!active) focusWindow(window)
       }}
       aria-label={`${activeAppTitle} window`}
     >
@@ -344,23 +399,23 @@ function DesktopWindow({
         onPointerMove={moveWindow}
         onPointerUp={stopDrag}
         onPointerCancel={stopDrag}
-        onDoubleClick={() => toggleMaximizeWindow(window.app)}
+        onDoubleClick={() => toggleMaximizeWindow(window)}
       >
         <div className="flex gap-2">
           <TrafficButton
             className="bg-[#ff6b5f] before:h-[1.5px] before:w-[0.45rem] before:rotate-45 before:rounded-full before:bg-current after:h-[1.5px] after:w-[0.45rem] after:-rotate-45 after:rounded-full after:bg-current"
             label={`Close ${activeAppTitle}`}
-            onClick={() => closeWindow(window.app)}
+            onClick={() => closeWindow(window)}
           />
           <TrafficButton
             className="bg-[#f6c85f] before:h-[1.6px] before:w-[0.48rem] before:rounded-full before:bg-current"
             label={`Minimize ${activeAppTitle}`}
-            onClick={() => minimizeWindow(window.app)}
+            onClick={() => minimizeWindow(window)}
           />
           <TrafficButton
             className="bg-[#69c779] before:h-[0.38rem] before:w-[0.38rem] before:rounded-[2px] before:border-[1.5px] before:border-current"
             label={window.maximized ? `Restore ${activeAppTitle}` : `Maximize ${activeAppTitle}`}
-            onClick={() => toggleMaximizeWindow(window.app)}
+            onClick={() => toggleMaximizeWindow(window)}
           />
         </div>
         <div className="flex items-center justify-center gap-2 text-window font-black text-os-ink-muted">
@@ -372,7 +427,14 @@ function DesktopWindow({
         </span>
       </div>
 
-      {window.app === 'home' ? <HomeEditor documentRef={editorDocumentRef} /> : null}
+      {window.app === 'notes' ? (
+        <NotesApp
+          document={window.document ?? 'home'}
+          documentRef={editorDocumentRef}
+          onOpenDocument={onOpenNotesDocument}
+        />
+      ) : null}
+      {window.app === 'skills' ? <SkillsApp /> : null}
       {window.app === 'github' ? (
         <GithubApp
           data={githubData}
@@ -418,11 +480,13 @@ function TrafficButton({
 function Dock({
   openGithub,
   openHome,
+  openSkills,
   openStrava,
   windows,
 }: {
   openGithub: () => void
   openHome: () => void
+  openSkills: () => void
   openStrava: () => void
   windows: WindowState[]
 }) {
@@ -433,8 +497,9 @@ function Dock({
     >
       {dockApps.map((app) => {
         const Icon = app.icon
-        const isEditor = app.id === 'home'
+        const isNotes = app.id === 'notes'
         const isGithub = app.id === 'github'
+        const isSkills = app.id === 'skills'
         const isStrava = app.id === 'strava'
         const isRunning = windows.some((window) => window.app === app.id)
 
@@ -447,15 +512,27 @@ function Dock({
                 ? 'after:absolute after:bottom-1 after:h-[0.32rem] after:w-[0.32rem] after:rounded-full after:bg-[#328f97] after:content-[""]'
                 : ''
             }`}
-            onClick={isEditor ? openHome : isGithub ? openGithub : isStrava ? openStrava : undefined}
+            onClick={
+              isNotes
+                ? openHome
+                : isGithub
+                  ? openGithub
+                  : isSkills
+                    ? openSkills
+                    : isStrava
+                      ? openStrava
+                      : undefined
+            }
             aria-label={
-              isEditor
-                ? 'Open editor'
+              isNotes
+                ? 'Open notes'
                 : isGithub
                   ? 'Open GitHub'
-                  : isStrava
-                    ? 'Open Strava'
-                    : `${app.label} coming soon`
+                  : isSkills
+                    ? 'Open Skills'
+                    : isStrava
+                      ? 'Open Strava'
+                      : `${app.label} coming soon`
             }
           >
             <Icon aria-hidden="true" size={24} />
@@ -483,7 +560,7 @@ function windowAnimationFor(window: WindowState) {
         x: window.x,
         y: window.y,
         width:
-          window.app === 'github' || window.app === 'strava'
+          window.app === 'github' || window.app === 'skills' || window.app === 'strava'
             ? 'min(920px, calc(100vw - 1.5rem))'
             : 'min(720px, calc(100vw - 1.5rem))',
         height: 'auto',

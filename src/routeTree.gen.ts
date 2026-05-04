@@ -10,8 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StravaRouteImport } from './routes/strava'
+import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as GithubRouteImport } from './routes/github'
+import { Route as CvRouteImport } from './routes/cv'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiStravaCallbackRouteImport } from './routes/api.strava.callback'
@@ -22,6 +24,11 @@ const StravaRoute = StravaRouteImport.update({
   path: '/strava',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SkillsRoute = SkillsRouteImport.update({
+  id: '/skills',
+  path: '/skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HomeRoute = HomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -30,6 +37,11 @@ const HomeRoute = HomeRouteImport.update({
 const GithubRoute = GithubRouteImport.update({
   id: '/github',
   path: '/github',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CvRoute = CvRouteImport.update({
+  id: '/cv',
+  path: '/cv',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -56,8 +68,10 @@ const ApiStravaAuthRoute = ApiStravaAuthRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/cv': typeof CvRoute
   '/github': typeof GithubRoute
   '/home': typeof HomeRoute
+  '/skills': typeof SkillsRoute
   '/strava': typeof StravaRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
@@ -65,8 +79,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/cv': typeof CvRoute
   '/github': typeof GithubRoute
   '/home': typeof HomeRoute
+  '/skills': typeof SkillsRoute
   '/strava': typeof StravaRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
@@ -75,8 +91,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/cv': typeof CvRoute
   '/github': typeof GithubRoute
   '/home': typeof HomeRoute
+  '/skills': typeof SkillsRoute
   '/strava': typeof StravaRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
@@ -86,8 +104,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/cv'
     | '/github'
     | '/home'
+    | '/skills'
     | '/strava'
     | '/api/strava/auth'
     | '/api/strava/callback'
@@ -95,8 +115,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/cv'
     | '/github'
     | '/home'
+    | '/skills'
     | '/strava'
     | '/api/strava/auth'
     | '/api/strava/callback'
@@ -104,8 +126,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/cv'
     | '/github'
     | '/home'
+    | '/skills'
     | '/strava'
     | '/api/strava/auth'
     | '/api/strava/callback'
@@ -114,8 +138,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  CvRoute: typeof CvRoute
   GithubRoute: typeof GithubRoute
   HomeRoute: typeof HomeRoute
+  SkillsRoute: typeof SkillsRoute
   StravaRoute: typeof StravaRoute
   ApiStravaAuthRoute: typeof ApiStravaAuthRoute
   ApiStravaCallbackRoute: typeof ApiStravaCallbackRoute
@@ -130,6 +156,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StravaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/skills': {
+      id: '/skills'
+      path: '/skills'
+      fullPath: '/skills'
+      preLoaderRoute: typeof SkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/home': {
       id: '/home'
       path: '/home'
@@ -142,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/github'
       fullPath: '/github'
       preLoaderRoute: typeof GithubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cv': {
+      id: '/cv'
+      path: '/cv'
+      fullPath: '/cv'
+      preLoaderRoute: typeof CvRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -178,8 +218,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  CvRoute: CvRoute,
   GithubRoute: GithubRoute,
   HomeRoute: HomeRoute,
+  SkillsRoute: SkillsRoute,
   StravaRoute: StravaRoute,
   ApiStravaAuthRoute: ApiStravaAuthRoute,
   ApiStravaCallbackRoute: ApiStravaCallbackRoute,

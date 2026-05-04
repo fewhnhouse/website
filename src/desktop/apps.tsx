@@ -1,4 +1,4 @@
-import { Activity, Bike, Code2, FileText, Github, MountainSnow, Server, Terminal } from 'lucide-react'
+import { Activity, Bike, Code2, FileText, Gauge, Github, Terminal } from 'lucide-react'
 
 export const desktopApps = [
   {
@@ -9,25 +9,18 @@ export const desktopApps = [
     accent: '#f6c85f',
   },
   {
-    id: 'projects',
-    title: 'Projects',
-    subtitle: 'Coming soon',
-    icon: Code2,
-    accent: '#60d7cf',
-  },
-  {
-    id: 'infra',
-    title: 'Infra',
-    subtitle: 'Coming soon',
-    icon: Server,
+    id: 'cv',
+    title: 'cv.mdx',
+    subtitle: 'Resume',
+    icon: FileText,
     accent: '#8de5db',
   },
   {
-    id: 'outside',
-    title: 'Outside',
-    subtitle: 'Coming soon',
-    icon: MountainSnow,
-    accent: '#f07f5a',
+    id: 'skills',
+    title: 'Skills',
+    subtitle: 'Stack map',
+    icon: Gauge,
+    accent: '#60d7cf',
   },
   {
     id: 'github',
@@ -46,9 +39,10 @@ export const desktopApps = [
 ] as const
 
 export const dockApps = [
-  { id: 'home', label: 'Editor', icon: FileText },
+  { id: 'notes', label: 'Notes', icon: FileText },
   { id: 'terminal', label: 'Terminal', icon: Terminal },
   { id: 'code', label: 'Code', icon: Code2 },
+  { id: 'skills', label: 'Skills', icon: Gauge },
   { id: 'rides', label: 'Routes', icon: Bike },
   { id: 'github', label: 'GitHub', icon: Github },
   { id: 'strava', label: 'Strava', icon: Activity },
