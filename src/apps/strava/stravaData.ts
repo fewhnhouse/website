@@ -1,7 +1,25 @@
 import { createServerFn } from '@tanstack/react-start'
 
+const STRAVA_AUTH_URL = 'https://www.strava.com/oauth/authorize'
+const STRAVA_OAUTH_URL = 'https://www.strava.com/oauth/token'
 const STRAVA_API_URL = 'https://www.strava.com/api/v3'
-const STRAVA_CACHE_MS = 60 * 60 * 1000
+const STRAVA_CACHE_MS = 24 * 60 * 60 * 1000
+const STRAVA_TOKEN_BLOB_PATH = 'private/strava/oauth-token.json'
+const STRAVA_SCOPES = ['read', 'profile:read_all', 'activity:read_all'] as const
+
+type StravaTokenResponse = {
+  access_token: string
+  athlete?: unknown
+  expires_at: number
+  expires_in: number
+  refresh_token: string
+  scope?: string
+  token_type: string
+}
+
+type StravaStoredToken = StravaTokenResponse & {
+  updated_at: string
+}
 
 type StravaAthleteResponse = {
   id: number
@@ -93,7 +111,7 @@ export type StravaDataResult =
       status: 'ready'
       data: StravaData
       cacheMaxAgeSeconds: number
-      tokenStorage: 'env'
+      tokenStorage: 'blob' | 'env'
     }
   | {
       status: 'missing_config'
@@ -104,30 +122,134 @@ let cachedResult: { expiresAt: number; result: Extract<StravaDataResult, { statu
   null
 
 function getStravaConfig() {
-  const accessToken = process.env.STRAVA_OAUTH_ACCESS_TOKEN
   const clientId = process.env.STRAVA_OAUTH_CLIENT_ID
   const clientSecret = process.env.STRAVA_OAUTH_CLIENT_SECRET
-  const refreshToken = process.env.STRAVA_OAUTH_REFRESH_TOKEN
+  const blobToken = process.env.BLOB_READ_WRITE_TOKEN
   const missing = [
-    accessToken ? null : 'STRAVA_OAUTH_ACCESS_TOKEN',
     clientId ? null : 'STRAVA_OAUTH_CLIENT_ID',
     clientSecret ? null : 'STRAVA_OAUTH_CLIENT_SECRET',
-    refreshToken ? null : 'STRAVA_OAUTH_REFRESH_TOKEN',
+    blobToken ? null : 'BLOB_READ_WRITE_TOKEN',
   ].filter((value): value is string => Boolean(value))
 
   return {
-    accessToken,
+    blobToken,
     clientId,
     clientSecret,
     missing,
-    refreshToken,
   }
+}
+
+function getCallbackUrl(origin: string) {
+  if (process.env.STRAVA_OAUTH_REDIRECT_URI) return process.env.STRAVA_OAUTH_REDIRECT_URI
+
+  return `${origin}/api/strava/callback`
+}
+
+function getStateValue() {
+  return process.env.STRAVA_OAUTH_STATE ?? 'felix-strava-oauth'
+}
+
+export function getStravaAuthorizeUrl(origin: string) {
+  const { clientId, missing } = getStravaConfig()
+
+  if (missing.length > 0 || !clientId) {
+    throw new Error(`Missing Strava configuration: ${missing.join(', ')}`)
+  }
+
+  const url = new URL(STRAVA_AUTH_URL)
+  url.searchParams.set('client_id', clientId)
+  url.searchParams.set('redirect_uri', getCallbackUrl(origin))
+  url.searchParams.set('response_type', 'code')
+  url.searchParams.set('approval_prompt', 'force')
+  url.searchParams.set('scope', STRAVA_SCOPES.join(','))
+  url.searchParams.set('state', getStateValue())
+
+  return url.toString()
+}
+
+function getEnvToken(): StravaStoredToken | null {
+  const accessToken = process.env.STRAVA_OAUTH_ACCESS_TOKEN
+  const refreshToken = process.env.STRAVA_OAUTH_REFRESH_TOKEN
+
+  if (!accessToken || !refreshToken) return null
+
+  return {
+    access_token: accessToken,
+    expires_at: Number(process.env.STRAVA_OAUTH_EXPIRES_AT ?? 0),
+    expires_in: 0,
+    refresh_token: refreshToken,
+    scope: process.env.STRAVA_OAUTH_SCOPE,
+    token_type: 'Bearer',
+    updated_at: new Date(0).toISOString(),
+  }
+}
+
+async function readBlobText(stream: ReadableStream<Uint8Array>) {
+  return new Response(stream).text()
+}
+
+async function getStoredStravaToken(): Promise<{ source: 'blob' | 'env'; token: StravaStoredToken } | null> {
+  const { blobToken } = getStravaConfig()
+
+  if (blobToken) {
+    const { get } = await import('@vercel/blob')
+    const blob = await get(STRAVA_TOKEN_BLOB_PATH, {
+      access: 'private',
+      token: blobToken,
+      useCache: false,
+    }).catch((error: unknown) => {
+      if (error instanceof Error && error.name === 'BlobNotFoundError') return null
+
+      throw error
+    })
+
+    if (blob?.statusCode === 200 && blob.stream) {
+      return {
+        source: 'blob',
+        token: JSON.parse(await readBlobText(blob.stream)) as StravaStoredToken,
+      }
+    }
+  }
+
+  const envToken = getEnvToken()
+
+  return envToken ? { source: 'env', token: envToken } : null
+}
+
+async function storeStravaToken(token: StravaTokenResponse) {
+  const { blobToken } = getStravaConfig()
+
+  if (!blobToken) {
+    throw new Error('Missing BLOB_READ_WRITE_TOKEN')
+  }
+
+  const { put } = await import('@vercel/blob')
+  const storedToken: StravaStoredToken = {
+    ...token,
+    updated_at: new Date().toISOString(),
+  }
+
+  await put(STRAVA_TOKEN_BLOB_PATH, JSON.stringify(storedToken, null, 2), {
+    access: 'private',
+    allowOverwrite: true,
+    contentType: 'application/json',
+    token: blobToken,
+  })
+
+  return storedToken
 }
 
 async function parseJsonResponse<T>(response: Response, fallbackMessage: string): Promise<T> {
   if (response.ok) return response.json() as Promise<T>
 
   const details = await response.text().catch(() => '')
+
+  if (details.includes('"field":"activity:read_permission"')) {
+    throw new Error(
+      'The stored Strava access token is missing activity:read_all. Re-authorize the Strava app and update the token stored in Vercel Blob.',
+    )
+  }
+
   throw new Error(details ? `${fallbackMessage}: ${details}` : fallbackMessage)
 }
 
@@ -187,16 +309,12 @@ function toActivity(activity: StravaActivityResponse): StravaActivity {
 async function loadStravaData(): Promise<Extract<StravaDataResult, { status: 'ready' }>> {
   if (cachedResult && cachedResult.expiresAt > Date.now()) return cachedResult.result
 
-  const { accessToken } = getStravaConfig()
+  const storedToken = await getFreshStravaToken()
 
-  if (!accessToken) {
-    throw new Error('Missing STRAVA_OAUTH_ACCESS_TOKEN')
-  }
-
-  const athlete = await getStravaApi<StravaAthleteResponse>('/athlete', accessToken)
+  const athlete = await getStravaApi<StravaAthleteResponse>('/athlete', storedToken.token.access_token)
   const [activities, stats] = await Promise.all([
-    getStravaApi<StravaActivityResponse[]>('/athlete/activities?per_page=8', accessToken),
-    getStravaApi<StravaStatsResponse>(`/athletes/${athlete.id}/stats`, accessToken),
+    getStravaApi<StravaActivityResponse[]>('/athlete/activities?per_page=8', storedToken.token.access_token),
+    getStravaApi<StravaStatsResponse>(`/athletes/${athlete.id}/stats`, storedToken.token.access_token),
   ])
   const location = [athlete.city, athlete.country].filter(Boolean).join(', ')
   const data: StravaData = {
@@ -222,7 +340,7 @@ async function loadStravaData(): Promise<Extract<StravaDataResult, { status: 're
     cacheMaxAgeSeconds: STRAVA_CACHE_MS / 1000,
     data,
     status: 'ready',
-    tokenStorage: 'env',
+    tokenStorage: storedToken.source,
   }
 
   cachedResult = {
@@ -247,3 +365,81 @@ export const getStravaData = createServerFn({ method: 'GET' }).handler(
     return loadStravaData()
   },
 )
+
+async function getFreshStravaToken(): Promise<{ source: 'blob' | 'env'; token: StravaStoredToken }> {
+  const storedToken = await getStoredStravaToken()
+
+  if (!storedToken) {
+    throw new Error('No Strava OAuth token found in Vercel Blob.')
+  }
+
+  if (storedToken.token.expires_at * 1000 > Date.now() + 5 * 60 * 1000) {
+    return storedToken
+  }
+
+  const { clientId, clientSecret } = getStravaConfig()
+
+  if (!clientId || !clientSecret) {
+    throw new Error('Missing Strava client credentials')
+  }
+
+  const token = await postStravaToken({
+    client_id: clientId,
+    client_secret: clientSecret,
+    grant_type: 'refresh_token',
+    refresh_token: storedToken.token.refresh_token,
+  })
+
+  return {
+    source: 'blob',
+    token: await storeStravaToken(token),
+  }
+}
+
+async function postStravaToken(params: Record<string, string>) {
+  const response = await fetch(STRAVA_OAUTH_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams(params),
+  })
+
+  return parseJsonResponse<StravaTokenResponse>(response, 'Unable to exchange Strava OAuth token')
+}
+
+export async function exchangeStravaAuthorizationCode({
+  code,
+  origin,
+  state,
+}: {
+  code: string
+  origin: string
+  state: string | null
+}) {
+  const { clientId, clientSecret, missing } = getStravaConfig()
+
+  if (missing.length > 0 || !clientId || !clientSecret) {
+    throw new Error(`Missing Strava configuration: ${missing.join(', ')}`)
+  }
+
+  if (state !== getStateValue()) {
+    throw new Error('Invalid Strava OAuth state')
+  }
+
+  const token = await postStravaToken({
+    client_id: clientId,
+    client_secret: clientSecret,
+    code,
+    grant_type: 'authorization_code',
+    redirect_uri: getCallbackUrl(origin),
+  })
+
+  if (!STRAVA_SCOPES.every((scope) => token.scope?.split(/[,\s]+/).includes(scope))) {
+    throw new Error(`Strava authorization did not grant required scopes: ${STRAVA_SCOPES.join(', ')}`)
+  }
+
+  cachedResult = null
+
+  return storeStravaToken(token)
+}
