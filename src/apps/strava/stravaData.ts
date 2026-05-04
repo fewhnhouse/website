@@ -1,6 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
 
-const STRAVA_AUTH_URL = 'https://www.strava.com/oauth/authorize'
 const STRAVA_OAUTH_URL = 'https://www.strava.com/oauth/token'
 const STRAVA_API_URL = 'https://www.strava.com/api/v3'
 const STRAVA_CACHE_MS = 20 * 60 * 1000
@@ -106,11 +105,6 @@ export type StravaDataResult =
       tokenStorage: 'env' | 'memory'
     }
   | {
-      status: 'needs_auth'
-      authorizeUrl: string
-      message: string
-    }
-  | {
       status: 'missing_config'
       missing: string[]
     }
@@ -126,6 +120,7 @@ function getStravaConfig() {
   const missing = [
     clientId ? null : 'STRAVA_OAUTH_CLIENT_ID',
     clientSecret ? null : 'STRAVA_OAUTH_CLIENT_SECRET',
+    refreshToken ? null : 'STRAVA_OAUTH_REFRESH_TOKEN',
   ].filter((value): value is string => Boolean(value))
 
   return {
@@ -134,30 +129,6 @@ function getStravaConfig() {
     missing,
     refreshToken,
   }
-}
-
-function getCallbackUrl(origin?: string) {
-  if (process.env.STRAVA_OAUTH_REDIRECT_URI) return process.env.STRAVA_OAUTH_REDIRECT_URI
-
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}/api/strava/callback`
-
-  return `${origin ?? 'http://localhost:3000'}/api/strava/callback`
-}
-
-function getAuthorizeUrl() {
-  const { clientId } = getStravaConfig()
-  const url = new URL(STRAVA_AUTH_URL)
-
-  if (clientId) {
-    url.searchParams.set('client_id', clientId)
-  }
-
-  url.searchParams.set('redirect_uri', getCallbackUrl())
-  url.searchParams.set('response_type', 'code')
-  url.searchParams.set('approval_prompt', 'auto')
-  url.searchParams.set('scope', 'read,activity:read')
-
-  return url.toString()
 }
 
 async function parseJsonResponse<T>(response: Response, fallbackMessage: string): Promise<T> {
@@ -302,7 +273,7 @@ async function loadStravaData(): Promise<Extract<StravaDataResult, { status: 're
 
 export const getStravaData = createServerFn({ method: 'GET' }).handler(
   async (): Promise<StravaDataResult> => {
-    const { missing, refreshToken } = getStravaConfig()
+    const { missing } = getStravaConfig()
 
     if (missing.length > 0) {
       return {
@@ -311,45 +282,6 @@ export const getStravaData = createServerFn({ method: 'GET' }).handler(
       }
     }
 
-    if (!refreshToken) {
-      return {
-        authorizeUrl: getAuthorizeUrl(),
-        message:
-          'Authorize this Strava app once as Felix, then store the returned refresh token as STRAVA_OAUTH_REFRESH_TOKEN.',
-        status: 'needs_auth',
-      }
-    }
-
     return loadStravaData()
   },
 )
-
-export async function exchangeStravaAuthorizationCode(code: string, origin: string) {
-  const { clientId, clientSecret, missing } = getStravaConfig()
-
-  if (missing.length > 0 || !clientId || !clientSecret) {
-    throw new Error(`Missing Strava configuration: ${missing.join(', ')}`)
-  }
-
-  const response = await fetch(STRAVA_OAUTH_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      code,
-      grant_type: 'authorization_code',
-      redirect_uri: getCallbackUrl(origin),
-    }),
-  })
-  const token = await parseJsonResponse<StravaTokenResponse>(response, 'Unable to exchange Strava authorization code')
-  latestToken = token
-  cachedResult = null
-
-  return {
-    expiresAt: token.expires_at,
-    refreshToken: token.refresh_token,
-  }
-}
