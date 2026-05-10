@@ -248,11 +248,18 @@ function readInlineToken(text: string, index: number, key: number): { nextIndex:
       const hrefEndIndex = findClosingDelimiter(text, labelEndIndex + 2, ')')
 
       if (hrefEndIndex > labelEndIndex) {
+        const href = text.slice(labelEndIndex + 2, hrefEndIndex)
+        const children = renderInlineMarkdown(text.slice(index + 1, labelEndIndex))
+
         return {
           nextIndex: hrefEndIndex + 1,
-          node: (
-            <Link key={key} to={text.slice(labelEndIndex + 2, hrefEndIndex)}>
-              {renderInlineMarkdown(text.slice(index + 1, labelEndIndex))}
+          node: isExternalUrl(href) ? (
+            <a key={key} href={href} target="_blank" rel="noreferrer">
+              {children}
+            </a>
+          ) : (
+            <Link key={key} to={href}>
+              {children}
             </Link>
           ),
         }
@@ -340,4 +347,8 @@ function findNextInlineTokenStart(text: string, startIndex: number) {
     .filter((index) => index !== -1)
 
   return candidates.length ? Math.min(...candidates) : text.length
+}
+
+function isExternalUrl(href: string) {
+  return /^https?:\/\//i.test(href)
 }

@@ -8,6 +8,7 @@ import {
   FileText,
   Gauge,
   Github,
+  Globe2,
   Image,
   MonitorCog,
   Play,
@@ -20,6 +21,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent, RefObject } from 'react'
 
+import { BrowserApp } from '@/apps/browser/BrowserApp'
 import { GithubApp } from '@/apps/github/GithubApp'
 import { getGithubData } from '@/apps/github/githubData'
 import type { GithubData } from '@/apps/github/types'
@@ -37,7 +39,6 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
-  ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
 import { Slider } from '@/components/ui/slider'
@@ -331,6 +332,10 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
     openApp('github')
   }
 
+  const openBrowser = () => {
+    openApp('browser')
+  }
+
   const openHelp = () => {
     openApp('help')
   }
@@ -513,6 +518,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
       </AnimatePresence>
 
       <Dock
+        openBrowser={openBrowser}
         openGithub={openGithub}
         openHome={openHome}
         openIssues={openIssues}
@@ -545,26 +551,6 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
           <MonitorCog aria-hidden="true" size={16} />
           Desktop Settings
         </ContextMenuItem>
-        <ContextMenuItem onSelect={() => setScreensaverMode('preview')}>
-          <Play aria-hidden="true" size={16} />
-          Preview Screensaver
-        </ContextMenuItem>
-        <ContextMenuSeparator />
-        {wallpaperOptions.map((option) => (
-          <ContextMenuItem
-            key={option.id}
-            onSelect={() =>
-              setDesktopSettings((current) => ({
-                ...current,
-                wallpaper: option.id,
-              }))
-            }
-          >
-            <Image aria-hidden="true" size={16} />
-            <span className="min-w-0 flex-1">{option.name}</span>
-            {desktopSettings.wallpaper === option.id ? <Check aria-hidden="true" size={15} /> : null}
-          </ContextMenuItem>
-        ))}
       </ContextMenuContent>
     </ContextMenu>
   )
@@ -905,7 +891,9 @@ function DesktopWindow({
   windowExit,
 }: DesktopWindowProps) {
   const activeAppTitle =
-    window.app === 'github'
+    window.app === 'browser'
+      ? 'browser.app'
+      : window.app === 'github'
       ? 'github.app'
       : window.app === 'help'
         ? 'help.app'
@@ -919,7 +907,9 @@ function DesktopWindow({
                 ? 'terminal.app'
                 : 'notes.app'
   const ActiveAppIcon =
-    window.app === 'github'
+    window.app === 'browser'
+      ? Globe2
+      : window.app === 'github'
       ? Github
       : window.app === 'help'
         ? CircleHelp
@@ -939,17 +929,19 @@ function DesktopWindow({
       className={`${windowBaseClass} ${window.maximized ? 'os-window--maximized' : ''} ${
         window.app === 'github'
           ? 'bg-[rgba(246,248,250,0.94)]'
-          : window.app === 'help'
-            ? 'bg-[rgba(250,252,247,0.94)]'
-            : window.app === 'issues'
-              ? 'bg-[rgba(248,249,255,0.94)]'
-              : window.app === 'skills'
-                ? 'bg-[rgba(247,252,249,0.94)]'
-                : window.app === 'strava'
-                  ? 'border-strava/45 bg-strava-bg'
-                  : window.app === 'terminal'
-                    ? 'border-[#17383b] bg-[#071416]'
-                    : ''
+          : window.app === 'browser'
+            ? 'bg-[rgba(248,249,255,0.94)]'
+            : window.app === 'help'
+              ? 'bg-[rgba(250,252,247,0.94)]'
+              : window.app === 'issues'
+                ? 'bg-[rgba(248,249,255,0.94)]'
+                : window.app === 'skills'
+                  ? 'bg-[rgba(247,252,249,0.94)]'
+                  : window.app === 'strava'
+                    ? 'border-strava/45 bg-strava-bg'
+                    : window.app === 'terminal'
+                      ? 'border-[#17383b] bg-[#071416]'
+                      : ''
       } ${window.maximized ? maximizedWindowClass : ''}`}
       style={{ zIndex: window.z }}
       initial={{
@@ -1011,6 +1003,7 @@ function DesktopWindow({
         </span>
       </div>
 
+      {window.app === 'browser' ? <BrowserApp initialUrl={window.url} /> : null}
       {window.app === 'notes' ? (
         <NotesApp
           document={window.document ?? 'home'}
@@ -1075,6 +1068,7 @@ function TrafficButton({
 }
 
 function Dock({
+  openBrowser,
   openGithub,
   openHome,
   openIssues,
@@ -1083,6 +1077,7 @@ function Dock({
   openTerminal,
   windows,
 }: {
+  openBrowser: () => void
   openGithub: () => void
   openHome: () => void
   openIssues: () => void
@@ -1099,6 +1094,7 @@ function Dock({
     >
       {dockApps.map((app) => {
         const Icon = app.icon
+        const isBrowser = app.id === 'browser'
         const isNotes = app.id === 'notes'
         const isGithub = app.id === 'github'
         const isIssues = app.id === 'issues'
@@ -1119,32 +1115,36 @@ function Dock({
             onClick={
               isNotes
                 ? openHome
-                : isGithub
-                  ? openGithub
-                  : isIssues
-                    ? openIssues
-                    : isSkills
-                      ? openSkills
-                      : isStrava
-                        ? openStrava
-                        : isTerminal
-                          ? openTerminal
-                          : undefined
+                : isBrowser
+                  ? openBrowser
+                  : isGithub
+                    ? openGithub
+                    : isIssues
+                      ? openIssues
+                      : isSkills
+                        ? openSkills
+                        : isStrava
+                          ? openStrava
+                          : isTerminal
+                            ? openTerminal
+                            : undefined
             }
             aria-label={
               isNotes
                 ? 'Open notes'
-                : isGithub
-                  ? 'Open GitHub'
-                  : isIssues
-                    ? 'Open Issues'
-                    : isSkills
-                      ? 'Open Skills'
-                      : isStrava
-                        ? 'Open Strava'
-                        : isTerminal
-                          ? 'Open Terminal'
-                          : 'Open app'
+                : isBrowser
+                  ? 'Open Browser'
+                  : isGithub
+                    ? 'Open GitHub'
+                    : isIssues
+                      ? 'Open Issues'
+                      : isSkills
+                        ? 'Open Skills'
+                        : isStrava
+                          ? 'Open Strava'
+                          : isTerminal
+                            ? 'Open Terminal'
+                            : 'Open app'
             }
           >
             <Icon aria-hidden="true" size={24} />
@@ -1172,7 +1172,10 @@ function windowAnimationFor(window: WindowState) {
         x: window.x,
         y: window.y,
         width:
-          window.app === 'github' || window.app === 'skills' || window.app === 'strava'
+          window.app === 'browser' ||
+          window.app === 'github' ||
+          window.app === 'skills' ||
+          window.app === 'strava'
             ? 'min(920px, calc(100vw - 1.5rem))'
             : window.app === 'help'
               ? 'min(680px, calc(100vw - 1.5rem))'

@@ -61,6 +61,7 @@ export function useDesktopWindows(routeApp: RouteApp) {
   const navigate = useNavigate()
   const routeAppId = routeApp === 'none' ? null : routeApp.app
   const routeDocument = routeApp === 'none' ? undefined : routeApp.document
+  const routeUrl = routeApp === 'none' ? undefined : routeApp.url
   const routeWindowKey =
     routeApp === 'none' ? null : windowKey({ app: routeApp.app, document: routeApp.document })
   const [windows, setWindows] = useState<WindowState[]>(() =>
@@ -129,6 +130,7 @@ export function useDesktopWindows(routeApp: RouteApp) {
       ...routeSearchForApp(routeAppId, search),
       app: routeAppId,
       document: routeDocument,
+      url: routeUrl,
       z: nextZ,
     }
     const nextWindows = existing
@@ -146,10 +148,21 @@ export function useDesktopWindows(routeApp: RouteApp) {
     if (!search.minimized) {
       commitFocusedWindow(routeWindowKey)
     }
-  }, [routeAppId, routeDocument, routeWindowKey, search.maximized, search.minimized, search.x, search.y])
+  }, [
+    routeAppId,
+    routeDocument,
+    routeUrl,
+    routeWindowKey,
+    search.maximized,
+    search.minimized,
+    search.url,
+    search.x,
+    search.y,
+  ])
 
   const routeForWindow = (window: WindowState | undefined) => {
     if (!window) return '/'
+    if (window.app === 'browser') return '/browser'
     if (window.app === 'notes') return window.document === 'cv' ? '/cv' : '/home'
     if (window.app === 'github') return '/github'
     if (window.app === 'help') return '/help'
@@ -172,6 +185,7 @@ export function useDesktopWindows(routeApp: RouteApp) {
       search: {
         maximized: window.maximized,
         minimized: window.minimized,
+        ...(window.app === 'browser' && window.url ? { url: window.url } : {}),
         x: Math.round(window.x),
         y: Math.round(window.y),
       },

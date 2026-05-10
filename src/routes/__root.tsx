@@ -38,15 +38,16 @@ export const Route = createRootRoute({
 })
 
 function RootApp() {
-  const { githubData, pathname } = useRouterState({
+  const { githubData, pathname, search } = useRouterState({
     select: (state) => ({
       pathname: state.location.pathname,
+      search: state.location.search,
       githubData: state.matches.find((match) => match.routeId === '/github')?.loaderData as
         | GithubData
         | undefined,
     }),
   })
-  const routeApp = routeAppFromPathname(pathname)
+  const routeApp = routeAppFromPathname(pathname, search)
 
   if (!routeApp) return <Outlet />
 
@@ -62,8 +63,9 @@ function RootApp() {
   )
 }
 
-function routeAppFromPathname(pathname: string): RouteApp | null {
+function routeAppFromPathname(pathname: string, search: Record<string, unknown>): RouteApp | null {
   if (pathname === '/') return 'none'
+  if (pathname === '/browser') return { app: 'browser', url: browserUrlFromSearch(search) }
   if (pathname === '/home') return { app: 'notes', document: 'home' }
   if (pathname === '/cv') return { app: 'notes', document: 'cv' }
   if (pathname === '/github') return { app: 'github' }
@@ -74,6 +76,10 @@ function routeAppFromPathname(pathname: string): RouteApp | null {
   if (pathname === '/terminal') return { app: 'terminal' }
 
   return null
+}
+
+function browserUrlFromSearch(search: Record<string, unknown>) {
+  return typeof search.url === 'string' && search.url.trim() ? search.url : undefined
 }
 
 function mobileDocumentFromPathname(pathname: string): NotesDocumentId {

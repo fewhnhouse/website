@@ -11,7 +11,7 @@ export const initialNotesMarkdown = {
   location="Zurich, Switzerland"
 />
 
-*Note: For a structured version of my background, open [\`cv.mdx\`](/cv).*
+*Note: For a structured version of my background, open [\`cv.mdx\`](/cv). You can also find me on [LinkedIn](/browser?url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Ffelix-wohnhaas%2F).*
 
 ## Who I am
 
@@ -44,24 +44,24 @@ Building Software is an art.
 `,
   cv: `# Curriculum vitae
 
-Software engineer focused on product engineering, backend systems, and the infrastructure that keeps teams shipping with confidence.
+Software engineer focused on clean architecture, product engineering, web-based systems, and the infrastructure behind it all.
+Leadership skills in strategy and technology as Chief Technology Officer of a small company of 20 people.
+Extensive experience leading development teams of up to 7 people.
 
 ## Profile
 
 ### Software engineer
 
-Product engineering, infrastructure, and operations
-
-I work across frontend, backend, and infrastructure, with a bias toward systems that are direct to operate and easy for teams to reason about.
+I work across frontend, backend, and infrastructure to develop holistic products end to end.
 
 ### Core stack
-TypeScript, React, Node.js, Kubernetes, Docker
-
-Most of my day-to-day work sits in TypeScript application code, API design, deployment automation, and the operational details that make software reliable after it ships.
+Extensive Experience Developing Web-Applications with TypeScript, React, Node.js as well as their infrastructure with Docker, Kubernetes and Cloud-based Services in AWS.
+Experience working both with OLAP (Snowflake) and OLTP (PostgreSQL) databases.
+Experience with building software products from the ground up, architecting and designing them, as well as operating them in production.
 
 ### Working style
 
-Pragmatic, explicit, calm systems
+Pragmatic, explicit, fast moving
 
 I care about clean interfaces, good developer experience, observability, automation, and infrastructure that keeps release paths boring.
 
@@ -75,25 +75,25 @@ Architected and built the product suite, including a customer-facing e-commerce 
 
 ### Technical team lead, Motius GmbH, Munich
 
-Month YYYY - Month YYYY
+Feb 2019 - Jan 2021
 
 Led teams of up to four developers on client projects, coordinating implementation work while staying hands-on with architecture, delivery, and technical decisions.
 
 ### Working student, web and full-stack developer, Motius GmbH, Munich
 
-Month YYYY - Month YYYY
+June 2017 - Feb 2019
 
 Worked as a web developer and full-stack developer across several client projects, building product interfaces and backend functionality for different project contexts.
 
 ### Working student, Gigatronik GmbH
 
-Month YYYY - Month YYYY
+March 2015 - March 2017
 
 Developed an Arduino board that read OBD data from cars and combined it with GPS data to build an automated fleet tracking system.
 
 ### Production management, Mecanomatic, Queretaro, Mexico
 
-Month YYYY - Month YYYY
+April 2014 - October 2014
 
 Managed and optimized production chains for a metalworking manufacturing environment focused largely on CNC-based production, including workload planning for a team of about 20 people operating the CNC machines.
 

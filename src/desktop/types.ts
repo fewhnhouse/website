@@ -3,16 +3,26 @@ export type DesktopSearch = {
   maximized: boolean
   x: number
   y: number
+  url?: string
 }
 
 export type NotesDocumentId = 'home' | 'cv'
 
-export type AppId = 'github' | 'help' | 'issues' | 'notes' | 'skills' | 'strava' | 'terminal'
+export type AppId =
+  | 'browser'
+  | 'github'
+  | 'help'
+  | 'issues'
+  | 'notes'
+  | 'skills'
+  | 'strava'
+  | 'terminal'
 
 export type RouteApp =
   | {
       app: AppId
       document?: NotesDocumentId
+      url?: string
     }
   | 'none'
 

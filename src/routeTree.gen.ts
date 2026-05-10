@@ -17,6 +17,7 @@ import { Route as HomeRouteImport } from './routes/home'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as GithubRouteImport } from './routes/github'
 import { Route as CvRouteImport } from './routes/cv'
+import { Route as BrowserRouteImport } from './routes/browser'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NotesDocumentPrintRouteImport } from './routes/notes.$document.print'
@@ -65,6 +66,11 @@ const GithubRoute = GithubRouteImport.update({
 const CvRoute = CvRouteImport.update({
   id: '/cv',
   path: '/cv',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrowserRoute = BrowserRouteImport.update({
+  id: '/browser',
+  path: '/browser',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -116,6 +122,7 @@ const ApiNotesDocumentPdfRoute = ApiNotesDocumentPdfRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/browser': typeof BrowserRoute
   '/cv': typeof CvRoute
   '/github': typeof GithubRoute
   '/help': typeof HelpRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/browser': typeof BrowserRoute
   '/cv': typeof CvRoute
   '/github': typeof GithubRoute
   '/help': typeof HelpRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/browser': typeof BrowserRoute
   '/cv': typeof CvRoute
   '/github': typeof GithubRoute
   '/help': typeof HelpRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/browser'
     | '/cv'
     | '/github'
     | '/help'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/browser'
     | '/cv'
     | '/github'
     | '/help'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/browser'
     | '/cv'
     | '/github'
     | '/help'
@@ -234,6 +246,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  BrowserRoute: typeof BrowserRoute
   CvRoute: typeof CvRoute
   GithubRoute: typeof GithubRoute
   HelpRoute: typeof HelpRoute
@@ -309,6 +322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CvRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/browser': {
+      id: '/browser'
+      path: '/browser'
+      fullPath: '/browser'
+      preLoaderRoute: typeof BrowserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -378,6 +398,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  BrowserRoute: BrowserRoute,
   CvRoute: CvRoute,
   GithubRoute: GithubRoute,
   HelpRoute: HelpRoute,

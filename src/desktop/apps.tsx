@@ -1,4 +1,4 @@
-import { Activity, CircleDot, CircleHelp, FileText, Gauge, Github, Terminal } from 'lucide-react'
+import { Activity, CircleDot, CircleHelp, FileText, Gauge, Github, Globe2, Terminal } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 import type { AppId, NotesDocumentId } from './types'
@@ -69,6 +69,16 @@ export const appCatalog: readonly AppCatalogItem[] = [
     terminalName: 'skills.app',
   },
   {
+    id: 'browser',
+    title: 'Browser',
+    subtitle: 'Web search',
+    icon: Globe2,
+    accent: '#6f7cff',
+    target: { app: 'browser' },
+    terminalName: 'browser.app',
+    terminalAliases: ['web', 'google', 'search'],
+  },
+  {
     id: 'github',
     title: 'GitHub',
     subtitle: 'Live data',
@@ -125,6 +135,7 @@ export const openableDesktopEntries: OpenableDesktopEntry[] = appCatalog.map((ap
 
 export const dockApps = [
   { id: 'notes', label: 'Notes', icon: FileText },
+  { id: 'browser', label: 'Browser', icon: Globe2 },
   { id: 'terminal', label: 'Terminal', icon: Terminal },
   { id: 'skills', label: 'Skills', icon: Gauge },
   { id: 'github', label: 'GitHub', icon: Github },
