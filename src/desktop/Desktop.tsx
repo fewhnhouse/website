@@ -572,6 +572,239 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   )
 }
 
+function DesktopSettingsPanel({
+  settings,
+  onChange,
+  onClose,
+  onPreviewScreensaver,
+}: {
+  settings: DesktopSettings
+  onChange: React.Dispatch<React.SetStateAction<DesktopSettings>>
+  onClose: () => void
+  onPreviewScreensaver: () => void
+}) {
+  return (
+    <motion.div
+      className="fixed inset-0 z-[2147483638] grid place-items-center bg-[rgba(20,38,45,0.18)] px-4 backdrop-blur-[4px]"
+      onPointerDown={onClose}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.14 }}
+      role="presentation"
+    >
+      <motion.section
+        className="w-[min(720px,calc(100vw_-_2rem))] overflow-hidden rounded-window border border-os-border-strong bg-[rgba(250,252,247,0.96)] text-os-ink shadow-window backdrop-blur-[22px]"
+        onPointerDown={(event) => event.stopPropagation()}
+        onContextMenu={(event) => event.stopPropagation()}
+        initial={{ y: 16, scale: 0.98, opacity: 0 }}
+        animate={{ y: 0, scale: 1, opacity: 1 }}
+        exit={{ y: 12, scale: 0.98, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 480, damping: 38, mass: 0.8 }}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Desktop settings"
+      >
+        <div className="flex min-h-titlebar items-center justify-between border-b border-os-border bg-[image:var(--os-titlebar-bg)] px-3">
+          <div className="flex items-center gap-2 text-window font-black text-os-ink-muted">
+            <MonitorCog aria-hidden="true" size={16} />
+            <span>desktop.settings</span>
+          </div>
+          <button
+            type="button"
+            className="grid size-8 cursor-pointer place-items-center rounded-control border border-transparent text-os-ink-soft hover:border-os-border hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lagoon/35"
+            onClick={onClose}
+            aria-label="Close desktop settings"
+          >
+            <X aria-hidden="true" size={16} />
+          </button>
+        </div>
+
+        <div className="grid gap-5 p-4 max-[680px]:max-h-[calc(100svh_-_7rem)] max-[680px]:overflow-y-auto">
+          <section className="grid gap-3">
+            <h2 className="m-0 flex items-center gap-2 text-[0.82rem] font-black text-os-ink">
+              <Image aria-hidden="true" size={16} />
+              Background
+            </h2>
+            <div className="grid grid-cols-4 gap-2 max-[680px]:grid-cols-2">
+              {wallpaperOptions.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={`grid gap-2 rounded-card border p-2 text-left font-[inherit] transition ${
+                    settings.wallpaper === option.id
+                      ? 'border-lagoon bg-white/78 shadow-chip'
+                      : 'border-os-border bg-white/42 hover:border-os-border-strong hover:bg-white/62'
+                  }`}
+                  onClick={() =>
+                    onChange((current) => ({
+                      ...current,
+                      wallpaper: option.id,
+                    }))
+                  }
+                >
+                  <span
+                    className="relative block aspect-[1.45] overflow-hidden rounded-[7px] border border-white/60 bg-[image:var(--preview-shell)] shadow-chip after:absolute after:inset-0 after:bg-[image:var(--preview-wallpaper)] after:content-['']"
+                    style={
+                      {
+                        '--preview-shell': option.shell,
+                        '--preview-wallpaper': option.wallpaper,
+                      } as CSSProperties
+                    }
+                  />
+                  <span className="flex items-center justify-between gap-2 text-caption font-black text-os-ink">
+                    {option.name}
+                    {settings.wallpaper === option.id ? <Check aria-hidden="true" size={14} /> : null}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="grid gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="m-0 flex items-center gap-2 text-[0.82rem] font-black text-os-ink">
+                <Clock3 aria-hidden="true" size={16} />
+                Screensaver
+              </h2>
+              <button
+                type="button"
+                className="inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-control border border-os-border bg-white/62 px-2.5 text-caption font-black text-os-ink hover:bg-white/82 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lagoon/35"
+                onClick={onPreviewScreensaver}
+              >
+                <Play aria-hidden="true" size={14} />
+                Preview
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-2 max-[680px]:grid-cols-1">
+              {screensaverOptions.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={`grid gap-1 rounded-card border px-3 py-2 text-left font-[inherit] transition ${
+                    settings.screensaver === option.id
+                      ? 'border-lagoon bg-white/78 shadow-chip'
+                      : 'border-os-border bg-white/42 hover:border-os-border-strong hover:bg-white/62'
+                  }`}
+                  onClick={() =>
+                    onChange((current) => ({
+                      ...current,
+                      screensaver: option.id,
+                    }))
+                  }
+                >
+                  <span className="flex items-center justify-between gap-2 text-window font-black text-os-ink">
+                    {option.name}
+                    {settings.screensaver === option.id ? <Check aria-hidden="true" size={14} /> : null}
+                  </span>
+                  <span className="text-caption font-extrabold text-os-ink-soft">
+                    {option.description}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="rounded-card border border-os-border bg-white/48 p-3">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <span className="text-window font-black text-os-ink">Start after inactivity</span>
+                <span className="rounded-control border border-os-border bg-white/70 px-2 py-1 text-caption font-black text-os-ink-soft">
+                  {settings.screensaverMinutes} min
+                </span>
+              </div>
+              <Slider
+                min={1}
+                max={10}
+                step={1}
+                value={[settings.screensaverMinutes]}
+                onValueChange={([value]) =>
+                  onChange((current) => ({
+                    ...current,
+                    screensaverMinutes: value ?? current.screensaverMinutes,
+                  }))
+                }
+                aria-label="Screensaver start time in minutes"
+              />
+            </div>
+          </section>
+        </div>
+      </motion.section>
+    </motion.div>
+  )
+}
+
+function ScreensaverOverlay({
+  mode,
+  screensaver,
+  onClose,
+}: {
+  mode: ScreensaverMode
+  screensaver: ScreensaverId
+  onClose: () => void
+}) {
+  const isTerminal = screensaver === 'terminal'
+  const isPhotos = screensaver === 'photos'
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[2147483646] overflow-hidden bg-[#071416] text-white"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.28 }}
+      onPointerDown={mode === 'idle' ? onClose : undefined}
+      role="dialog"
+      aria-label={mode === 'preview' ? 'Screensaver preview' : 'Screensaver'}
+    >
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.028)_1px,transparent_1px)] bg-[length:42px_42px] opacity-60" />
+      {isPhotos ? (
+        <motion.img
+          className="absolute left-1/2 top-1/2 h-[min(56vw,56vh)] w-[min(56vw,56vh)] rounded-full border border-white/20 object-cover object-[50%_31%] shadow-[0_0_100px_rgba(96,215,207,0.26)]"
+          src="/felix-portrait.jpg"
+          alt=""
+          initial={{ x: '-55%', y: '-48%', rotate: -4 }}
+          animate={{ x: ['-55%', '-44%', '-52%'], y: ['-48%', '-54%', '-43%'], rotate: [-4, 3, -2] }}
+          transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      ) : isTerminal ? (
+        <motion.div
+          className="absolute left-[8vw] top-[18vh] max-w-[min(520px,84vw)] font-mono text-[clamp(0.8rem,2vw,1rem)] font-bold leading-8 text-[#8de5db]"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: [0.52, 1, 0.64], y: 0 }}
+          transition={{ duration: 4, repeat: Infinity, repeatType: 'reverse' }}
+        >
+          <p>felixos: idle process active</p>
+          <p>desktop: preserving session</p>
+          <p>signal: github, strava, notes</p>
+          <p>resume: click or press any key</p>
+        </motion.div>
+      ) : (
+        <motion.div
+          className="absolute left-1/2 top-1/2 size-[min(58vw,58vh)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/14 shadow-[0_0_120px_rgba(96,215,207,0.22)]"
+          animate={{ rotate: 360, scale: [0.98, 1.04, 0.98] }}
+          transition={{ rotate: { duration: 22, repeat: Infinity, ease: 'linear' }, scale: { duration: 7, repeat: Infinity } }}
+        >
+          <span className="absolute inset-[18%] rounded-full border border-[#60d7cf]/34" />
+          <span className="absolute inset-[34%] rounded-full border border-white/20" />
+          <span className="absolute left-1/2 top-0 size-4 -translate-x-1/2 rounded-full bg-[#f6c85f] shadow-[0_0_34px_rgba(246,200,95,0.75)]" />
+        </motion.div>
+      )}
+      <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between gap-3 text-caption font-black uppercase tracking-[0.12em] text-white/62">
+        <span>FelixOS Screensaver</span>
+        {mode === 'preview' ? (
+          <button
+            type="button"
+            className="rounded-control border border-white/20 bg-white/10 px-3 py-2 text-white transition hover:bg-white/18 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+            onClick={onClose}
+          >
+            Exit Preview
+          </button>
+        ) : (
+          <span>Click or press any key</span>
+        )}
+      </div>
+    </motion.div>
+  )
+}
+
 function CommandPalette({
   onClose,
   onOpenTarget,
@@ -908,6 +1141,7 @@ function DesktopWindow({
         if (event.target instanceof Element && event.target.closest('a,button')) return
         if (!active) focusWindow(window)
       }}
+      onContextMenu={(event) => event.stopPropagation()}
       aria-label={`${activeAppTitle} window`}
     >
       <div
@@ -1028,6 +1262,7 @@ function Dock({
     <nav
       className="absolute bottom-4 left-1/2 z-[2147483000] flex max-w-[calc(100%_-_1rem)] -translate-x-1/2 gap-1.5 rounded-dock border border-white/45 bg-os-dock p-2 shadow-dock backdrop-blur-[22px]"
       aria-label="Application dock"
+      onContextMenu={(event) => event.stopPropagation()}
     >
       {dockApps.map((app) => {
         const Icon = app.icon
