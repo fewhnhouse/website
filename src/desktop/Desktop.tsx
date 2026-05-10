@@ -140,10 +140,10 @@ function parseDesktopSettings(value: string | null): DesktopSettings {
 
   try {
     const parsed = JSON.parse(value) as Partial<DesktopSettings>
-    const wallpaper = wallpaperOptions.some((option) => option.id === parsed.wallpaper)
+    const wallpaper = isWallpaperId(parsed.wallpaper)
       ? parsed.wallpaper
       : defaultDesktopSettings.wallpaper
-    const screensaver = screensaverOptions.some((option) => option.id === parsed.screensaver)
+    const screensaver = isScreensaverId(parsed.screensaver)
       ? parsed.screensaver
       : defaultDesktopSettings.screensaver
     const screensaverMinutes =
@@ -159,6 +159,14 @@ function parseDesktopSettings(value: string | null): DesktopSettings {
   } catch {
     return defaultDesktopSettings
   }
+}
+
+function isWallpaperId(value: unknown): value is WallpaperId {
+  return wallpaperOptions.some((option) => option.id === value)
+}
+
+function isScreensaverId(value: unknown): value is ScreensaverId {
+  return screensaverOptions.some((option) => option.id === value)
 }
 
 type DesktopProps = {
