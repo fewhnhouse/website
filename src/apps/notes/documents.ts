@@ -13,6 +13,7 @@ export const initialNotesMarkdown = {
 
 *Note: For a structured version of my background, open [\`cv.mdx\`](/cv).*
 
+## Who I am
 
 Hi, there, glad you are here!
 As you are on my website, I assume you are here to learn about me, my work, and my interests.
@@ -24,11 +25,11 @@ Working at Motius, I got into backend engineering more and more, as I wanted to 
 I finished my time at Motius with my master thesis, where I built a complete issue tracking system on the back of Taiga, as an alternative to the bloated Jira at the time. With more and more teams adopting Linear, I guess I had a hunch back then ;)
 After that, I got contacted by Reto, the CEO of Pricenow AG, who was engaged to my cousin at the time. They had just started their company, Pricenow. As the founders were all economists, they started with an external contractor building their platform, soon realizing that they would need to bring their core product in house. Reto trusted me to join Pricenow as a CTO with my limited experience back then, giving me a huge chance and opportunity to apply my skills to lead the technical direction of the company. As a result, I have also gotten into software architecture and infrastructure (DevOps), building Pricenow's whole product from scratch. I have learned a lot along the way, but I am not done and I am constantly looking for ways to improve and grow!
 
+## What I love doing in my free time
+
 While I do enjoy learning more about my field of work in my free time as well, I also appreciate spending some time off the screen. I love doing sports and I am very active on the road bike, mountainbike and running, as well as playing tennis. In the winter, I love backcountry skiing and cross-country skiing (skating). Overall, I am a huge fan of the mountains and being in the nature to recharge my batteries.
 Doing sports also gives me a lot of time to think clear my head, which eventually helps me take better decisions. Sometimes, it is important to take a step back to move forward ;)
 To me, a healthy lifestyle also means spending time with my friends and family, which luckily I can usually combine with the above.
-
-For a structured version of my background, open [\`cv.mdx\`](/cv).
 
 ## What I care about
 

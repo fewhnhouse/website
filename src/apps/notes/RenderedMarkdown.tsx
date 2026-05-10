@@ -31,13 +31,13 @@ function renderMarkdownBlocks(markdown: string) {
       const hasContentBefore = blocks.length > 0
       const hasContentAfter = index + blankLineCount < lines.length
 
-      if (hasContentBefore && hasContentAfter && blankLineCount > 1) {
+      if (hasContentBefore && hasContentAfter) {
         blocks.push(
           <div
             key={`blank-lines-${index}`}
             aria-hidden="true"
             className="felix-mdx-blank-lines"
-            style={{ '--blank-lines': blankLineCount - 1 } as CSSProperties}
+            style={{ '--blank-lines': blankLineCount } as CSSProperties}
           />,
         )
       }

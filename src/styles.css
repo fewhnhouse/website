@@ -328,7 +328,8 @@ pre code {
 }
 
 .felix-mdx-blank-lines {
-  height: calc(var(--blank-lines, 1) * 1rem);
+  display: block;
+  height: calc(var(--blank-lines, 1) * 0.85rem);
 }
 
 .felix-mdx-content a {
