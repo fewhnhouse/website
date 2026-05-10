@@ -1,15 +1,21 @@
 import {
   Activity,
   Battery,
+  Check,
   CircleDot,
   CircleHelp,
+  Clock3,
   CornerDownLeft,
   FileText,
   Gauge,
   Github,
+  Image,
+  MonitorCog,
+  Play,
   Search,
   Terminal,
   Wifi,
+  X,
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -28,8 +34,16 @@ import { SkillsApp } from '@/apps/skills/SkillsApp'
 import { StravaApp } from '@/apps/strava/StravaApp'
 import { getStravaData, type StravaDataResult } from '@/apps/strava/stravaData'
 import { TerminalApp } from '@/apps/terminal/TerminalApp'
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
+import { Slider } from '@/components/ui/slider'
 
-import { desktopApps, dockApps } from './apps'
+import { appCatalog, desktopApps, dockApps } from './apps'
 import { windowKey, type AppId, type NotesDocumentId, type RouteApp, type WindowState } from './types'
 import { useDesktopWindows } from './useDesktopWindows'
 
@@ -41,21 +55,17 @@ const desktopIconTileClass =
   'grid size-desktop-tile place-items-center rounded-icon border border-white/50 bg-[image:var(--desktop-tile-bg)] text-os-ink shadow-desktop-tile max-[720px]:size-12 max-[720px]:rounded-[14px]'
 const windowBaseClass =
   'absolute top-0 left-0 z-10 flex w-[min(720px,calc(100vw_-_1.5rem))] max-h-[min(640px,calc(100svh_-_7.25rem))] origin-center flex-col overflow-hidden rounded-window border border-os-border-strong bg-os-panel shadow-window backdrop-blur-[22px] will-change-[transform,opacity,filter,width,height] max-[720px]:w-[calc(100vw_-_1rem)] max-[720px]:max-h-[calc(100svh_-_8.4rem)]'
-const maximizedWindowClass = 'max-h-[calc(100svh_-_132px)] rounded-[14px] max-[720px]:max-h-[calc(100svh_-_7rem)]'
+const maximizedWindowClass =
+  'max-h-none rounded-none border-x-0 border-t-0'
 const titlebarClass =
   'grid min-h-titlebar cursor-grab select-none grid-cols-[104px_1fr_78px] items-center border-b border-os-border bg-[image:var(--os-titlebar-bg)] px-3 active:cursor-grabbing max-[720px]:grid-cols-[74px_1fr_44px]'
 const trafficClass =
   'relative grid h-[0.82rem] w-[0.82rem] cursor-pointer appearance-none place-items-center rounded-full border border-os-border font-[inherit] text-os-ink-soft before:absolute before:scale-50 before:opacity-0 before:transition before:content-[""] after:absolute after:scale-50 after:opacity-0 after:transition after:content-[""] group-hover/titlebar:before:scale-100 group-hover/titlebar:before:opacity-100 group-hover/titlebar:after:scale-100 group-hover/titlebar:after:opacity-100 focus-visible:before:scale-100 focus-visible:before:opacity-100 focus-visible:after:scale-100 focus-visible:after:opacity-100'
 const dockButtonClass =
   'group relative grid size-dock-icon cursor-pointer appearance-none place-items-center rounded-[14px] border border-os-border bg-white/60 font-[inherit] text-ink transition hover:-translate-y-1 hover:outline-none focus-visible:-translate-y-1 focus-visible:outline-none max-[720px]:size-12'
-const commandItems = desktopApps.map((app) => ({
+const commandItems = appCatalog.map((app) => ({
   ...app,
-  target:
-    app.id === 'home'
-      ? ({ app: 'notes', document: 'home' } as const)
-      : app.id === 'cv'
-        ? ({ app: 'notes', document: 'cv' } as const)
-        : ({ app: app.id } as const),
+  target: app.target,
   keywords:
     app.id === 'home'
       ? ['home', 'home.mdx', 'notes', 'start', 'about']
@@ -63,6 +73,103 @@ const commandItems = desktopApps.map((app) => ({
         ? ['cv', 'cv.mdx', 'resume', 'curriculum vitae', 'notes']
         : [app.id, app.title, app.subtitle, `${app.id}.app`],
 }))
+
+const desktopStorageKey = 'felixos.desktop.settings'
+
+const wallpaperOptions = [
+  {
+    id: 'lagoon',
+    name: 'Lagoon',
+    shell:
+      'radial-gradient(circle at 16% 18%, rgba(246, 200, 95, 0.55), transparent 22%), radial-gradient(circle at 84% 12%, rgba(96, 215, 207, 0.42), transparent 26%), linear-gradient(135deg, #cbded8 0%, #ecf4ec 46%, #a9d4cd 100%)',
+    wallpaper:
+      'linear-gradient(115deg, transparent 0 48%, rgba(20, 38, 45, 0.08) 48.2% 48.7%, transparent 49%), linear-gradient(28deg, transparent 0 52%, rgba(255, 255, 255, 0.38) 52.2% 52.6%, transparent 53%), radial-gradient(900px 520px at 50% 78%, rgba(47, 106, 74, 0.28), transparent 62%)',
+  },
+  {
+    id: 'carbon',
+    name: 'Carbon',
+    shell:
+      'radial-gradient(circle at 18% 18%, rgba(94, 211, 199, 0.28), transparent 25%), radial-gradient(circle at 84% 16%, rgba(231, 240, 232, 0.18), transparent 24%), linear-gradient(135deg, #102428 0%, #21383b 48%, #071416 100%)',
+    wallpaper:
+      'linear-gradient(135deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 18px), radial-gradient(900px 520px at 62% 72%, rgba(96, 215, 207, 0.2), transparent 64%)',
+  },
+  {
+    id: 'field-notes',
+    name: 'Field Notes',
+    shell:
+      'radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.58), transparent 25%), radial-gradient(circle at 86% 18%, rgba(47, 106, 74, 0.24), transparent 25%), linear-gradient(135deg, #dfead4 0%, #f8fbef 48%, #a9c8a7 100%)',
+    wallpaper:
+      'linear-gradient(120deg, transparent 0 44%, rgba(47,106,74,0.12) 44.2% 45%, transparent 45.2%), radial-gradient(900px 520px at 44% 82%, rgba(246, 200, 95, 0.22), transparent 62%)',
+  },
+  {
+    id: 'portrait',
+    name: 'Portrait',
+    shell:
+      'linear-gradient(rgba(236,244,236,0.76), rgba(169,212,205,0.76)), url("/felix-portrait.jpg") center 30% / cover no-repeat',
+    wallpaper:
+      'radial-gradient(860px 520px at 50% 82%, rgba(20, 38, 45, 0.24), transparent 64%), linear-gradient(115deg, transparent 0 50%, rgba(255, 255, 255, 0.28) 50.2% 50.7%, transparent 51%)',
+  },
+] as const
+
+const screensaverOptions = [
+  {
+    id: 'orbit',
+    name: 'Orbit',
+    description: 'Quiet rings and scanlines',
+  },
+  {
+    id: 'terminal',
+    name: 'Terminal',
+    description: 'Slow FelixOS diagnostics',
+  },
+  {
+    id: 'photos',
+    name: 'Photos',
+    description: 'Portrait drift',
+  },
+] as const
+
+type WallpaperId = (typeof wallpaperOptions)[number]['id']
+type ScreensaverId = (typeof screensaverOptions)[number]['id']
+type ScreensaverMode = 'idle' | 'preview'
+
+type DesktopSettings = {
+  screensaverMinutes: number
+  screensaver: ScreensaverId
+  wallpaper: WallpaperId
+}
+
+const defaultDesktopSettings: DesktopSettings = {
+  screensaverMinutes: 5,
+  screensaver: 'orbit',
+  wallpaper: 'lagoon',
+}
+
+function parseDesktopSettings(value: string | null): DesktopSettings {
+  if (!value) return defaultDesktopSettings
+
+  try {
+    const parsed = JSON.parse(value) as Partial<DesktopSettings>
+    const wallpaper = wallpaperOptions.some((option) => option.id === parsed.wallpaper)
+      ? parsed.wallpaper
+      : defaultDesktopSettings.wallpaper
+    const screensaver = screensaverOptions.some((option) => option.id === parsed.screensaver)
+      ? parsed.screensaver
+      : defaultDesktopSettings.screensaver
+    const screensaverMinutes =
+      typeof parsed.screensaverMinutes === 'number'
+        ? Math.min(10, Math.max(1, Math.round(parsed.screensaverMinutes)))
+        : defaultDesktopSettings.screensaverMinutes
+
+    return {
+      screensaverMinutes,
+      screensaver,
+      wallpaper,
+    }
+  } catch {
+    return defaultDesktopSettings
+  }
+}
 
 type DesktopProps = {
   initialGithubData?: GithubData | null
@@ -96,8 +203,13 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
     ...initialNotesMarkdown,
   }))
   const [commandOpen, setCommandOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [screensaverMode, setScreensaverMode] = useState<ScreensaverMode | null>(null)
+  const [desktopSettings, setDesktopSettings] = useState<DesktopSettings>(defaultDesktopSettings)
   const stravaRequestAttempted = useRef(false)
   const editorDocumentRef = useRef<HTMLElement | null>(null)
+  const activeWallpaper =
+    wallpaperOptions.find((option) => option.id === desktopSettings.wallpaper) ?? wallpaperOptions[0]
 
   useEffect(() => {
     const toggleCommand = (event: globalThis.KeyboardEvent) => {
@@ -110,6 +222,43 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
     window.addEventListener('keydown', toggleCommand)
     return () => window.removeEventListener('keydown', toggleCommand)
   }, [])
+
+  useEffect(() => {
+    setDesktopSettings(parseDesktopSettings(window.localStorage.getItem(desktopStorageKey)))
+  }, [])
+
+  useEffect(() => {
+    window.localStorage.setItem(desktopStorageKey, JSON.stringify(desktopSettings))
+  }, [desktopSettings])
+
+  useEffect(() => {
+    if (screensaverMode === 'preview') return
+
+    let timeoutId = window.setTimeout(
+      () => setScreensaverMode('idle'),
+      desktopSettings.screensaverMinutes * 60 * 1000,
+    )
+
+    const resetTimer = () => {
+      if (screensaverMode === 'idle') {
+        setScreensaverMode(null)
+      }
+
+      window.clearTimeout(timeoutId)
+      timeoutId = window.setTimeout(
+        () => setScreensaverMode('idle'),
+        desktopSettings.screensaverMinutes * 60 * 1000,
+      )
+    }
+
+    const events = ['pointerdown', 'keydown', 'wheel', 'touchstart'] as const
+    events.forEach((eventName) => window.addEventListener(eventName, resetTimer, { passive: true }))
+
+    return () => {
+      window.clearTimeout(timeoutId)
+      events.forEach((eventName) => window.removeEventListener(eventName, resetTimer))
+    }
+  }, [desktopSettings.screensaverMinutes, screensaverMode])
 
   useEffect(() => {
     if (initialGithubData) {
@@ -178,10 +327,6 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
 
   const openHome = () => {
     openApp('notes', 'home')
-  }
-
-  const openNotesDocument = (document: NotesDocumentId) => {
-    openApp('notes', document)
   }
 
   const openGithub = () => {
@@ -266,9 +411,22 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   }, [])
 
   return (
-    <main className="relative min-h-[100svh] overflow-hidden bg-[image:var(--os-shell-bg)] text-os-ink">
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <main
+          className="relative min-h-[100svh] overflow-hidden bg-[image:var(--os-shell-bg)] text-os-ink"
+          style={
+            {
+              '--os-shell-bg': activeWallpaper.shell,
+              '--os-wallpaper-bg': activeWallpaper.wallpaper,
+            } as CSSProperties
+          }
+        >
       <div className="pointer-events-none absolute inset-0 bg-[image:var(--os-wallpaper-bg)] opacity-90 after:absolute after:inset-0 after:bg-[image:var(--os-grid-bg)] after:bg-[length:42px_42px] after:opacity-15 after:[mask-image:linear-gradient(180deg,black,transparent_86%)] after:content-['']" />
-      <header className="relative z-[2147483000] grid h-titlebar grid-cols-[minmax(0,1fr)_minmax(180px,340px)_minmax(0,1fr)] items-center gap-4 border-b border-os-border bg-os-glass px-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] backdrop-blur-[18px] max-[900px]:grid-cols-[auto_minmax(180px,1fr)_auto] max-[900px]:gap-3 max-[640px]:grid-cols-[1fr_auto]">
+      <header
+        className="relative z-[2147483000] grid h-titlebar grid-cols-[minmax(0,1fr)_minmax(180px,340px)_minmax(0,1fr)] items-center gap-4 border-b border-os-border bg-os-glass px-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] backdrop-blur-[18px] max-[900px]:grid-cols-[auto_minmax(180px,1fr)_auto] max-[900px]:gap-3 max-[640px]:grid-cols-[1fr_auto]"
+        onContextMenu={(event) => event.stopPropagation()}
+      >
         <div className="flex min-w-0 items-center gap-2">
           <img
             className="size-[1.55rem] rounded-full border border-white/80 object-cover object-[50%_31%] shadow-os-logo"
@@ -309,13 +467,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
       </header>
 
       <DesktopShortcuts
-        openGithub={openGithub}
-        openHome={openHome}
-        openIssues={openIssues}
-        openNotesDocument={openNotesDocument}
-        openSkills={openSkills}
-        openStrava={openStrava}
-        openTerminal={openTerminal}
+        onOpenTarget={openCommandTarget}
       />
 
       <AnimatePresence>
@@ -371,7 +523,52 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
         openTerminal={openTerminal}
         windows={windows}
       />
-    </main>
+          <AnimatePresence>
+            {settingsOpen ? (
+              <DesktopSettingsPanel
+                settings={desktopSettings}
+                onChange={setDesktopSettings}
+                onClose={() => setSettingsOpen(false)}
+                onPreviewScreensaver={() => setScreensaverMode('preview')}
+              />
+            ) : null}
+            {screensaverMode ? (
+              <ScreensaverOverlay
+                mode={screensaverMode}
+                screensaver={desktopSettings.screensaver}
+                onClose={() => setScreensaverMode(null)}
+              />
+            ) : null}
+          </AnimatePresence>
+        </main>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem onSelect={() => setSettingsOpen(true)}>
+          <MonitorCog aria-hidden="true" size={16} />
+          Desktop Settings
+        </ContextMenuItem>
+        <ContextMenuItem onSelect={() => setScreensaverMode('preview')}>
+          <Play aria-hidden="true" size={16} />
+          Preview Screensaver
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        {wallpaperOptions.map((option) => (
+          <ContextMenuItem
+            key={option.id}
+            onSelect={() =>
+              setDesktopSettings((current) => ({
+                ...current,
+                wallpaper: option.id,
+              }))
+            }
+          >
+            <Image aria-hidden="true" size={16} />
+            <span className="min-w-0 flex-1">{option.name}</span>
+            {desktopSettings.wallpaper === option.id ? <Check aria-hidden="true" size={15} /> : null}
+          </ContextMenuItem>
+        ))}
+      </ContextMenuContent>
+    </ContextMenu>
   )
 }
 
@@ -541,21 +738,9 @@ function CommandPalette({
 }
 
 function DesktopShortcuts({
-  openGithub,
-  openHome,
-  openIssues,
-  openNotesDocument,
-  openSkills,
-  openStrava,
-  openTerminal,
+  onOpenTarget,
 }: {
-  openGithub: () => void
-  openHome: () => void
-  openIssues: () => void
-  openNotesDocument: (document: NotesDocumentId) => void
-  openSkills: () => void
-  openStrava: () => void
-  openTerminal: () => void
+  onOpenTarget: (app: AppId, document?: NotesDocumentId) => void
 }) {
   return (
     <section
@@ -564,53 +749,14 @@ function DesktopShortcuts({
     >
       {desktopApps.map((app) => {
         const Icon = app.icon
-        const isHome = app.id === 'home'
-        const isCv = app.id === 'cv'
-        const isGithub = app.id === 'github'
-        const isIssues = app.id === 'issues'
-        const isSkills = app.id === 'skills'
-        const isStrava = app.id === 'strava'
-        const isTerminal = app.id === 'terminal'
 
         return (
           <button
             key={app.id}
             type="button"
             className={desktopIconClass}
-            onClick={
-              isHome
-                ? openHome
-                : isCv
-                  ? () => openNotesDocument('cv')
-                : isGithub
-                  ? openGithub
-                  : isIssues
-                    ? openIssues
-                    : isSkills
-                      ? openSkills
-                      : isStrava
-                        ? openStrava
-                        : isTerminal
-                          ? openTerminal
-                          : undefined
-            }
-            aria-label={
-              isHome
-                ? 'Open home.mdx'
-                : isCv
-                  ? 'Open cv.mdx'
-                  : isGithub
-                    ? 'Open GitHub'
-                    : isIssues
-                      ? 'Open Issues'
-                      : isSkills
-                        ? 'Open Skills'
-                        : isStrava
-                        ? 'Open Strava'
-                        : isTerminal
-                          ? 'Open Terminal'
-                          : 'Open app'
-            }
+            onClick={() => onOpenTarget(app.target.app, app.target.document)}
+            aria-label={`Open ${app.title}`}
           >
             <span
               className={desktopIconTileClass}
@@ -947,10 +1093,10 @@ function Dock({
 function windowAnimationFor(window: WindowState) {
   return window.maximized
     ? {
-        x: 16,
-        y: 58,
-        width: 'calc(100vw - 32px)',
-        height: 'calc(100svh - 132px)',
+        x: 0,
+        y: 42,
+        width: '100vw',
+        height: 'calc(100svh - 130px)',
         scale: 1,
         opacity: 1,
       }

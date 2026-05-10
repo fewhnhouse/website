@@ -29,7 +29,10 @@ function parseNotesDocument(document: string): NotesDocumentId | null {
 }
 
 function pdfResponse(pdf: Uint8Array, document: NotesDocumentId) {
-  return new Response(pdf, {
+  const body = new ArrayBuffer(pdf.byteLength)
+  new Uint8Array(body).set(pdf)
+
+  return new Response(body, {
     headers: {
       'Content-Disposition': `attachment; filename="${notesPdfFilename(document)}"`,
       'Content-Type': 'application/pdf',

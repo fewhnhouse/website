@@ -1,8 +1,8 @@
-import { AppWindow, Dock, MousePointer2, Search, TerminalSquare } from 'lucide-react'
+import { AppWindow, MousePointer2, Search, TerminalSquare } from 'lucide-react'
 
-const appShellClass =
-  'flex min-h-0 flex-1 flex-col text-os-ink [max-height:calc(min(620px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:[max-height:calc(100svh_-_174px)]'
-const panelClass = 'rounded-card border border-os-border bg-white/62 p-4 shadow-chip'
+import { cn } from '@/lib/cn'
+
+import { osAppHeight, osAppShellClass, osPanelClass } from '@/apps/shared/appStyles'
 
 const navigationItems = [
   {
@@ -37,7 +37,7 @@ const appItems = [
 
 export function HelpApp() {
   return (
-    <section className={appShellClass} aria-label="FelixOS help">
+    <section className={cn(osAppShellClass, osAppHeight.compact)} aria-label="FelixOS help">
       <div className="border-b border-os-border bg-foam/85 px-4 py-3">
         <p className="m-0 text-caption font-black tracking-[0.14em] text-palm">HELP</p>
         <strong className="block text-[0.95rem]">Using FelixOS</strong>
@@ -59,7 +59,7 @@ export function HelpApp() {
               const Icon = item.icon
 
               return (
-                <article key={item.title} className={panelClass}>
+                <article key={item.title} className={osPanelClass}>
                   <div className="mb-3 flex items-center gap-3">
                     <span className="grid size-10 shrink-0 place-items-center rounded-card border border-os-border bg-[linear-gradient(145deg,rgba(96,215,207,0.24),rgba(246,200,95,0.2))] text-palm">
                       <Icon aria-hidden="true" size={20} />
@@ -72,7 +72,7 @@ export function HelpApp() {
             })}
           </section>
 
-          <section className={panelClass} aria-label="Available apps">
+          <section className={osPanelClass} aria-label="Available apps">
             <h3 className="m-0 text-base tracking-normal">What it can do</h3>
             <div className="mt-3 grid gap-2">
               {appItems.map(([name, description]) => (

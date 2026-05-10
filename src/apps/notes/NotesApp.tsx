@@ -3,11 +3,13 @@ import { lazy, Suspense, useState } from 'react'
 import type { RefObject } from 'react'
 
 import type { NotesDocumentId } from '@/desktop/types'
+import { cn } from '@/lib/cn'
 
 import { initialNotesMarkdown } from './documents'
 import { loadLocalMdxEditor } from './loadMdxEditor.client'
 import { notesPdfFilename } from './pdfFilename'
 import { RenderedMarkdown } from './RenderedMarkdown'
+import { osToolbarButtonActiveClass, osToolbarButtonClass } from '../shared/appStyles'
 
 const LocalMdxEditor = lazy(loadLocalMdxEditor)
 
@@ -19,12 +21,8 @@ type NotesAppProps = {
   onResetDocument: (document: NotesDocumentId) => void
 }
 
-const toolbarButtonClass =
-  'cursor-pointer rounded-control border border-os-border bg-white/65 px-2.5 py-1.5 text-caption font-black text-os-ink-muted hover:bg-white/85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lagoon-deep/45 disabled:cursor-default disabled:opacity-55'
-const activeToolbarButtonClass =
-  'border-lagoon-deep/35 bg-lagoon/15 text-lagoon-deep shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]'
 const documentClass =
-  'min-h-0 flex-1 overflow-y-auto overscroll-contain text-os-ink [max-height:calc(min(640px,calc(100svh_-_7.25rem))_-_86px)] [scrollbar-color:rgba(50,143,151,0.46)_transparent] [.os-window--maximized_&]:[max-height:calc(100svh_-_218px)] max-[720px]:[max-height:calc(100svh_-_14rem)]'
+  'min-h-0 flex-1 overflow-y-auto overscroll-contain text-os-ink [max-height:calc(min(640px,calc(100svh_-_7.25rem))_-_86px)] [scrollbar-color:rgba(50,143,151,0.46)_transparent] [.os-window--maximized_&]:max-h-none max-[720px]:[max-height:calc(100svh_-_14rem)]'
 const fallbackClass =
   'm-0 h-full overflow-auto whitespace-pre-wrap px-6 pt-5 pb-6 font-mono text-[0.84rem] leading-relaxed text-os-ink [scrollbar-color:rgba(50,143,151,0.46)_transparent] max-[720px]:p-4'
 
@@ -52,14 +50,17 @@ export function NotesApp({
         </span>
         <button
           type="button"
-          className={`${toolbarButtonClass} ${mode === 'preview' ? activeToolbarButtonClass : ''}`}
+          className={cn(
+            osToolbarButtonClass,
+            mode === 'preview' && osToolbarButtonActiveClass,
+          )}
           onClick={() => setMode('preview')}
         >
           Preview
         </button>
         <button
           type="button"
-          className={`${toolbarButtonClass} ${mode === 'edit' ? activeToolbarButtonClass : ''}`}
+          className={cn(osToolbarButtonClass, mode === 'edit' && osToolbarButtonActiveClass)}
           onClick={() => setMode('edit')}
         >
           Edit
@@ -75,7 +76,7 @@ export function NotesApp({
         </span>
         <button
           type="button"
-          className={toolbarButtonClass}
+          className={osToolbarButtonClass}
           onClick={() => onResetDocument(document)}
           disabled={!isEdited}
         >
@@ -84,14 +85,14 @@ export function NotesApp({
         {isEdited ? (
           <button
             type="button"
-            className={toolbarButtonClass}
+            className={osToolbarButtonClass}
             disabled
             title="Reset local edits before downloading. PDFs are generated from the original document only."
           >
             Download PDF disabled: reset edits first
           </button>
         ) : (
-          <a className={toolbarButtonClass} href={`/api/notes/${document}/pdf`} download={pdfFilename}>
+          <a className={osToolbarButtonClass} href={`/api/notes/${document}/pdf`} download={pdfFilename}>
             Download PDF
           </a>
         )}

@@ -22,11 +22,14 @@
     "@tanstack/react-start": "latest",
     "@tanstack/router-plugin": "^1.132.0",
     "@vercel/blob": "^2.3.3",
+    "class-variance-authority": "^0.7.1",
     "lucide-react": "^0.545.0",
     "motion": "^12.38.0",
     "playwright": "^1.59.1",
+    "radix-ui": "^1.4.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {

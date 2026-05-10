@@ -12,8 +12,15 @@ import type { ComponentType } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 
 import { openExternalLink } from '@/apps/github/format'
+import {
+  osAppHeight,
+  osAppShellClass,
+  osInputClass,
+  osPanelBareClass,
+} from '@/apps/shared/appStyles'
+import { cn } from '@/lib/cn'
 
-import { createProjectIssue, getGithubIssueUser, getIssuesBoardData } from './issuesData'
+import { createProjectIssue, getGithubIssueUser } from './issuesData'
 import type { GithubIssueUser, IssuesBoardData, ProjectIssue } from './types'
 
 type IssuesAppProps = {
@@ -30,12 +37,6 @@ type IssueColumn = {
   icon: ComponentType<{ 'aria-hidden': true; size: number }>
   issues: ProjectIssue[]
 }
-
-const appShellClass =
-  'flex min-h-0 flex-1 flex-col text-os-ink [max-height:calc(min(720px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:[max-height:calc(100svh_-_174px)]'
-const panelClass = 'rounded-card border border-os-border bg-white/68 shadow-chip'
-const inputClass =
-  'w-full rounded-card border border-os-border bg-white/78 px-3 py-2 text-sm font-bold text-os-ink outline-none transition placeholder:text-os-ink-soft focus:border-[#6f7cff] focus:bg-white focus:ring-2 focus:ring-[#6f7cff]/20'
 
 export const IssuesApp = memo(function IssuesApp({
   data,
@@ -102,7 +103,7 @@ export const IssuesApp = memo(function IssuesApp({
   }
 
   return (
-    <section className={appShellClass} aria-label="GitHub issue tracker">
+    <section className={cn(osAppShellClass, osAppHeight.tall)} aria-label="GitHub issue tracker">
       <div className="flex items-center justify-between gap-4 border-b border-os-border bg-[#eef0ff]/90 px-4 py-3">
         <div className="min-w-0">
           <p className="m-0 text-caption font-black tracking-[0.14em] text-[#515bd4]">ISSUES</p>
@@ -122,7 +123,7 @@ export const IssuesApp = memo(function IssuesApp({
       </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-[minmax(16rem,19rem)_minmax(0,1fr)] gap-4 overflow-auto p-4 [scrollbar-color:rgba(111,124,255,0.42)_transparent] max-lg:grid-cols-1">
-        <aside className={`${panelClass} h-max p-4`}>
+        <aside className={cn(osPanelBareClass, 'h-max p-4')}>
           <header className="mb-3">
             <h2 className="m-0 text-[1.12rem] tracking-normal">New issue</h2>
             <p className="mt-1 mb-0 text-meta leading-relaxed text-os-ink-muted">
@@ -136,7 +137,7 @@ export const IssuesApp = memo(function IssuesApp({
             <label className="grid gap-1.5 text-caption font-black text-os-ink-muted">
               Title
               <input
-                className={inputClass}
+                className={osInputClass}
                 maxLength={160}
                 minLength={4}
                 onChange={(event) => setTitle(event.currentTarget.value)}
@@ -149,7 +150,7 @@ export const IssuesApp = memo(function IssuesApp({
             <label className="grid gap-1.5 text-caption font-black text-os-ink-muted">
               Details
               <textarea
-                className={`${inputClass} min-h-32 resize-y leading-relaxed`}
+                className={cn(osInputClass, 'min-h-32 resize-y leading-relaxed')}
                 maxLength={4000}
                 onChange={(event) => setBody(event.currentTarget.value)}
                 placeholder="What should change, and why?"
@@ -179,7 +180,12 @@ export const IssuesApp = memo(function IssuesApp({
 
         <div className="min-w-0">
           {loading && !data ? (
-            <div className={`${panelClass} mb-4 flex items-center gap-3 p-3.5 font-extrabold text-os-ink-muted`}>
+            <div
+              className={cn(
+                osPanelBareClass,
+                'mb-4 flex items-center gap-3 p-3.5 font-extrabold text-os-ink-muted',
+              )}
+            >
               <span className="size-3.5 animate-spin rounded-full border-2 border-os-border border-t-[#6f7cff]" />
               Loading GitHub issues...
             </div>
@@ -301,7 +307,7 @@ function IssueColumnPanel({ column }: { column: IssueColumn }) {
     <section className="min-w-0">
       <header className="mb-2 flex items-center justify-between gap-3 rounded-card border border-os-border bg-white/62 px-3 py-2">
         <h3 className="m-0 inline-flex min-w-0 items-center gap-2 text-sm tracking-normal">
-          <Icon aria-hidden="true" size={16} />
+          <Icon aria-hidden={true} size={16} />
           <span className="truncate">{column.title}</span>
         </h3>
         <span className="rounded-control border border-os-border bg-white/76 px-2 py-1 text-caption font-black text-os-ink-muted">
@@ -323,7 +329,7 @@ function IssueColumnPanel({ column }: { column: IssueColumn }) {
 
 function IssueCard({ issue }: { issue: ProjectIssue }) {
   return (
-    <article className={`${panelClass} p-3`}>
+    <article className={cn(osPanelBareClass, 'p-3')}>
       <div className="mb-2 flex items-start justify-between gap-2">
         <h4 className="m-0 min-w-0 text-sm leading-snug tracking-normal">{issue.title}</h4>
         <a

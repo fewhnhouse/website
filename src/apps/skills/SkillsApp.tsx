@@ -1,6 +1,10 @@
 import { Cloud, Code2, Container, Cpu } from 'lucide-react'
 import type { ComponentType } from 'react'
 
+import { cn } from '@/lib/cn'
+
+import { osAppHeight, osAppShellClass, osPanelClass } from '@/apps/shared/appStyles'
+
 type Skill = {
   name: string
   level: number
@@ -71,10 +75,6 @@ const skillGroups: SkillGroup[] = [
   },
 ]
 
-const appShellClass =
-  'flex min-h-0 flex-1 flex-col text-os-ink [max-height:calc(min(700px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:[max-height:calc(100svh_-_174px)]'
-const panelClass = 'rounded-card border border-os-border bg-white/62 p-4 shadow-chip'
-
 export function SkillsApp() {
   const allSkills = skillGroups.flatMap((group) => group.skills)
   const averageLevel = Math.round(
@@ -82,7 +82,7 @@ export function SkillsApp() {
   )
 
   return (
-    <section className={appShellClass} aria-label="Programming skills">
+    <section className={cn(osAppShellClass, osAppHeight.default)} aria-label="Programming skills">
       <div className="flex items-center justify-between gap-4 border-b border-os-border bg-foam/85 px-4 py-3">
         <div>
           <p className="m-0 text-caption font-black tracking-[0.14em] text-palm">SKILLS</p>
@@ -131,7 +131,7 @@ function SkillGroupCard({ group }: { group: SkillGroup }) {
   const Icon = group.icon
 
   return (
-    <section className={panelClass}>
+    <section className={osPanelClass}>
       <header className="mb-3 flex items-start gap-3">
         <div className="grid size-10 shrink-0 place-items-center rounded-card border border-os-border bg-[linear-gradient(145deg,rgba(96,215,207,0.26),rgba(246,200,95,0.2))] text-palm">
           <Icon aria-hidden={true} size={20} />

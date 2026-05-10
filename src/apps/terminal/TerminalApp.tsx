@@ -1,17 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 
+import { openableDesktopEntries } from '@/desktop/apps'
+import type { OpenableDesktopEntry } from '@/desktop/apps'
 import type { AppId, NotesDocumentId } from '@/desktop/types'
 
 type TerminalAppProps = {
   onOpenApp: (app: AppId, document?: NotesDocumentId) => void
-}
-
-type DesktopEntry = {
-  name: string
-  aliases: string[]
-  app: AppId
-  document?: NotesDocumentId
 }
 
 type TranscriptLine = {
@@ -19,36 +14,6 @@ type TranscriptLine = {
   kind: 'command' | 'output' | 'error'
   text: string
 }
-
-const desktopEntries: DesktopEntry[] = [
-  {
-    name: 'home.mdx',
-    aliases: ['home'],
-    app: 'notes',
-    document: 'home',
-  },
-  {
-    name: 'cv.mdx',
-    aliases: ['cv', 'resume'],
-    app: 'notes',
-    document: 'cv',
-  },
-  {
-    name: 'skills.app',
-    aliases: ['skills'],
-    app: 'skills',
-  },
-  {
-    name: 'github.app',
-    aliases: ['github', 'git'],
-    app: 'github',
-  },
-  {
-    name: 'strava.app',
-    aliases: ['strava', 'rides'],
-    app: 'strava',
-  },
-]
 
 const initialTranscript: TranscriptLine[] = [
   {
@@ -59,7 +24,7 @@ const initialTranscript: TranscriptLine[] = [
 ]
 
 const terminalShellClass =
-  'flex min-h-0 flex-1 flex-col bg-[#071416] text-[#d7fff5] [max-height:calc(min(640px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:[max-height:calc(100svh_-_174px)]'
+  'flex min-h-0 flex-1 flex-col bg-[#071416] text-[#d7fff5] [max-height:calc(min(640px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:max-h-none'
 const terminalBodyClass =
   'min-h-0 flex-1 overflow-y-auto px-4 py-3 font-mono text-[0.84rem] leading-relaxed [scrollbar-color:rgba(141,229,219,0.38)_transparent] max-[720px]:px-3 max-[720px]:text-[0.78rem]'
 const promptClass = 'text-[#8de5db]'
@@ -75,9 +40,9 @@ export function TerminalApp({ onOpenApp }: TerminalAppProps) {
   const nextLineId = useRef(initialTranscript.length + 1)
 
   const entriesByName = useMemo(() => {
-    const entries = new Map<string, DesktopEntry>()
+    const entries = new Map<string, OpenableDesktopEntry>()
 
-    for (const entry of desktopEntries) {
+    for (const entry of openableDesktopEntries) {
       entries.set(entry.name.toLowerCase(), entry)
       for (const alias of entry.aliases) entries.set(alias.toLowerCase(), entry)
     }
@@ -143,7 +108,7 @@ export function TerminalApp({ onOpenApp }: TerminalAppProps) {
         },
         {
           kind: 'output',
-          text: 'Openable names: home.mdx, cv.mdx, skills.app, github.app, strava.app',
+          text: `Openable names: ${openableDesktopEntries.map((entry) => entry.name).join(', ')}`,
         },
       ]
     }
@@ -161,7 +126,7 @@ export function TerminalApp({ onOpenApp }: TerminalAppProps) {
       return [
         {
           kind: 'output',
-          text: desktopEntries.map((entry) => entry.name).join('  '),
+          text: openableDesktopEntries.map((entry) => entry.name).join('  '),
         },
       ]
     }
@@ -236,7 +201,7 @@ export function TerminalApp({ onOpenApp }: TerminalAppProps) {
     if (!match) return false
 
     const partialTarget = (match[1] ?? '').toLowerCase()
-    const matches = desktopEntries.filter(
+    const matches = openableDesktopEntries.filter(
       (entry) =>
         entry.name.toLowerCase().startsWith(partialTarget) ||
         entry.aliases.some((alias) => alias.toLowerCase().startsWith(partialTarget)),

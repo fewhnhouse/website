@@ -23,6 +23,7 @@ export function MobileNotesPage({ document, print = false }: MobileNotesPageProp
           <nav className="mx-auto flex max-w-2xl items-center justify-between gap-3" aria-label="Mobile documents">
             <Link
               to="/home"
+              search={{ minimized: false, maximized: false, x: 84, y: 92 }}
               className="flex min-w-0 items-center gap-2 text-os-ink no-underline"
               activeProps={{ 'aria-current': 'page' }}
             >
@@ -36,6 +37,7 @@ export function MobileNotesPage({ document, print = false }: MobileNotesPageProp
             </Link>
             <Link
               to="/cv"
+              search={{ minimized: false, maximized: false, x: 122, y: 118 }}
               className="shrink-0 rounded-control border border-os-border bg-white/65 px-3 py-1.5 text-caption font-black text-lagoon-deep no-underline"
               activeProps={{ 'aria-current': 'page' }}
             >

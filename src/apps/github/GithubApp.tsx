@@ -53,7 +53,7 @@ export const GithubApp = memo(function GithubApp({
 
   return (
     <section
-      className="flex min-h-0 flex-1 flex-col text-github-ink [max-height:calc(min(680px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:[max-height:calc(100svh_-_174px)]"
+      className="flex min-h-0 flex-1 flex-col text-github-ink [max-height:calc(min(680px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:max-h-none"
       aria-label="GitHub live data"
     >
       <div className="flex items-center justify-between gap-4 border-b border-github-border bg-github-surface/90 px-3.5 py-2.5">

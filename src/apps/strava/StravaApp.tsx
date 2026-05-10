@@ -100,7 +100,7 @@ export function StravaApp({
 
   return (
     <section
-      className="flex min-h-0 flex-1 flex-col bg-strava-bg text-strava-text [max-height:calc(min(700px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:[max-height:calc(100svh_-_174px)]"
+      className="flex min-h-0 flex-1 flex-col bg-strava-bg text-strava-text [max-height:calc(min(700px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:max-h-none"
       aria-label="Strava live data"
     >
       <div className="flex items-center justify-between gap-4 border-b border-strava/30 bg-strava-panel px-4 py-3">
