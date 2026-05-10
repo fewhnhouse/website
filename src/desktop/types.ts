@@ -7,7 +7,7 @@ export type DesktopSearch = {
 
 export type NotesDocumentId = 'home' | 'cv'
 
-export type AppId = 'github' | 'notes' | 'skills' | 'strava' | 'terminal'
+export type AppId = 'github' | 'help' | 'issues' | 'notes' | 'skills' | 'strava' | 'terminal'
 
 export type RouteApp =
   | {

@@ -1,4 +1,4 @@
-import { Activity, FileText, Gauge, Github, Terminal } from 'lucide-react'
+import { Activity, CircleDot, FileText, Gauge, Github, Terminal } from 'lucide-react'
 
 export const desktopApps = [
   {
@@ -30,6 +30,13 @@ export const desktopApps = [
     accent: '#f0f3f6',
   },
   {
+    id: 'issues',
+    title: 'Issues',
+    subtitle: 'Project board',
+    icon: CircleDot,
+    accent: '#6f7cff',
+  },
+  {
     id: 'strava',
     title: 'Strava',
     subtitle: 'Live efforts',
@@ -50,5 +57,6 @@ export const dockApps = [
   { id: 'terminal', label: 'Terminal', icon: Terminal },
   { id: 'skills', label: 'Skills', icon: Gauge },
   { id: 'github', label: 'GitHub', icon: Github },
+  { id: 'issues', label: 'Issues', icon: CircleDot },
   { id: 'strava', label: 'Strava', icon: Activity },
 ] as const

@@ -67,6 +67,8 @@ function routeAppFromPathname(pathname: string): RouteApp | null {
   if (pathname === '/home') return { app: 'notes', document: 'home' }
   if (pathname === '/cv') return { app: 'notes', document: 'cv' }
   if (pathname === '/github') return { app: 'github' }
+  if (pathname === '/help') return { app: 'help' }
+  if (pathname === '/issues') return { app: 'issues' }
   if (pathname === '/skills') return { app: 'skills' }
   if (pathname === '/strava') return { app: 'strava' }
   if (pathname === '/terminal') return { app: 'terminal' }

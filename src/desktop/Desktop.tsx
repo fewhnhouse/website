@@ -1,6 +1,8 @@
 import {
   Activity,
   Battery,
+  CircleDot,
+  CircleHelp,
   CornerDownLeft,
   FileText,
   Gauge,
@@ -16,6 +18,10 @@ import type { CSSProperties, KeyboardEvent, PointerEvent, RefObject } from 'reac
 import { GithubApp } from '@/apps/github/GithubApp'
 import { getGithubData } from '@/apps/github/githubData'
 import type { GithubData } from '@/apps/github/types'
+import { HelpApp } from '@/apps/help/HelpApp'
+import { IssuesApp } from '@/apps/issues/IssuesApp'
+import { getIssuesBoardData } from '@/apps/issues/issuesData'
+import type { IssuesBoardData, ProjectIssue } from '@/apps/issues/types'
 import { initialNotesMarkdown, type NotesMarkdownByDocument } from '@/apps/notes/documents'
 import { NotesApp } from '@/apps/notes/NotesApp'
 import { SkillsApp } from '@/apps/skills/SkillsApp'
@@ -80,6 +86,9 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   const [githubData, setGithubData] = useState<GithubData | null>(initialGithubData)
   const [githubError, setGithubError] = useState<string | null>(null)
   const [githubLoading, setGithubLoading] = useState(false)
+  const [issuesData, setIssuesData] = useState<IssuesBoardData | null>(null)
+  const [issuesError, setIssuesError] = useState<string | null>(null)
+  const [issuesLoading, setIssuesLoading] = useState(false)
   const [stravaResult, setStravaResult] = useState<StravaDataResult | null>(null)
   const [stravaError, setStravaError] = useState<string | null>(null)
   const [stravaLoading, setStravaLoading] = useState(false)
@@ -148,6 +157,25 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
       })
   }, [stravaLoading, stravaResult, windows])
 
+  useEffect(() => {
+    const issuesIsVisible = windows.some((window) => window.app === 'issues' && !window.minimized)
+
+    if (!issuesIsVisible || issuesData || issuesLoading) return
+
+    setIssuesError(null)
+    setIssuesLoading(true)
+    getIssuesBoardData()
+      .then((data) => {
+        setIssuesData(data)
+      })
+      .catch((error: unknown) => {
+        setIssuesError(error instanceof Error ? error.message : 'Unable to load GitHub issues')
+      })
+      .finally(() => {
+        setIssuesLoading(false)
+      })
+  }, [issuesData, issuesLoading, windows])
+
   const openHome = () => {
     openApp('notes', 'home')
   }
@@ -158,6 +186,14 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
 
   const openGithub = () => {
     openApp('github')
+  }
+
+  const openHelp = () => {
+    openApp('help')
+  }
+
+  const openIssues = () => {
+    openApp('issues')
   }
 
   const openSkills = () => {
@@ -180,6 +216,22 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   const refreshGithub = useCallback(() => {
     setGithubData(null)
     setGithubError(null)
+  }, [])
+
+  const refreshIssues = useCallback(() => {
+    setIssuesData(null)
+    setIssuesError(null)
+  }, [])
+
+  const addCreatedIssue = useCallback((issue: ProjectIssue) => {
+    setIssuesData((current) =>
+      current
+        ? {
+            ...current,
+            issues: [issue, ...current.issues.filter((existing) => existing.number !== issue.number)],
+          }
+        : current,
+    )
   }, [])
 
   const refreshStrava = useCallback(() => {
@@ -230,7 +282,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
           <button type="button" className={menuButtonClass}>
             View
           </button>
-          <button type="button" className={menuButtonClass}>
+          <button type="button" className={menuButtonClass} onClick={openHelp}>
             Help
           </button>
         </div>
@@ -259,6 +311,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
       <DesktopShortcuts
         openGithub={openGithub}
         openHome={openHome}
+        openIssues={openIssues}
         openNotesDocument={openNotesDocument}
         openSkills={openSkills}
         openStrava={openStrava}
@@ -283,9 +336,14 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
               githubData={githubData}
               githubError={githubError}
               githubLoading={githubLoading}
+              issuesData={issuesData}
+              issuesError={issuesError}
+              issuesLoading={issuesLoading}
               minimizeWindow={minimizeWindow}
               moveWindow={moveWindow}
               onGithubRefresh={refreshGithub}
+              onIssueCreated={addCreatedIssue}
+              onIssuesRefresh={refreshIssues}
               notesMarkdown={notesMarkdown}
               onOpenApp={openApp}
               onResetNotesDocument={resetNotesDocument}
@@ -307,6 +365,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
       <Dock
         openGithub={openGithub}
         openHome={openHome}
+        openIssues={openIssues}
         openSkills={openSkills}
         openStrava={openStrava}
         openTerminal={openTerminal}
@@ -484,6 +543,7 @@ function CommandPalette({
 function DesktopShortcuts({
   openGithub,
   openHome,
+  openIssues,
   openNotesDocument,
   openSkills,
   openStrava,
@@ -491,6 +551,7 @@ function DesktopShortcuts({
 }: {
   openGithub: () => void
   openHome: () => void
+  openIssues: () => void
   openNotesDocument: (document: NotesDocumentId) => void
   openSkills: () => void
   openStrava: () => void
@@ -506,6 +567,7 @@ function DesktopShortcuts({
         const isHome = app.id === 'home'
         const isCv = app.id === 'cv'
         const isGithub = app.id === 'github'
+        const isIssues = app.id === 'issues'
         const isSkills = app.id === 'skills'
         const isStrava = app.id === 'strava'
         const isTerminal = app.id === 'terminal'
@@ -522,13 +584,15 @@ function DesktopShortcuts({
                   ? () => openNotesDocument('cv')
                 : isGithub
                   ? openGithub
-                  : isSkills
-                    ? openSkills
-                    : isStrava
-                      ? openStrava
-                      : isTerminal
-                        ? openTerminal
-                        : undefined
+                  : isIssues
+                    ? openIssues
+                    : isSkills
+                      ? openSkills
+                      : isStrava
+                        ? openStrava
+                        : isTerminal
+                          ? openTerminal
+                          : undefined
             }
             aria-label={
               isHome
@@ -537,13 +601,15 @@ function DesktopShortcuts({
                   ? 'Open cv.mdx'
                   : isGithub
                     ? 'Open GitHub'
-                    : isSkills
-                      ? 'Open Skills'
-                      : isStrava
+                    : isIssues
+                      ? 'Open Issues'
+                      : isSkills
+                        ? 'Open Skills'
+                        : isStrava
                         ? 'Open Strava'
                         : isTerminal
                           ? 'Open Terminal'
-                          : `${app.title} coming soon`
+                          : 'Open app'
             }
           >
             <span
@@ -573,10 +639,15 @@ type DesktopWindowProps = {
   githubData: GithubData | null
   githubError: string | null
   githubLoading: boolean
+  issuesData: IssuesBoardData | null
+  issuesError: string | null
+  issuesLoading: boolean
   minimizeWindow: (window: WindowState) => void
   moveWindow: (event: PointerEvent<HTMLDivElement>) => void
   notesMarkdown: NotesMarkdownByDocument
   onGithubRefresh: () => void
+  onIssueCreated: (issue: ProjectIssue) => void
+  onIssuesRefresh: () => void
   onOpenApp: (app: AppId, document?: NotesDocumentId) => void
   onResetNotesDocument: (document: NotesDocumentId) => void
   onStravaRefresh: () => void
@@ -599,10 +670,15 @@ function DesktopWindow({
   githubData,
   githubError,
   githubLoading,
+  issuesData,
+  issuesError,
+  issuesLoading,
   minimizeWindow,
   moveWindow,
   notesMarkdown,
   onGithubRefresh,
+  onIssueCreated,
+  onIssuesRefresh,
   onOpenApp,
   onResetNotesDocument,
   onStravaRefresh,
@@ -619,23 +695,31 @@ function DesktopWindow({
   const activeAppTitle =
     window.app === 'github'
       ? 'github.app'
-      : window.app === 'skills'
-        ? 'skills.app'
-        : window.app === 'strava'
-          ? 'strava.app'
-          : window.app === 'terminal'
-            ? 'terminal.app'
-            : 'notes.app'
+      : window.app === 'help'
+        ? 'help.app'
+        : window.app === 'issues'
+          ? 'issues.app'
+          : window.app === 'skills'
+            ? 'skills.app'
+            : window.app === 'strava'
+              ? 'strava.app'
+              : window.app === 'terminal'
+                ? 'terminal.app'
+                : 'notes.app'
   const ActiveAppIcon =
     window.app === 'github'
       ? Github
-      : window.app === 'skills'
-        ? Gauge
-        : window.app === 'strava'
-          ? Activity
-          : window.app === 'terminal'
-            ? Terminal
-            : FileText
+      : window.app === 'help'
+        ? CircleHelp
+        : window.app === 'issues'
+          ? CircleDot
+          : window.app === 'skills'
+            ? Gauge
+            : window.app === 'strava'
+              ? Activity
+              : window.app === 'terminal'
+                ? Terminal
+                : FileText
 
   return (
     <motion.section
@@ -643,13 +727,17 @@ function DesktopWindow({
       className={`${windowBaseClass} ${window.maximized ? 'os-window--maximized' : ''} ${
         window.app === 'github'
           ? 'bg-[rgba(246,248,250,0.94)]'
-          : window.app === 'skills'
-            ? 'bg-[rgba(247,252,249,0.94)]'
-            : window.app === 'strava'
-              ? 'border-strava/45 bg-strava-bg'
-              : window.app === 'terminal'
-                ? 'border-[#17383b] bg-[#071416]'
-                : ''
+          : window.app === 'help'
+            ? 'bg-[rgba(250,252,247,0.94)]'
+            : window.app === 'issues'
+              ? 'bg-[rgba(248,249,255,0.94)]'
+              : window.app === 'skills'
+                ? 'bg-[rgba(247,252,249,0.94)]'
+                : window.app === 'strava'
+                  ? 'border-strava/45 bg-strava-bg'
+                  : window.app === 'terminal'
+                    ? 'border-[#17383b] bg-[#071416]'
+                    : ''
       } ${window.maximized ? maximizedWindowClass : ''}`}
       style={{ zIndex: window.z }}
       initial={{
@@ -728,6 +816,16 @@ function DesktopWindow({
           onRefresh={onGithubRefresh}
         />
       ) : null}
+      {window.app === 'help' ? <HelpApp /> : null}
+      {window.app === 'issues' ? (
+        <IssuesApp
+          data={issuesData}
+          error={issuesError}
+          loading={issuesLoading}
+          onIssueCreated={onIssueCreated}
+          onRefresh={onIssuesRefresh}
+        />
+      ) : null}
       {window.app === 'strava' ? (
         <StravaApp
           error={stravaError}
@@ -766,6 +864,7 @@ function TrafficButton({
 function Dock({
   openGithub,
   openHome,
+  openIssues,
   openSkills,
   openStrava,
   openTerminal,
@@ -773,6 +872,7 @@ function Dock({
 }: {
   openGithub: () => void
   openHome: () => void
+  openIssues: () => void
   openSkills: () => void
   openStrava: () => void
   openTerminal: () => void
@@ -787,6 +887,7 @@ function Dock({
         const Icon = app.icon
         const isNotes = app.id === 'notes'
         const isGithub = app.id === 'github'
+        const isIssues = app.id === 'issues'
         const isSkills = app.id === 'skills'
         const isStrava = app.id === 'strava'
         const isTerminal = app.id === 'terminal'
@@ -806,26 +907,30 @@ function Dock({
                 ? openHome
                 : isGithub
                   ? openGithub
-                  : isSkills
-                    ? openSkills
-                    : isStrava
-                      ? openStrava
-                      : isTerminal
-                        ? openTerminal
-                        : undefined
+                  : isIssues
+                    ? openIssues
+                    : isSkills
+                      ? openSkills
+                      : isStrava
+                        ? openStrava
+                        : isTerminal
+                          ? openTerminal
+                          : undefined
             }
             aria-label={
               isNotes
                 ? 'Open notes'
                 : isGithub
                   ? 'Open GitHub'
-                  : isSkills
-                    ? 'Open Skills'
-                    : isStrava
-                      ? 'Open Strava'
-                      : isTerminal
-                        ? 'Open Terminal'
-                        : `${app.label} coming soon`
+                  : isIssues
+                    ? 'Open Issues'
+                    : isSkills
+                      ? 'Open Skills'
+                      : isStrava
+                        ? 'Open Strava'
+                        : isTerminal
+                          ? 'Open Terminal'
+                          : 'Open app'
             }
           >
             <Icon aria-hidden="true" size={24} />
@@ -855,9 +960,13 @@ function windowAnimationFor(window: WindowState) {
         width:
           window.app === 'github' || window.app === 'skills' || window.app === 'strava'
             ? 'min(920px, calc(100vw - 1.5rem))'
-            : window.app === 'terminal'
-              ? 'min(760px, calc(100vw - 1.5rem))'
-              : 'min(720px, calc(100vw - 1.5rem))',
+            : window.app === 'help'
+              ? 'min(680px, calc(100vw - 1.5rem))'
+              : window.app === 'issues'
+                ? 'min(980px, calc(100vw - 1.5rem))'
+                : window.app === 'terminal'
+                  ? 'min(760px, calc(100vw - 1.5rem))'
+                  : 'min(720px, calc(100vw - 1.5rem))',
         height: 'auto',
         scale: 1,
         opacity: 1,

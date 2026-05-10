@@ -7,6 +7,8 @@ const dockOffset = 116
 
 const appSizes = {
   github: { width: 920, height: 640 },
+  help: { width: 680, height: 560 },
+  issues: { width: 980, height: 680 },
   notes: { width: 720, height: 620 },
   skills: { width: 920, height: 640 },
   strava: { width: 920, height: 640 },
