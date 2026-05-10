@@ -46,9 +46,9 @@ import { useDesktopWindows } from './useDesktopWindows'
 const menuButtonClass =
   'cursor-pointer appearance-none whitespace-nowrap border-0 bg-transparent font-[inherit] text-window font-extrabold text-os-ink-muted max-[900px]:hidden'
 const desktopIconClass =
-  'grid min-h-[94px] w-desktop-icon cursor-pointer appearance-none justify-items-center gap-1 rounded-[10px] border border-transparent bg-transparent text-center font-[inherit] text-os-ink hover:border-white/45 hover:bg-white/20 focus-visible:border-white/45 focus-visible:bg-white/20 focus-visible:outline-none max-[720px]:w-[74px]'
+  'grid min-h-[94px] w-desktop-icon cursor-pointer appearance-none justify-items-center gap-1 rounded-[10px] border border-transparent bg-transparent text-center font-[inherit] text-[var(--desktop-icon-fg)] hover:border-white/45 hover:bg-white/20 focus-visible:border-white/45 focus-visible:bg-white/20 focus-visible:outline-none max-[720px]:w-[74px]'
 const desktopIconTileClass =
-  'grid size-desktop-tile place-items-center rounded-icon border border-white/50 bg-[image:var(--desktop-tile-bg)] text-os-ink shadow-desktop-tile max-[720px]:size-12 max-[720px]:rounded-[14px]'
+  'grid size-desktop-tile place-items-center rounded-icon border border-white/50 bg-[image:var(--desktop-tile-bg)] text-[var(--desktop-tile-fg)] shadow-desktop-tile max-[720px]:size-12 max-[720px]:rounded-[14px]'
 const windowBaseClass =
   'absolute top-0 left-0 z-10 flex w-[min(720px,calc(100vw_-_1.5rem))] max-h-[min(640px,calc(100svh_-_7.25rem))] origin-center flex-col overflow-hidden rounded-window border border-os-border-strong bg-os-panel shadow-window backdrop-blur-[22px] will-change-[transform,opacity,filter,width,height] max-[720px]:w-[calc(100vw_-_1rem)] max-[720px]:max-h-[calc(100svh_-_8.4rem)]'
 const maximizedWindowClass =
@@ -64,36 +64,52 @@ const desktopStorageKey = 'felixos.desktop.settings'
 
 const wallpaperOptions = [
   {
-    id: 'lagoon',
-    name: 'Lagoon',
+    id: 'aurora',
+    name: 'Aurora',
     shell:
-      'radial-gradient(circle at 16% 18%, rgba(246, 200, 95, 0.55), transparent 22%), radial-gradient(circle at 84% 12%, rgba(96, 215, 207, 0.42), transparent 26%), linear-gradient(135deg, #cbded8 0%, #ecf4ec 46%, #a9d4cd 100%)',
-    wallpaper:
-      'linear-gradient(115deg, transparent 0 48%, rgba(20, 38, 45, 0.08) 48.2% 48.7%, transparent 49%), linear-gradient(28deg, transparent 0 52%, rgba(255, 255, 255, 0.38) 52.2% 52.6%, transparent 53%), radial-gradient(900px 520px at 50% 78%, rgba(47, 106, 74, 0.28), transparent 62%)',
+      'linear-gradient(135deg, #f7fbff 0%, #c8f4e8 32%, #9db7ff 68%, #f5bfd6 100%)',
+    wallpaper: 'linear-gradient(135deg, rgba(255,255,255,0.28), rgba(255,255,255,0))',
+    desktopIcon: '#14262d',
+    desktopIconSoft: 'rgba(20, 38, 45, 0.58)',
+    desktopTileIcon: '#14262d',
+    desktopTile:
+      'linear-gradient(145deg, rgba(255,255,255,0.7), rgba(255,255,255,0.18)), linear-gradient(135deg, color-mix(in oklab, var(--accent) 82%, white), var(--accent))',
   },
   {
-    id: 'carbon',
-    name: 'Carbon',
+    id: 'daybreak',
+    name: 'Daybreak',
     shell:
-      'radial-gradient(circle at 18% 18%, rgba(94, 211, 199, 0.28), transparent 25%), radial-gradient(circle at 84% 16%, rgba(231, 240, 232, 0.18), transparent 24%), linear-gradient(135deg, #102428 0%, #21383b 48%, #071416 100%)',
-    wallpaper:
-      'linear-gradient(135deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 18px), radial-gradient(900px 520px at 62% 72%, rgba(96, 215, 207, 0.2), transparent 64%)',
+      'linear-gradient(135deg, #fff7d6 0%, #ffc6a8 34%, #ff8fb8 68%, #8b9cff 100%)',
+    wallpaper: 'linear-gradient(180deg, rgba(255,255,255,0.3), rgba(255,255,255,0.04))',
+    desktopIcon: '#14262d',
+    desktopIconSoft: 'rgba(20, 38, 45, 0.58)',
+    desktopTileIcon: '#14262d',
+    desktopTile:
+      'linear-gradient(145deg, rgba(255,255,255,0.7), rgba(255,255,255,0.18)), linear-gradient(135deg, color-mix(in oklab, var(--accent) 82%, white), var(--accent))',
   },
   {
-    id: 'field-notes',
-    name: 'Field Notes',
+    id: 'pacific',
+    name: 'Pacific',
     shell:
-      'radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.58), transparent 25%), radial-gradient(circle at 86% 18%, rgba(47, 106, 74, 0.24), transparent 25%), linear-gradient(135deg, #dfead4 0%, #f8fbef 48%, #a9c8a7 100%)',
-    wallpaper:
-      'linear-gradient(120deg, transparent 0 44%, rgba(47,106,74,0.12) 44.2% 45%, transparent 45.2%), radial-gradient(900px 520px at 44% 82%, rgba(246, 200, 95, 0.22), transparent 62%)',
+      'linear-gradient(135deg, #eaf7ff 0%, #8de5db 30%, #4fa6d8 65%, #263f8f 100%)',
+    wallpaper: 'linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.02))',
+    desktopIcon: '#14262d',
+    desktopIconSoft: 'rgba(20, 38, 45, 0.58)',
+    desktopTileIcon: '#14262d',
+    desktopTile:
+      'linear-gradient(145deg, rgba(255,255,255,0.7), rgba(255,255,255,0.18)), linear-gradient(135deg, color-mix(in oklab, var(--accent) 82%, white), var(--accent))',
   },
   {
-    id: 'portrait',
-    name: 'Portrait',
+    id: 'midnight',
+    name: 'Midnight',
     shell:
-      'linear-gradient(rgba(236,244,236,0.76), rgba(169,212,205,0.76)), url("/felix-portrait.jpg") center 30% / cover no-repeat',
-    wallpaper:
-      'radial-gradient(860px 520px at 50% 82%, rgba(20, 38, 45, 0.24), transparent 64%), linear-gradient(115deg, transparent 0 50%, rgba(255, 255, 255, 0.28) 50.2% 50.7%, transparent 51%)',
+      'linear-gradient(135deg, #071416 0%, #14262d 34%, #274b67 68%, #6f7cff 100%)',
+    wallpaper: 'linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0))',
+    desktopIcon: '#f4fbff',
+    desktopIconSoft: 'rgba(244, 251, 255, 0.72)',
+    desktopTileIcon: '#f4fbff',
+    desktopTile:
+      'linear-gradient(145deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)), linear-gradient(135deg, color-mix(in oklab, var(--accent) 44%, #ffffff), color-mix(in oklab, var(--accent) 70%, #071416))',
   },
 ] as const
 
@@ -118,7 +134,7 @@ type DesktopSettings = {
 const defaultDesktopSettings: DesktopSettings = {
   screensaverMinutes: 5,
   screensaver: 'dvd',
-  wallpaper: 'lagoon',
+  wallpaper: 'aurora',
 }
 
 function parseDesktopSettings(value: string | null): DesktopSettings {
@@ -410,6 +426,10 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
             {
               '--os-shell-bg': activeWallpaper.shell,
               '--os-wallpaper-bg': activeWallpaper.wallpaper,
+              '--desktop-icon-fg': activeWallpaper.desktopIcon,
+              '--desktop-icon-muted': activeWallpaper.desktopIconSoft,
+              '--desktop-tile-fg': activeWallpaper.desktopTileIcon,
+              '--desktop-tile-bg': activeWallpaper.desktopTile,
             } as CSSProperties
           }
         >
@@ -696,10 +716,10 @@ function DesktopShortcuts({
             >
               <Icon aria-hidden="true" size={28} />
             </span>
-            <span className="max-w-[82px] overflow-hidden text-ellipsis whitespace-nowrap text-[0.76rem] font-black leading-tight text-os-ink">
+            <span className="max-w-[82px] overflow-hidden text-ellipsis whitespace-nowrap text-[0.76rem] font-black leading-tight text-[var(--desktop-icon-fg)]">
               {app.title}
             </span>
-            <small className="text-[0.64rem] font-extrabold text-os-ink-soft">
+            <small className="text-[0.64rem] font-extrabold text-[var(--desktop-icon-muted)]">
               {app.subtitle}
             </small>
           </button>
