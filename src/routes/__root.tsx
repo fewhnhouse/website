@@ -3,7 +3,9 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import type { GithubData } from '@/apps/github/types'
+import { MobileNotesPage } from '@/apps/notes/MobileNotesPage'
 import { Desktop } from '@/desktop/Desktop'
+import type { NotesDocumentId } from '@/desktop/types'
 import type { RouteApp } from '@/desktop/types'
 
 import appCss from '../styles.css?url'
@@ -46,7 +48,18 @@ function RootApp() {
   })
   const routeApp = routeAppFromPathname(pathname)
 
-  return routeApp ? <Desktop initialGithubData={githubData ?? null} routeApp={routeApp} /> : <Outlet />
+  if (!routeApp) return <Outlet />
+
+  return (
+    <>
+      <div className="hidden md:block">
+        <Desktop initialGithubData={githubData ?? null} routeApp={routeApp} />
+      </div>
+      <div className="md:hidden">
+        <MobileNotesPage document={mobileDocumentFromPathname(pathname)} />
+      </div>
+    </>
+  )
 }
 
 function routeAppFromPathname(pathname: string): RouteApp | null {
@@ -59,6 +72,10 @@ function routeAppFromPathname(pathname: string): RouteApp | null {
   if (pathname === '/terminal') return { app: 'terminal' }
 
   return null
+}
+
+function mobileDocumentFromPathname(pathname: string): NotesDocumentId {
+  return pathname === '/cv' ? 'cv' : 'home'
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {

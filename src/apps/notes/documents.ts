@@ -15,7 +15,7 @@ My work tends to sit where product engineering meets operations: turning ideas i
 
 I enjoy clean TypeScript, pragmatic architecture, good developer experience, observability, automation, and infrastructure that does not require heroics to operate. The best systems feel calm because the important tradeoffs have already been made explicit.
 
-For a structured version of my background, open \`cv.mdx\`.
+For a structured version of my background, open [\`cv.mdx\`](/cv).
 
 ## Outside the editor
 
