@@ -31,7 +31,7 @@ const bookmarks = [
   },
   {
     label: 'GitHub',
-    url: 'https://github.com/felixwohnhaas',
+    url: 'https://github.com/fewhnhouse',
   },
 ] as const
 
