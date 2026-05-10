@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TerminalRouteImport } from './routes/terminal'
 import { Route as StravaRouteImport } from './routes/strava'
 import { Route as SkillsRouteImport } from './routes/skills'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as IssuesRouteImport } from './routes/issues'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as HelpRouteImport } from './routes/help'
@@ -41,6 +42,11 @@ const StravaRoute = StravaRouteImport.update({
 const SkillsRoute = SkillsRouteImport.update({
   id: '/skills',
   path: '/skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IssuesRoute = IssuesRouteImport.update({
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/issues': typeof IssuesRoute
+  '/settings': typeof SettingsRoute
   '/skills': typeof SkillsRoute
   '/strava': typeof StravaRoute
   '/terminal': typeof TerminalRoute
@@ -148,6 +155,7 @@ export interface FileRoutesByTo {
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/issues': typeof IssuesRoute
+  '/settings': typeof SettingsRoute
   '/skills': typeof SkillsRoute
   '/strava': typeof StravaRoute
   '/terminal': typeof TerminalRoute
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/issues': typeof IssuesRoute
+  '/settings': typeof SettingsRoute
   '/skills': typeof SkillsRoute
   '/strava': typeof StravaRoute
   '/terminal': typeof TerminalRoute
@@ -191,6 +200,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/home'
     | '/issues'
+    | '/settings'
     | '/skills'
     | '/strava'
     | '/terminal'
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/home'
     | '/issues'
+    | '/settings'
     | '/skills'
     | '/strava'
     | '/terminal'
@@ -231,6 +242,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/home'
     | '/issues'
+    | '/settings'
     | '/skills'
     | '/strava'
     | '/terminal'
@@ -252,6 +264,7 @@ export interface RootRouteChildren {
   HelpRoute: typeof HelpRoute
   HomeRoute: typeof HomeRoute
   IssuesRoute: typeof IssuesRoute
+  SettingsRoute: typeof SettingsRoute
   SkillsRoute: typeof SkillsRoute
   StravaRoute: typeof StravaRoute
   TerminalRoute: typeof TerminalRoute
@@ -285,6 +298,13 @@ declare module '@tanstack/react-router' {
       path: '/skills'
       fullPath: '/skills'
       preLoaderRoute: typeof SkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/issues': {
@@ -404,6 +424,7 @@ const rootRouteChildren: RootRouteChildren = {
   HelpRoute: HelpRoute,
   HomeRoute: HomeRoute,
   IssuesRoute: IssuesRoute,
+  SettingsRoute: SettingsRoute,
   SkillsRoute: SkillsRoute,
   StravaRoute: StravaRoute,
   TerminalRoute: TerminalRoute,

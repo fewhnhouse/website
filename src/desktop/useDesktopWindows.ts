@@ -167,6 +167,7 @@ export function useDesktopWindows(routeApp: RouteApp) {
     if (window.app === 'github') return '/github'
     if (window.app === 'help') return '/help'
     if (window.app === 'issues') return '/issues'
+    if (window.app === 'settings') return '/settings'
     if (window.app === 'skills') return '/skills'
     if (window.app === 'strava') return '/strava'
     if (window.app === 'terminal') return '/terminal'

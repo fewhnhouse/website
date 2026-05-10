@@ -1,4 +1,14 @@
-import { Activity, CircleDot, CircleHelp, FileText, Gauge, Github, Globe2, Terminal } from 'lucide-react'
+import {
+  Activity,
+  CircleDot,
+  CircleHelp,
+  FileText,
+  Gauge,
+  Github,
+  Globe2,
+  MonitorCog,
+  Terminal,
+} from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 import type { AppId, NotesDocumentId } from './types'
@@ -117,6 +127,17 @@ export const appCatalog: readonly AppCatalogItem[] = [
     target: { app: 'terminal' },
     terminalName: 'terminal.app',
     terminalAliases: ['shell'],
+  },
+  {
+    id: 'settings',
+    title: 'Settings',
+    subtitle: 'Desktop',
+    icon: MonitorCog,
+    accent: '#f6c85f',
+    target: { app: 'settings' },
+    terminalName: 'settings.app',
+    terminalAliases: ['settings', 'preferences', 'desktop'],
+    desktop: false,
   },
 ] as const
 

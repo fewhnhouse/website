@@ -11,6 +11,7 @@ const appSizes = {
   help: { width: 680, height: 560 },
   issues: { width: 980, height: 680 },
   notes: { width: 720, height: 620 },
+  settings: { width: 720, height: 620 },
   skills: { width: 920, height: 640 },
   strava: { width: 920, height: 640 },
   terminal: { width: 760, height: 480 },

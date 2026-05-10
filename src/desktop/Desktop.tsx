@@ -1,21 +1,16 @@
 import {
   Activity,
   Battery,
-  Check,
   CircleDot,
   CircleHelp,
-  Clock3,
   FileText,
   Gauge,
   Github,
   Globe2,
-  Image,
   MonitorCog,
-  Play,
   Search,
   Terminal,
   Wifi,
-  X,
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -31,6 +26,7 @@ import { getIssuesBoardData } from '@/apps/issues/issuesData'
 import type { IssuesBoardData, ProjectIssue } from '@/apps/issues/types'
 import { initialNotesMarkdown, type NotesMarkdownByDocument } from '@/apps/notes/documents'
 import { NotesApp } from '@/apps/notes/NotesApp'
+import { SettingsApp } from '@/apps/settings/SettingsApp'
 import { SkillsApp } from '@/apps/skills/SkillsApp'
 import { StravaApp } from '@/apps/strava/StravaApp'
 import { getStravaData, type StravaDataResult } from '@/apps/strava/stravaData'
@@ -41,7 +37,6 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
-import { Slider } from '@/components/ui/slider'
 
 import { desktopApps, dockApps } from './apps'
 import { CommandPalette } from './CommandPalette'
@@ -104,19 +99,9 @@ const wallpaperOptions = [
 
 const screensaverOptions = [
   {
-    id: 'orbit',
-    name: 'Orbit',
-    description: 'Quiet rings and scanlines',
-  },
-  {
-    id: 'terminal',
-    name: 'Terminal',
-    description: 'Slow FelixOS diagnostics',
-  },
-  {
-    id: 'photos',
-    name: 'Photos',
-    description: 'Portrait drift',
+    id: 'dvd',
+    name: 'DVD Logo',
+    description: 'Classic corner-hunting bounce',
   },
 ] as const
 
@@ -132,7 +117,7 @@ type DesktopSettings = {
 
 const defaultDesktopSettings: DesktopSettings = {
   screensaverMinutes: 5,
-  screensaver: 'orbit',
+  screensaver: 'dvd',
   wallpaper: 'lagoon',
 }
 
@@ -202,7 +187,6 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
     ...initialNotesMarkdown,
   }))
   const [commandOpen, setCommandOpen] = useState(false)
-  const [settingsOpen, setSettingsOpen] = useState(false)
   const [screensaverMode, setScreensaverMode] = useState<ScreensaverMode | null>(null)
   const [desktopSettings, setDesktopSettings] = useState<DesktopSettings>(defaultDesktopSettings)
   const stravaRequestAttempted = useRef(false)
@@ -342,6 +326,10 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
 
   const openIssues = () => {
     openApp('issues')
+  }
+
+  const openSettings = () => {
+    openApp('settings')
   }
 
   const openSkills = () => {
@@ -487,6 +475,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
               key={`${windowKey(window)}-window`}
               active={focusedWindow === windowKey(window)}
               closeWindow={closeWindow}
+              desktopSettings={desktopSettings}
               focusWindow={focusWindow}
               githubData={githubData}
               githubError={githubError}
@@ -499,11 +488,24 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
               onGithubRefresh={refreshGithub}
               onIssueCreated={addCreatedIssue}
               onIssuesRefresh={refreshIssues}
+              onPreviewScreensaver={() => setScreensaverMode('preview')}
               notesMarkdown={notesMarkdown}
               onOpenApp={openApp}
               onResetNotesDocument={resetNotesDocument}
+              onScreensaverMinutesChange={(minutes) =>
+                setDesktopSettings((current) => ({
+                  ...current,
+                  screensaverMinutes: minutes,
+                }))
+              }
               onStravaRefresh={refreshStrava}
               onUpdateNotesMarkdown={updateNotesMarkdown}
+              onWallpaperChange={(wallpaper) =>
+                setDesktopSettings((current) => ({
+                  ...current,
+                  wallpaper: isWallpaperId(wallpaper) ? wallpaper : current.wallpaper,
+                }))
+              }
               startDrag={startDrag}
               stopDrag={stopDrag}
               stravaError={stravaError}
@@ -528,18 +530,9 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
         windows={windows}
       />
           <AnimatePresence>
-            {settingsOpen ? (
-              <DesktopSettingsPanel
-                settings={desktopSettings}
-                onChange={setDesktopSettings}
-                onClose={() => setSettingsOpen(false)}
-                onPreviewScreensaver={() => setScreensaverMode('preview')}
-              />
-            ) : null}
             {screensaverMode ? (
               <ScreensaverOverlay
                 mode={screensaverMode}
-                screensaver={desktopSettings.screensaver}
                 onClose={() => setScreensaverMode(null)}
               />
             ) : null}
@@ -547,7 +540,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
         </main>
       </ContextMenuTrigger>
       <ContextMenuContent>
-        <ContextMenuItem onSelect={() => setSettingsOpen(true)}>
+        <ContextMenuItem onSelect={openSettings}>
           <MonitorCog aria-hidden="true" size={16} />
           Desktop Settings
         </ContextMenuItem>
@@ -556,180 +549,81 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   )
 }
 
-function DesktopSettingsPanel({
-  settings,
-  onChange,
-  onClose,
-  onPreviewScreensaver,
-}: {
-  settings: DesktopSettings
-  onChange: React.Dispatch<React.SetStateAction<DesktopSettings>>
-  onClose: () => void
-  onPreviewScreensaver: () => void
-}) {
-  return (
-    <motion.div
-      className="fixed inset-0 z-[2147483638] grid place-items-center bg-[rgba(20,38,45,0.18)] px-4 backdrop-blur-[4px]"
-      onPointerDown={onClose}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.14 }}
-      role="presentation"
-    >
-      <motion.section
-        className="w-[min(720px,calc(100vw_-_2rem))] overflow-hidden rounded-window border border-os-border-strong bg-[rgba(250,252,247,0.96)] text-os-ink shadow-window backdrop-blur-[22px]"
-        onPointerDown={(event) => event.stopPropagation()}
-        onContextMenu={(event) => event.stopPropagation()}
-        initial={{ y: 16, scale: 0.98, opacity: 0 }}
-        animate={{ y: 0, scale: 1, opacity: 1 }}
-        exit={{ y: 12, scale: 0.98, opacity: 0 }}
-        transition={{ type: 'spring', stiffness: 480, damping: 38, mass: 0.8 }}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Desktop settings"
-      >
-        <div className="flex min-h-titlebar items-center justify-between border-b border-os-border bg-[image:var(--os-titlebar-bg)] px-3">
-          <div className="flex items-center gap-2 text-window font-black text-os-ink-muted">
-            <MonitorCog aria-hidden="true" size={16} />
-            <span>desktop.settings</span>
-          </div>
-          <button
-            type="button"
-            className="grid size-8 cursor-pointer place-items-center rounded-control border border-transparent text-os-ink-soft hover:border-os-border hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lagoon/35"
-            onClick={onClose}
-            aria-label="Close desktop settings"
-          >
-            <X aria-hidden="true" size={16} />
-          </button>
-        </div>
-
-        <div className="grid gap-5 p-4 max-[680px]:max-h-[calc(100svh_-_7rem)] max-[680px]:overflow-y-auto">
-          <section className="grid gap-3">
-            <h2 className="m-0 flex items-center gap-2 text-[0.82rem] font-black text-os-ink">
-              <Image aria-hidden="true" size={16} />
-              Background
-            </h2>
-            <div className="grid grid-cols-4 gap-2 max-[680px]:grid-cols-2">
-              {wallpaperOptions.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  className={`grid gap-2 rounded-card border p-2 text-left font-[inherit] transition ${
-                    settings.wallpaper === option.id
-                      ? 'border-lagoon bg-white/78 shadow-chip'
-                      : 'border-os-border bg-white/42 hover:border-os-border-strong hover:bg-white/62'
-                  }`}
-                  onClick={() =>
-                    onChange((current) => ({
-                      ...current,
-                      wallpaper: option.id,
-                    }))
-                  }
-                >
-                  <span
-                    className="relative block aspect-[1.45] overflow-hidden rounded-[7px] border border-white/60 bg-[image:var(--preview-shell)] shadow-chip after:absolute after:inset-0 after:bg-[image:var(--preview-wallpaper)] after:content-['']"
-                    style={
-                      {
-                        '--preview-shell': option.shell,
-                        '--preview-wallpaper': option.wallpaper,
-                      } as CSSProperties
-                    }
-                  />
-                  <span className="flex items-center justify-between gap-2 text-caption font-black text-os-ink">
-                    {option.name}
-                    {settings.wallpaper === option.id ? <Check aria-hidden="true" size={14} /> : null}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="grid gap-3">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="m-0 flex items-center gap-2 text-[0.82rem] font-black text-os-ink">
-                <Clock3 aria-hidden="true" size={16} />
-                Screensaver
-              </h2>
-              <button
-                type="button"
-                className="inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-control border border-os-border bg-white/62 px-2.5 text-caption font-black text-os-ink hover:bg-white/82 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lagoon/35"
-                onClick={onPreviewScreensaver}
-              >
-                <Play aria-hidden="true" size={14} />
-                Preview
-              </button>
-            </div>
-            <div className="grid grid-cols-3 gap-2 max-[680px]:grid-cols-1">
-              {screensaverOptions.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  className={`grid gap-1 rounded-card border px-3 py-2 text-left font-[inherit] transition ${
-                    settings.screensaver === option.id
-                      ? 'border-lagoon bg-white/78 shadow-chip'
-                      : 'border-os-border bg-white/42 hover:border-os-border-strong hover:bg-white/62'
-                  }`}
-                  onClick={() =>
-                    onChange((current) => ({
-                      ...current,
-                      screensaver: option.id,
-                    }))
-                  }
-                >
-                  <span className="flex items-center justify-between gap-2 text-window font-black text-os-ink">
-                    {option.name}
-                    {settings.screensaver === option.id ? <Check aria-hidden="true" size={14} /> : null}
-                  </span>
-                  <span className="text-caption font-extrabold text-os-ink-soft">
-                    {option.description}
-                  </span>
-                </button>
-              ))}
-            </div>
-            <div className="rounded-card border border-os-border bg-white/48 p-3">
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <span className="text-window font-black text-os-ink">Start after inactivity</span>
-                <span className="rounded-control border border-os-border bg-white/70 px-2 py-1 text-caption font-black text-os-ink-soft">
-                  {settings.screensaverMinutes} min
-                </span>
-              </div>
-              <Slider
-                min={1}
-                max={10}
-                step={1}
-                value={[settings.screensaverMinutes]}
-                onValueChange={([value]) =>
-                  onChange((current) => ({
-                    ...current,
-                    screensaverMinutes: value ?? current.screensaverMinutes,
-                  }))
-                }
-                aria-label="Screensaver start time in minutes"
-              />
-            </div>
-          </section>
-        </div>
-      </motion.section>
-    </motion.div>
-  )
-}
-
 function ScreensaverOverlay({
   mode,
-  screensaver,
   onClose,
 }: {
   mode: ScreensaverMode
-  screensaver: ScreensaverId
   onClose: () => void
 }) {
-  const isTerminal = screensaver === 'terminal'
-  const isPhotos = screensaver === 'photos'
+  const logoRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const logo = logoRef.current
+    if (!logo) return
+
+    const colors = ['#ff5b5f', '#2d7dff', '#22d05f', '#f0d326', '#b45cff', '#ffffff']
+    let colorIndex = 0
+    let animationFrame = 0
+    let lastTime = performance.now()
+    let x = Math.min(96, window.innerWidth * 0.16)
+    let y = Math.min(80, window.innerHeight * 0.18)
+    let vx = 185
+    let vy = 135
+
+    logo.style.color = colors[colorIndex]
+
+    const changeColor = () => {
+      colorIndex = (colorIndex + 1) % colors.length
+      logo.style.color = colors[colorIndex]
+    }
+
+    const tick = (time: number) => {
+      const elapsedSeconds = Math.min(0.035, (time - lastTime) / 1000)
+      lastTime = time
+
+      const { height, width } = logo.getBoundingClientRect()
+      const maxX = Math.max(0, window.innerWidth - width)
+      const maxY = Math.max(0, window.innerHeight - height)
+      let hitEdge = false
+
+      x += vx * elapsedSeconds
+      y += vy * elapsedSeconds
+
+      if (x <= 0) {
+        x = 0
+        vx = Math.abs(vx)
+        hitEdge = true
+      } else if (x >= maxX) {
+        x = maxX
+        vx = -Math.abs(vx)
+        hitEdge = true
+      }
+
+      if (y <= 0) {
+        y = 0
+        vy = Math.abs(vy)
+        hitEdge = true
+      } else if (y >= maxY) {
+        y = maxY
+        vy = -Math.abs(vy)
+        hitEdge = true
+      }
+
+      if (hitEdge) changeColor()
+
+      logo.style.transform = `translate3d(${x}px, ${y}px, 0)`
+      animationFrame = window.requestAnimationFrame(tick)
+    }
+
+    animationFrame = window.requestAnimationFrame(tick)
+
+    return () => window.cancelAnimationFrame(animationFrame)
+  }, [])
 
   return (
     <motion.div
-      className="fixed inset-0 z-[2147483646] overflow-hidden bg-[#071416] text-white"
+      className="fixed inset-0 z-[2147483646] overflow-hidden bg-black text-white"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -738,41 +632,27 @@ function ScreensaverOverlay({
       role="dialog"
       aria-label={mode === 'preview' ? 'Screensaver preview' : 'Screensaver'}
     >
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.028)_1px,transparent_1px)] bg-[length:42px_42px] opacity-60" />
-      {isPhotos ? (
-        <motion.img
-          className="absolute left-1/2 top-1/2 h-[min(56vw,56vh)] w-[min(56vw,56vh)] rounded-full border border-white/20 object-cover object-[50%_31%] shadow-[0_0_100px_rgba(96,215,207,0.26)]"
-          src="/felix-portrait.jpg"
-          alt=""
-          initial={{ x: '-55%', y: '-48%', rotate: -4 }}
-          animate={{ x: ['-55%', '-44%', '-52%'], y: ['-48%', '-54%', '-43%'], rotate: [-4, 3, -2] }}
-          transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      ) : isTerminal ? (
-        <motion.div
-          className="absolute left-[8vw] top-[18vh] max-w-[min(520px,84vw)] font-mono text-[clamp(0.8rem,2vw,1rem)] font-bold leading-8 text-[#8de5db]"
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: [0.52, 1, 0.64], y: 0 }}
-          transition={{ duration: 4, repeat: Infinity, repeatType: 'reverse' }}
+      <div
+        ref={logoRef}
+        className="absolute left-0 top-0 h-[clamp(5rem,17vw,11rem)] w-[clamp(11rem,36vw,24rem)] will-change-transform"
+        aria-hidden="true"
+      >
+        <svg
+          className="h-full w-full overflow-visible drop-shadow-[0_0_18px_currentColor]"
+          viewBox="0 0 744.09448 347.24408"
+          role="img"
+          aria-label="DVD logo"
         >
-          <p>felixos: idle process active</p>
-          <p>desktop: preserving session</p>
-          <p>signal: github, strava, notes</p>
-          <p>resume: click or press any key</p>
-        </motion.div>
-      ) : (
-        <motion.div
-          className="absolute left-1/2 top-1/2 size-[min(58vw,58vh)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/14 shadow-[0_0_120px_rgba(96,215,207,0.22)]"
-          animate={{ rotate: 360, scale: [0.98, 1.04, 0.98] }}
-          transition={{ rotate: { duration: 22, repeat: Infinity, ease: 'linear' }, scale: { duration: 7, repeat: Infinity } }}
-        >
-          <span className="absolute inset-[18%] rounded-full border border-[#60d7cf]/34" />
-          <span className="absolute inset-[34%] rounded-full border border-white/20" />
-          <span className="absolute left-1/2 top-0 size-4 -translate-x-1/2 rounded-full bg-[#f6c85f] shadow-[0_0_34px_rgba(246,200,95,0.75)]" />
-        </motion.div>
-      )}
+          <g transform="translate(-31.383578,-416.39712)">
+            <g transform="translate(36.559368,120.22576)" fill="currentColor">
+              <path d="M 461.65349,313.82833 C 461.65349,313.82833 423.33901,359.30605 416.17584,367.88512 C 377.94459,413.94585 371.11467,426.27316 370.03182,429.52157 C 370.19841,426.27316 368.78245,413.77925 352.45714,367.21882 C 348.12595,354.80821 334.13279,313.82833 334.13279,313.82833 L 73.510824,313.82833 L 64.348614,352.47606 L 132.81498,352.55936 L 148.89047,352.55936 C 192.95217,352.55936 219.77229,370.21734 212.35929,401.70189 C 204.19664,435.93508 165.71549,450.84443 124.81891,450.84443 L 109.49315,450.84443 L 129.40005,366.80234 L 60.933614,366.80234 L 31.781284,489.49209 L 128.98357,489.49209 C 201.94772,489.49209 271.41363,450.92773 283.57429,401.70189 C 285.82321,392.62298 285.57332,370.05075 279.9927,356.55736 C 279.90941,356.05765 279.74288,355.64117 279.24311,354.55839 C 278.99322,354.14191 278.82663,352.14288 279.9927,351.7264 C 280.65907,351.47651 281.82514,352.72595 281.99174,353.05906 C 282.49151,354.55839 282.99129,355.72446 282.99129,355.72446 L 344.79425,530.13879 L 502.13359,352.55936 L 568.76759,352.55936 L 584.84301,352.55936 C 628.82141,352.55936 655.97471,370.21734 648.47842,401.70189 C 640.31577,435.93508 601.66804,450.84443 560.77145,450.84443 L 545.36239,450.84443 L 565.35259,366.80234 L 496.88622,366.80234 L 467.73382,489.49209 L 564.85282,489.49209 C 637.90025,489.49209 707.78258,451.09425 719.52683,401.70189 C 731.27107,352.30947 679.96291,313.82833 606.58229,313.82833 L 461.65349,313.82833" />
+              <path d="M 347.2097,530.88845 C 162.38379,530.88845 12.540744,552.12802 12.540744,578.36507 C 12.540744,604.51889 162.38379,625.75846 347.2097,625.75846 C 532.03559,625.75846 681.87865,604.51889 681.87865,578.36507 C 681.87865,552.12802 532.03559,530.88845 347.2097,530.88845 z M 335.13234,595.10686 C 292.90302,595.10686 258.66984,588.02705 258.66984,579.28132 C 258.66984,570.5356 292.90302,563.45578 335.13234,563.45578 C 377.27829,563.45578 411.51147,570.5356 411.51147,579.28132 C 411.51147,588.02705 377.27829,595.10686 335.13234,595.10686" />
+            </g>
+          </g>
+        </svg>
+      </div>
       <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between gap-3 text-caption font-black uppercase tracking-[0.12em] text-white/62">
-        <span>FelixOS Screensaver</span>
+        <span>DVD Screensaver</span>
         {mode === 'preview' ? (
           <button
             type="button"
@@ -832,6 +712,7 @@ function DesktopShortcuts({
 type DesktopWindowProps = {
   active: boolean
   closeWindow: (window: WindowState) => void
+  desktopSettings: DesktopSettings
   editorDocumentRef: RefObject<HTMLElement | null>
   focusWindow: (window: WindowState) => void
   githubData: GithubData | null
@@ -847,9 +728,12 @@ type DesktopWindowProps = {
   onIssueCreated: (issue: ProjectIssue) => void
   onIssuesRefresh: () => void
   onOpenApp: (app: AppId, document?: NotesDocumentId) => void
+  onPreviewScreensaver: () => void
   onResetNotesDocument: (document: NotesDocumentId) => void
+  onScreensaverMinutesChange: (minutes: number) => void
   onStravaRefresh: () => void
   onUpdateNotesMarkdown: (document: NotesDocumentId, markdown: string) => void
+  onWallpaperChange: (wallpaper: string) => void
   startDrag: (event: PointerEvent<HTMLDivElement>, window: WindowState) => void
   stopDrag: (event: PointerEvent<HTMLDivElement>) => void
   stravaError: string | null
@@ -863,6 +747,7 @@ type DesktopWindowProps = {
 function DesktopWindow({
   active,
   closeWindow,
+  desktopSettings,
   editorDocumentRef,
   focusWindow,
   githubData,
@@ -878,9 +763,12 @@ function DesktopWindow({
   onIssueCreated,
   onIssuesRefresh,
   onOpenApp,
+  onPreviewScreensaver,
   onResetNotesDocument,
+  onScreensaverMinutesChange,
   onStravaRefresh,
   onUpdateNotesMarkdown,
+  onWallpaperChange,
   startDrag,
   stopDrag,
   stravaError,
@@ -899,13 +787,15 @@ function DesktopWindow({
         ? 'help.app'
         : window.app === 'issues'
           ? 'issues.app'
-          : window.app === 'skills'
-            ? 'skills.app'
-            : window.app === 'strava'
-              ? 'strava.app'
-              : window.app === 'terminal'
-                ? 'terminal.app'
-                : 'notes.app'
+          : window.app === 'settings'
+            ? 'settings.app'
+            : window.app === 'skills'
+              ? 'skills.app'
+              : window.app === 'strava'
+                ? 'strava.app'
+                : window.app === 'terminal'
+                  ? 'terminal.app'
+                  : 'notes.app'
   const ActiveAppIcon =
     window.app === 'browser'
       ? Globe2
@@ -915,13 +805,15 @@ function DesktopWindow({
         ? CircleHelp
         : window.app === 'issues'
           ? CircleDot
-          : window.app === 'skills'
-            ? Gauge
-            : window.app === 'strava'
-              ? Activity
-              : window.app === 'terminal'
-                ? Terminal
-                : FileText
+          : window.app === 'settings'
+            ? MonitorCog
+            : window.app === 'skills'
+              ? Gauge
+              : window.app === 'strava'
+                ? Activity
+                : window.app === 'terminal'
+                  ? Terminal
+                  : FileText
 
   return (
     <motion.section
@@ -933,8 +825,10 @@ function DesktopWindow({
             ? 'bg-[rgba(248,249,255,0.94)]'
             : window.app === 'help'
               ? 'bg-[rgba(250,252,247,0.94)]'
-              : window.app === 'issues'
-                ? 'bg-[rgba(248,249,255,0.94)]'
+            : window.app === 'issues'
+              ? 'bg-[rgba(248,249,255,0.94)]'
+              : window.app === 'settings'
+                ? 'bg-[rgba(250,252,247,0.94)]'
                 : window.app === 'skills'
                   ? 'bg-[rgba(247,252,249,0.94)]'
                   : window.app === 'strava'
@@ -1023,6 +917,16 @@ function DesktopWindow({
         />
       ) : null}
       {window.app === 'help' ? <HelpApp /> : null}
+      {window.app === 'settings' ? (
+        <SettingsApp
+          screensaverMinutes={desktopSettings.screensaverMinutes}
+          selectedWallpaper={desktopSettings.wallpaper}
+          wallpaperOptions={wallpaperOptions}
+          onPreviewScreensaver={onPreviewScreensaver}
+          onScreensaverMinutesChange={onScreensaverMinutesChange}
+          onWallpaperChange={onWallpaperChange}
+        />
+      ) : null}
       {window.app === 'issues' ? (
         <IssuesApp
           data={issuesData}
@@ -1177,7 +1081,7 @@ function windowAnimationFor(window: WindowState) {
           window.app === 'skills' ||
           window.app === 'strava'
             ? 'min(920px, calc(100vw - 1.5rem))'
-            : window.app === 'help'
+            : window.app === 'help' || window.app === 'settings'
               ? 'min(680px, calc(100vw - 1.5rem))'
               : window.app === 'issues'
                 ? 'min(980px, calc(100vw - 1.5rem))'
