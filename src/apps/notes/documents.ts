@@ -11,7 +11,7 @@ export const initialNotesMarkdown = {
   location="Zurich, Switzerland"
 />
 
-*Note: For a structured version of my background, open [\`cv.mdx\`](/cv). You can also find me on [LinkedIn](/browser?url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Ffelix-wohnhaas%2F).*
+*Note: For a structured version of my background, open [\`cv.mdx\`](/cv). You can also find me on [LinkedIn](/browser?url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Ffelix-wohnhaas-b44623142%2F).*
 
 ## Who I am
 
@@ -57,7 +57,7 @@ I work across frontend, backend, and infrastructure to develop holistic products
 ### Core stack
 Extensive Experience Developing Web-Applications with TypeScript, React, Node.js as well as their infrastructure with Docker, Kubernetes and Cloud-based Services in AWS.
 Experience working both with OLAP (Snowflake) and OLTP (PostgreSQL) databases.
-Experience with building software products from the ground up, architecting and designing them, as well as operating them in production.
+Experience with building software products from the ground up, architecting and designing them, as well as operating them in production, including telemetry and monitoring.
 
 ### Working style
 

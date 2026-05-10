@@ -18,7 +18,7 @@ type BrowserAppProps = {
 }
 
 const defaultUrl = 'https://www.google.com/search?igu=1'
-const linkedInUrl = 'https://www.linkedin.com/in/felix-wohnhaas/'
+const linkedInUrl = 'https://www.linkedin.com/in/felix-wohnhaas-b44623142/'
 
 const bookmarks = [
   {
