@@ -6,6 +6,7 @@ import type { NotesDocumentId } from '@/desktop/types'
 
 import { initialNotesMarkdown } from './documents'
 import { loadLocalMdxEditor } from './loadMdxEditor.client'
+import { notesPdfFilename } from './pdfFilename'
 import { RenderedMarkdown } from './RenderedMarkdown'
 
 const LocalMdxEditor = lazy(loadLocalMdxEditor)
@@ -35,6 +36,7 @@ export function NotesApp({
   onResetDocument,
 }: NotesAppProps) {
   const filename = `${document}.mdx`
+  const pdfFilename = notesPdfFilename(document)
   const isEdited = markdown !== initialNotesMarkdown[document]
   const [mode, setMode] = useState<'preview' | 'edit'>('preview')
   const readOnly = mode === 'preview'
@@ -79,6 +81,20 @@ export function NotesApp({
         >
           Reset
         </button>
+        {isEdited ? (
+          <button
+            type="button"
+            className={toolbarButtonClass}
+            disabled
+            title="Reset local edits before downloading. PDFs are generated from the original document only."
+          >
+            Download PDF disabled: reset edits first
+          </button>
+        ) : (
+          <a className={toolbarButtonClass} href={`/api/notes/${document}/pdf`} download={pdfFilename}>
+            Download PDF
+          </a>
+        )}
       </div>
 
       <section

@@ -3,9 +3,16 @@ import type { NotesDocumentId } from "@/desktop/types";
 export type NotesMarkdownByDocument = Record<NotesDocumentId, string>;
 
 export const initialNotesMarkdown = {
-  home: `![Felix Wohnhaas](/felix-portrait.jpg)
+  home: `<ProfileHeader
+  image="/felix-portrait.jpg"
+  name="Felix Wohnhaas"
+  description="Software engineer and entrepreneur who loves building products for people."
+  role="CTO at Pricenow"
+  location="Zurich, Switzerland"
+/>
 
-# Felix Wohnhaas
+*Note: For a structured version of my background, open [\`cv.mdx\`](/cv).*
+
 
 Hi, there, glad you are here!
 As you are on my website, I assume you are here to learn about me, my work, and my interests.

@@ -17,8 +17,10 @@ import { Route as GithubRouteImport } from './routes/github'
 import { Route as CvRouteImport } from './routes/cv'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as NotesDocumentPrintRouteImport } from './routes/notes.$document.print'
 import { Route as ApiStravaCallbackRouteImport } from './routes/api.strava.callback'
 import { Route as ApiStravaAuthRouteImport } from './routes/api.strava.auth'
+import { Route as ApiNotesDocumentPdfRouteImport } from './routes/api.notes.$document.pdf'
 
 const TerminalRoute = TerminalRouteImport.update({
   id: '/terminal',
@@ -60,6 +62,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotesDocumentPrintRoute = NotesDocumentPrintRouteImport.update({
+  id: '/notes/$document/print',
+  path: '/notes/$document/print',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiStravaCallbackRoute = ApiStravaCallbackRouteImport.update({
   id: '/api/strava/callback',
   path: '/api/strava/callback',
@@ -68,6 +75,11 @@ const ApiStravaCallbackRoute = ApiStravaCallbackRouteImport.update({
 const ApiStravaAuthRoute = ApiStravaAuthRouteImport.update({
   id: '/api/strava/auth',
   path: '/api/strava/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiNotesDocumentPdfRoute = ApiNotesDocumentPdfRouteImport.update({
+  id: '/api/notes/$document/pdf',
+  path: '/api/notes/$document/pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -82,6 +94,8 @@ export interface FileRoutesByFullPath {
   '/terminal': typeof TerminalRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
+  '/notes/$document/print': typeof NotesDocumentPrintRoute
+  '/api/notes/$document/pdf': typeof ApiNotesDocumentPdfRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +108,8 @@ export interface FileRoutesByTo {
   '/terminal': typeof TerminalRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
+  '/notes/$document/print': typeof NotesDocumentPrintRoute
+  '/api/notes/$document/pdf': typeof ApiNotesDocumentPdfRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +123,8 @@ export interface FileRoutesById {
   '/terminal': typeof TerminalRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
+  '/notes/$document/print': typeof NotesDocumentPrintRoute
+  '/api/notes/$document/pdf': typeof ApiNotesDocumentPdfRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +139,8 @@ export interface FileRouteTypes {
     | '/terminal'
     | '/api/strava/auth'
     | '/api/strava/callback'
+    | '/notes/$document/print'
+    | '/api/notes/$document/pdf'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +153,8 @@ export interface FileRouteTypes {
     | '/terminal'
     | '/api/strava/auth'
     | '/api/strava/callback'
+    | '/notes/$document/print'
+    | '/api/notes/$document/pdf'
   id:
     | '__root__'
     | '/'
@@ -145,6 +167,8 @@ export interface FileRouteTypes {
     | '/terminal'
     | '/api/strava/auth'
     | '/api/strava/callback'
+    | '/notes/$document/print'
+    | '/api/notes/$document/pdf'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +182,8 @@ export interface RootRouteChildren {
   TerminalRoute: typeof TerminalRoute
   ApiStravaAuthRoute: typeof ApiStravaAuthRoute
   ApiStravaCallbackRoute: typeof ApiStravaCallbackRoute
+  NotesDocumentPrintRoute: typeof NotesDocumentPrintRoute
+  ApiNotesDocumentPdfRoute: typeof ApiNotesDocumentPdfRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -218,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notes/$document/print': {
+      id: '/notes/$document/print'
+      path: '/notes/$document/print'
+      fullPath: '/notes/$document/print'
+      preLoaderRoute: typeof NotesDocumentPrintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/strava/callback': {
       id: '/api/strava/callback'
       path: '/api/strava/callback'
@@ -230,6 +263,13 @@ declare module '@tanstack/react-router' {
       path: '/api/strava/auth'
       fullPath: '/api/strava/auth'
       preLoaderRoute: typeof ApiStravaAuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/notes/$document/pdf': {
+      id: '/api/notes/$document/pdf'
+      path: '/api/notes/$document/pdf'
+      fullPath: '/api/notes/$document/pdf'
+      preLoaderRoute: typeof ApiNotesDocumentPdfRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -246,6 +286,8 @@ const rootRouteChildren: RootRouteChildren = {
   TerminalRoute: TerminalRoute,
   ApiStravaAuthRoute: ApiStravaAuthRoute,
   ApiStravaCallbackRoute: ApiStravaCallbackRoute,
+  NotesDocumentPrintRoute: NotesDocumentPrintRoute,
+  ApiNotesDocumentPdfRoute: ApiNotesDocumentPdfRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
