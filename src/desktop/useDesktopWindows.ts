@@ -1,12 +1,14 @@
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { PointerEvent } from 'react'
 
 import { defaultWindow } from './routeState'
 import { windowKey, type AppId, type DesktopSearch, type NotesDocumentId, type RouteApp, type WindowState } from './types'
+import { defaultPlacementForApp, ensureWindowInViewport } from './windowPlacement'
 
 let rememberedWindows: WindowState[] | null = null
 let rememberedFocusedWindow: string | null = null
+const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
 
 type DesktopWindowMemory = {
   focusedWindow: string | null
@@ -33,6 +35,26 @@ const getDesktopWindowMemory = () => {
 const getRememberedWindows = () => getDesktopWindowMemory()?.windows ?? rememberedWindows
 const getRememberedFocusedWindow = () =>
   getDesktopWindowMemory()?.focusedWindow ?? rememberedFocusedWindow
+
+const routeSearchForApp = (app: AppId, search: DesktopSearch): DesktopSearch => {
+  const searchParams =
+    typeof window === 'undefined' ? null : new URLSearchParams(window.location.search)
+  const hasRouteX = (searchParams?.has('x') ?? false) && search.x !== defaultWindow.x
+  const hasRouteY = (searchParams?.has('y') ?? false) && search.y !== defaultWindow.y
+  const centeredPlacement = defaultPlacementForApp(app)
+  const placement =
+    hasRouteX || hasRouteY
+      ? {
+          x: hasRouteX ? search.x : centeredPlacement.x,
+          y: hasRouteY ? search.y : centeredPlacement.y,
+        }
+      : centeredPlacement
+
+  return {
+    ...search,
+    ...ensureWindowInViewport(app, placement),
+  }
+}
 
 export function useDesktopWindows(routeApp: RouteApp) {
   const search = useSearch({ strict: false }) as DesktopSearch
@@ -97,14 +119,14 @@ export function useDesktopWindows(routeApp: RouteApp) {
     setFocusedWindowState(nextWindow)
   }
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!routeAppId || !routeWindowKey) return
 
     const current = windowsRef.current
     const existing = current.find((window) => windowKey(window) === routeWindowKey)
     const nextZ = zCounter.current++
     const routeWindow: WindowState = {
-      ...search,
+      ...routeSearchForApp(routeAppId, search),
       app: routeAppId,
       document: routeDocument,
       z: nextZ,
@@ -132,21 +154,25 @@ export function useDesktopWindows(routeApp: RouteApp) {
     if (window.app === 'github') return '/github'
     if (window.app === 'skills') return '/skills'
     if (window.app === 'strava') return '/strava'
+    if (window.app === 'terminal') return '/terminal'
 
     return '/'
   }
 
   const persistFocusedWindow = (window: WindowState | undefined) => {
+    if (!window) {
+      void navigate({ to: '/', search: defaultWindow })
+      return
+    }
+
     void navigate({
       to: routeForWindow(window),
-      search: window
-        ? {
-            maximized: window.maximized,
-            minimized: window.minimized,
-            x: Math.round(window.x),
-            y: Math.round(window.y),
-          }
-        : {},
+      search: {
+        maximized: window.maximized,
+        minimized: window.minimized,
+        x: Math.round(window.x),
+        y: Math.round(window.y),
+      },
     })
   }
 
@@ -192,22 +218,7 @@ export function useDesktopWindows(routeApp: RouteApp) {
           ...defaultWindow,
           app,
           document,
-          x:
-            app === 'github'
-              ? 362
-              : app === 'strava'
-                ? 214
-                : app === 'notes' && document === 'cv'
-                  ? 132
-                  : defaultWindow.x,
-          y:
-            app === 'github'
-              ? 110
-              : app === 'strava'
-                ? 126
-                : app === 'notes' && document === 'cv'
-                  ? 118
-                  : defaultWindow.y,
+          ...defaultPlacementForApp(app),
           z: nextZ,
         }
 
@@ -236,8 +247,16 @@ export function useDesktopWindows(routeApp: RouteApp) {
   const moveWindow = (event: PointerEvent<HTMLDivElement>) => {
     if (!dragging.current || !draggingWindow.current) return
 
-    const nextX = Math.max(12, Math.min(event.clientX - dragOffset.current.x, window.innerWidth - 360))
-    const nextY = Math.max(54, Math.min(event.clientY - dragOffset.current.y, window.innerHeight - 180))
+    const draggedWindow = windowsRef.current.find(
+      (window) => windowKey(window) === draggingWindow.current,
+    )
+
+    if (!draggedWindow) return
+
+    const nextPlacement = ensureWindowInViewport(draggedWindow.app, {
+      x: event.clientX - dragOffset.current.x,
+      y: event.clientY - dragOffset.current.y,
+    })
     const targetKey = draggingWindow.current
 
     const current = windowsRef.current
@@ -245,8 +264,7 @@ export function useDesktopWindows(routeApp: RouteApp) {
       windowKey(window) === targetKey
         ? {
             ...window,
-            x: nextX,
-            y: nextY,
+            ...nextPlacement,
           }
         : window,
     )

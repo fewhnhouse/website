@@ -56,6 +56,7 @@ function routeAppFromPathname(pathname: string): RouteApp | null {
   if (pathname === '/github') return { app: 'github' }
   if (pathname === '/skills') return { app: 'skills' }
   if (pathname === '/strava') return { app: 'strava' }
+  if (pathname === '/terminal') return { app: 'terminal' }
 
   return null
 }

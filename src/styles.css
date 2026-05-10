@@ -239,3 +239,88 @@ pre code {
   font-size: inherit;
   color: inherit;
 }
+
+.felix-mdx-editor {
+  min-height: 100%;
+  background: rgba(255, 255, 255, 0.42);
+  color: var(--color-os-ink);
+  --basePageBg: transparent;
+  --baseBg: rgba(255, 255, 255, 0.74);
+  --baseBorder: var(--color-os-border);
+  --baseText: var(--color-os-ink);
+  --accentBase: rgba(79, 184, 178, 0.14);
+  --accentBgSubtle: rgba(79, 184, 178, 0.16);
+  --accentBg: rgba(79, 184, 178, 0.22);
+  --accentLine: rgba(50, 143, 151, 0.34);
+  --accentText: var(--color-lagoon-deep);
+}
+
+.felix-mdx-editor .mdxeditor {
+  min-height: 100%;
+}
+
+.felix-mdx-editor .mdxeditor-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-bottom: 1px solid var(--color-os-border);
+  background: rgba(243, 250, 245, 0.92);
+  backdrop-filter: blur(12px);
+}
+
+.felix-mdx-editor .mdxeditor-root-contenteditable {
+  overflow: visible;
+}
+
+.felix-mdx-content {
+  padding: 1.25rem 1.5rem 1.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.94rem;
+  line-height: 1.78;
+}
+
+.felix-mdx-editor--edit .felix-mdx-content {
+  min-height: 18rem;
+}
+
+.felix-mdx-editor--preview .felix-mdx-content {
+  padding-top: 1.5rem;
+}
+
+.felix-mdx-content h1,
+.felix-mdx-content h2,
+.felix-mdx-content h3 {
+  letter-spacing: 0;
+}
+
+.felix-mdx-content h1 {
+  margin: 0 0 0.9rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 4vw, 3.1rem);
+  line-height: 1;
+}
+
+.felix-mdx-content h2 {
+  margin: 1.4rem 0 0.45rem;
+  font-size: 1rem;
+}
+
+.felix-mdx-content h3 {
+  margin: 1rem 0 0.2rem;
+  font-size: 0.98rem;
+}
+
+.felix-mdx-content p,
+.felix-mdx-content ul {
+  margin-top: 0;
+}
+
+.felix-mdx-content img {
+  aspect-ratio: 1;
+  width: 10.5rem;
+  border: 1px solid var(--color-os-border);
+  border-radius: 999px;
+  object-fit: cover;
+  object-position: 50% 30%;
+  box-shadow: var(--shadow-avatar);
+}

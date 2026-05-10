@@ -1,4 +1,4 @@
-import { Activity, Battery, FileText, Gauge, Github, Search, Wifi } from 'lucide-react'
+import { Activity, Battery, FileText, Gauge, Github, Search, Terminal, Wifi } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent, RefObject } from 'react'
@@ -6,13 +6,15 @@ import type { CSSProperties, PointerEvent, RefObject } from 'react'
 import { GithubApp } from '@/apps/github/GithubApp'
 import { getGithubData } from '@/apps/github/githubData'
 import type { GithubData } from '@/apps/github/types'
+import { initialNotesMarkdown, type NotesMarkdownByDocument } from '@/apps/notes/documents'
 import { NotesApp } from '@/apps/notes/NotesApp'
 import { SkillsApp } from '@/apps/skills/SkillsApp'
 import { StravaApp } from '@/apps/strava/StravaApp'
 import { getStravaData, type StravaDataResult } from '@/apps/strava/stravaData'
+import { TerminalApp } from '@/apps/terminal/TerminalApp'
 
 import { desktopApps, dockApps } from './apps'
-import { windowKey, type NotesDocumentId, type RouteApp, type WindowState } from './types'
+import { windowKey, type AppId, type NotesDocumentId, type RouteApp, type WindowState } from './types'
 import { useDesktopWindows } from './useDesktopWindows'
 
 const menuButtonClass =
@@ -56,6 +58,9 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   const [stravaResult, setStravaResult] = useState<StravaDataResult | null>(null)
   const [stravaError, setStravaError] = useState<string | null>(null)
   const [stravaLoading, setStravaLoading] = useState(false)
+  const [notesMarkdown, setNotesMarkdown] = useState<NotesMarkdownByDocument>(() => ({
+    ...initialNotesMarkdown,
+  }))
   const stravaRequestAttempted = useRef(false)
   const editorDocumentRef = useRef<HTMLElement | null>(null)
 
@@ -125,6 +130,10 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
     openApp('strava')
   }
 
+  const openTerminal = () => {
+    openApp('terminal')
+  }
+
   const refreshGithub = useCallback(() => {
     setGithubData(null)
     setGithubError(null)
@@ -134,6 +143,31 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
     stravaRequestAttempted.current = false
     setStravaResult(null)
     setStravaError(null)
+  }, [])
+
+  const updateNotesMarkdown = useCallback(
+    (document: NotesDocumentId, markdown: string) => {
+      setNotesMarkdown((current) =>
+        current[document] === markdown
+          ? current
+          : {
+              ...current,
+              [document]: markdown,
+            },
+      )
+    },
+    [],
+  )
+
+  const resetNotesDocument = useCallback((document: NotesDocumentId) => {
+    setNotesMarkdown((current) =>
+      current[document] === initialNotesMarkdown[document]
+        ? current
+        : {
+            ...current,
+            [document]: initialNotesMarkdown[document],
+          },
+    )
   }, [])
 
   return (
@@ -174,6 +208,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
         openNotesDocument={openNotesDocument}
         openSkills={openSkills}
         openStrava={openStrava}
+        openTerminal={openTerminal}
       />
 
       <AnimatePresence>
@@ -191,8 +226,11 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
               minimizeWindow={minimizeWindow}
               moveWindow={moveWindow}
               onGithubRefresh={refreshGithub}
-              onOpenNotesDocument={openNotesDocument}
+              notesMarkdown={notesMarkdown}
+              onOpenApp={openApp}
+              onResetNotesDocument={resetNotesDocument}
               onStravaRefresh={refreshStrava}
+              onUpdateNotesMarkdown={updateNotesMarkdown}
               startDrag={startDrag}
               stopDrag={stopDrag}
               stravaError={stravaError}
@@ -211,6 +249,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
         openHome={openHome}
         openSkills={openSkills}
         openStrava={openStrava}
+        openTerminal={openTerminal}
         windows={windows}
       />
     </main>
@@ -223,12 +262,14 @@ function DesktopShortcuts({
   openNotesDocument,
   openSkills,
   openStrava,
+  openTerminal,
 }: {
   openGithub: () => void
   openHome: () => void
   openNotesDocument: (document: NotesDocumentId) => void
   openSkills: () => void
   openStrava: () => void
+  openTerminal: () => void
 }) {
   return (
     <section
@@ -242,6 +283,7 @@ function DesktopShortcuts({
         const isGithub = app.id === 'github'
         const isSkills = app.id === 'skills'
         const isStrava = app.id === 'strava'
+        const isTerminal = app.id === 'terminal'
 
         return (
           <button
@@ -259,7 +301,9 @@ function DesktopShortcuts({
                     ? openSkills
                     : isStrava
                       ? openStrava
-                      : undefined
+                      : isTerminal
+                        ? openTerminal
+                        : undefined
             }
             aria-label={
               isHome
@@ -272,7 +316,9 @@ function DesktopShortcuts({
                       ? 'Open Skills'
                       : isStrava
                         ? 'Open Strava'
-                        : `${app.title} coming soon`
+                        : isTerminal
+                          ? 'Open Terminal'
+                          : `${app.title} coming soon`
             }
           >
             <span
@@ -304,9 +350,12 @@ type DesktopWindowProps = {
   githubLoading: boolean
   minimizeWindow: (window: WindowState) => void
   moveWindow: (event: PointerEvent<HTMLDivElement>) => void
+  notesMarkdown: NotesMarkdownByDocument
   onGithubRefresh: () => void
-  onOpenNotesDocument: (document: NotesDocumentId) => void
+  onOpenApp: (app: AppId, document?: NotesDocumentId) => void
+  onResetNotesDocument: (document: NotesDocumentId) => void
   onStravaRefresh: () => void
+  onUpdateNotesMarkdown: (document: NotesDocumentId, markdown: string) => void
   startDrag: (event: PointerEvent<HTMLDivElement>, window: WindowState) => void
   stopDrag: (event: PointerEvent<HTMLDivElement>) => void
   stravaError: string | null
@@ -327,9 +376,12 @@ function DesktopWindow({
   githubLoading,
   minimizeWindow,
   moveWindow,
+  notesMarkdown,
   onGithubRefresh,
-  onOpenNotesDocument,
+  onOpenApp,
+  onResetNotesDocument,
   onStravaRefresh,
+  onUpdateNotesMarkdown,
   startDrag,
   stopDrag,
   stravaError,
@@ -346,7 +398,9 @@ function DesktopWindow({
         ? 'skills.app'
         : window.app === 'strava'
           ? 'strava.app'
-          : 'notes.app'
+          : window.app === 'terminal'
+            ? 'terminal.app'
+            : 'notes.app'
   const ActiveAppIcon =
     window.app === 'github'
       ? Github
@@ -354,19 +408,23 @@ function DesktopWindow({
         ? Gauge
         : window.app === 'strava'
           ? Activity
-          : FileText
+          : window.app === 'terminal'
+            ? Terminal
+            : FileText
 
   return (
     <motion.section
       layout
-      className={`${windowBaseClass} ${
+      className={`${windowBaseClass} ${window.maximized ? 'os-window--maximized' : ''} ${
         window.app === 'github'
           ? 'bg-[rgba(246,248,250,0.94)]'
           : window.app === 'skills'
             ? 'bg-[rgba(247,252,249,0.94)]'
             : window.app === 'strava'
               ? 'border-strava/45 bg-strava-bg'
-              : ''
+              : window.app === 'terminal'
+                ? 'border-[#17383b] bg-[#071416]'
+                : ''
       } ${window.maximized ? maximizedWindowClass : ''}`}
       style={{ zIndex: window.z }}
       initial={{
@@ -431,7 +489,9 @@ function DesktopWindow({
         <NotesApp
           document={window.document ?? 'home'}
           documentRef={editorDocumentRef}
-          onOpenDocument={onOpenNotesDocument}
+          markdown={notesMarkdown[window.document ?? 'home']}
+          onMarkdownChange={onUpdateNotesMarkdown}
+          onResetDocument={onResetNotesDocument}
         />
       ) : null}
       {window.app === 'skills' ? <SkillsApp /> : null}
@@ -451,6 +511,7 @@ function DesktopWindow({
           result={stravaResult}
         />
       ) : null}
+      {window.app === 'terminal' ? <TerminalApp onOpenApp={onOpenApp} /> : null}
     </motion.section>
   )
 }
@@ -482,12 +543,14 @@ function Dock({
   openHome,
   openSkills,
   openStrava,
+  openTerminal,
   windows,
 }: {
   openGithub: () => void
   openHome: () => void
   openSkills: () => void
   openStrava: () => void
+  openTerminal: () => void
   windows: WindowState[]
 }) {
   return (
@@ -501,6 +564,7 @@ function Dock({
         const isGithub = app.id === 'github'
         const isSkills = app.id === 'skills'
         const isStrava = app.id === 'strava'
+        const isTerminal = app.id === 'terminal'
         const isRunning = windows.some((window) => window.app === app.id)
 
         return (
@@ -521,7 +585,9 @@ function Dock({
                     ? openSkills
                     : isStrava
                       ? openStrava
-                      : undefined
+                      : isTerminal
+                        ? openTerminal
+                        : undefined
             }
             aria-label={
               isNotes
@@ -532,7 +598,9 @@ function Dock({
                     ? 'Open Skills'
                     : isStrava
                       ? 'Open Strava'
-                      : `${app.label} coming soon`
+                      : isTerminal
+                        ? 'Open Terminal'
+                        : `${app.label} coming soon`
             }
           >
             <Icon aria-hidden="true" size={24} />
@@ -562,7 +630,9 @@ function windowAnimationFor(window: WindowState) {
         width:
           window.app === 'github' || window.app === 'skills' || window.app === 'strava'
             ? 'min(920px, calc(100vw - 1.5rem))'
-            : 'min(720px, calc(100vw - 1.5rem))',
+            : window.app === 'terminal'
+              ? 'min(760px, calc(100vw - 1.5rem))'
+              : 'min(720px, calc(100vw - 1.5rem))',
         height: 'auto',
         scale: 1,
         opacity: 1,

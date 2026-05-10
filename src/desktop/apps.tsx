@@ -1,4 +1,4 @@
-import { Activity, Bike, Code2, FileText, Gauge, Github, Terminal } from 'lucide-react'
+import { Activity, FileText, Gauge, Github, Terminal } from 'lucide-react'
 
 export const desktopApps = [
   {
@@ -36,14 +36,19 @@ export const desktopApps = [
     icon: Activity,
     accent: 'var(--color-strava)',
   },
+  {
+    id: 'terminal',
+    title: 'Terminal',
+    subtitle: 'Shell',
+    icon: Terminal,
+    accent: '#14262d',
+  },
 ] as const
 
 export const dockApps = [
   { id: 'notes', label: 'Notes', icon: FileText },
   { id: 'terminal', label: 'Terminal', icon: Terminal },
-  { id: 'code', label: 'Code', icon: Code2 },
   { id: 'skills', label: 'Skills', icon: Gauge },
-  { id: 'rides', label: 'Routes', icon: Bike },
   { id: 'github', label: 'GitHub', icon: Github },
   { id: 'strava', label: 'Strava', icon: Activity },
 ] as const

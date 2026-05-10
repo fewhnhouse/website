@@ -21,5 +21,5 @@ function parseCoordinate(value: unknown, fallback: number) {
 
   if (!Number.isFinite(parsed)) return fallback
 
-  return Math.max(16, Math.min(parsed, 620))
+  return parsed
 }

@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TerminalRouteImport } from './routes/terminal'
 import { Route as StravaRouteImport } from './routes/strava'
 import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as HomeRouteImport } from './routes/home'
@@ -19,6 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiStravaCallbackRouteImport } from './routes/api.strava.callback'
 import { Route as ApiStravaAuthRouteImport } from './routes/api.strava.auth'
 
+const TerminalRoute = TerminalRouteImport.update({
+  id: '/terminal',
+  path: '/terminal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StravaRoute = StravaRouteImport.update({
   id: '/strava',
   path: '/strava',
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof HomeRoute
   '/skills': typeof SkillsRoute
   '/strava': typeof StravaRoute
+  '/terminal': typeof TerminalRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/skills': typeof SkillsRoute
   '/strava': typeof StravaRoute
+  '/terminal': typeof TerminalRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
 }
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/home': typeof HomeRoute
   '/skills': typeof SkillsRoute
   '/strava': typeof StravaRoute
+  '/terminal': typeof TerminalRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
 }
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/skills'
     | '/strava'
+    | '/terminal'
     | '/api/strava/auth'
     | '/api/strava/callback'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/skills'
     | '/strava'
+    | '/terminal'
     | '/api/strava/auth'
     | '/api/strava/callback'
   id:
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/skills'
     | '/strava'
+    | '/terminal'
     | '/api/strava/auth'
     | '/api/strava/callback'
   fileRoutesById: FileRoutesById
@@ -143,12 +155,20 @@ export interface RootRouteChildren {
   HomeRoute: typeof HomeRoute
   SkillsRoute: typeof SkillsRoute
   StravaRoute: typeof StravaRoute
+  TerminalRoute: typeof TerminalRoute
   ApiStravaAuthRoute: typeof ApiStravaAuthRoute
   ApiStravaCallbackRoute: typeof ApiStravaCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terminal': {
+      id: '/terminal'
+      path: '/terminal'
+      fullPath: '/terminal'
+      preLoaderRoute: typeof TerminalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/strava': {
       id: '/strava'
       path: '/strava'
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   HomeRoute: HomeRoute,
   SkillsRoute: SkillsRoute,
   StravaRoute: StravaRoute,
+  TerminalRoute: TerminalRoute,
   ApiStravaAuthRoute: ApiStravaAuthRoute,
   ApiStravaCallbackRoute: ApiStravaCallbackRoute,
 }
