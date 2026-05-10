@@ -15,6 +15,7 @@ export const initialNotesMarkdown = {
 
 ## Who I am
 
+
 Hi, there, glad you are here!
 As you are on my website, I assume you are here to learn about me, my work, and my interests.
 I have always been interested in building things. It started with building Lego models as a kid. I could spend hours and hours in my grandpa's living room building stuff. Soon thereafter, I got into Minecraft, building whole worlds as a teenager. I was fascinated by the possibility of simply creating things from nothing.

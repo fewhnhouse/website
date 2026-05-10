@@ -451,6 +451,14 @@ pre code {
   font-weight: 800;
 }
 
+.felix-mobile-experience-hint {
+  margin: 0.55rem auto 0;
+  color: var(--color-os-ink-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
 .felix-pdf-mdx {
   min-height: auto;
   background: white;
