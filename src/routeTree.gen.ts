@@ -9,9 +9,70 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TerminalRouteImport } from './routes/terminal'
+import { Route as StravaRouteImport } from './routes/strava'
+import { Route as SkillsRouteImport } from './routes/skills'
+import { Route as IssuesRouteImport } from './routes/issues'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as GithubRouteImport } from './routes/github'
+import { Route as CvRouteImport } from './routes/cv'
+import { Route as BrowserRouteImport } from './routes/browser'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as NotesDocumentPrintRouteImport } from './routes/notes.$document.print'
+import { Route as ApiStravaCallbackRouteImport } from './routes/api.strava.callback'
+import { Route as ApiStravaAuthRouteImport } from './routes/api.strava.auth'
+import { Route as ApiGithubLogoutRouteImport } from './routes/api.github.logout'
+import { Route as ApiGithubLoginRouteImport } from './routes/api.github.login'
+import { Route as ApiGithubCallbackRouteImport } from './routes/api.github.callback'
+import { Route as ApiNotesDocumentPdfRouteImport } from './routes/api.notes.$document.pdf'
 
+const TerminalRoute = TerminalRouteImport.update({
+  id: '/terminal',
+  path: '/terminal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StravaRoute = StravaRouteImport.update({
+  id: '/strava',
+  path: '/strava',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SkillsRoute = SkillsRouteImport.update({
+  id: '/skills',
+  path: '/skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IssuesRoute = IssuesRouteImport.update({
+  id: '/issues',
+  path: '/issues',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GithubRoute = GithubRouteImport.update({
+  id: '/github',
+  path: '/github',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CvRoute = CvRouteImport.update({
+  id: '/cv',
+  path: '/cv',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrowserRoute = BrowserRouteImport.update({
+  id: '/browser',
+  path: '/browser',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -22,35 +83,252 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotesDocumentPrintRoute = NotesDocumentPrintRouteImport.update({
+  id: '/notes/$document/print',
+  path: '/notes/$document/print',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiStravaCallbackRoute = ApiStravaCallbackRouteImport.update({
+  id: '/api/strava/callback',
+  path: '/api/strava/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiStravaAuthRoute = ApiStravaAuthRouteImport.update({
+  id: '/api/strava/auth',
+  path: '/api/strava/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGithubLogoutRoute = ApiGithubLogoutRouteImport.update({
+  id: '/api/github/logout',
+  path: '/api/github/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGithubLoginRoute = ApiGithubLoginRouteImport.update({
+  id: '/api/github/login',
+  path: '/api/github/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGithubCallbackRoute = ApiGithubCallbackRouteImport.update({
+  id: '/api/github/callback',
+  path: '/api/github/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiNotesDocumentPdfRoute = ApiNotesDocumentPdfRouteImport.update({
+  id: '/api/notes/$document/pdf',
+  path: '/api/notes/$document/pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/browser': typeof BrowserRoute
+  '/cv': typeof CvRoute
+  '/github': typeof GithubRoute
+  '/help': typeof HelpRoute
+  '/home': typeof HomeRoute
+  '/issues': typeof IssuesRoute
+  '/skills': typeof SkillsRoute
+  '/strava': typeof StravaRoute
+  '/terminal': typeof TerminalRoute
+  '/api/github/callback': typeof ApiGithubCallbackRoute
+  '/api/github/login': typeof ApiGithubLoginRoute
+  '/api/github/logout': typeof ApiGithubLogoutRoute
+  '/api/strava/auth': typeof ApiStravaAuthRoute
+  '/api/strava/callback': typeof ApiStravaCallbackRoute
+  '/notes/$document/print': typeof NotesDocumentPrintRoute
+  '/api/notes/$document/pdf': typeof ApiNotesDocumentPdfRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/browser': typeof BrowserRoute
+  '/cv': typeof CvRoute
+  '/github': typeof GithubRoute
+  '/help': typeof HelpRoute
+  '/home': typeof HomeRoute
+  '/issues': typeof IssuesRoute
+  '/skills': typeof SkillsRoute
+  '/strava': typeof StravaRoute
+  '/terminal': typeof TerminalRoute
+  '/api/github/callback': typeof ApiGithubCallbackRoute
+  '/api/github/login': typeof ApiGithubLoginRoute
+  '/api/github/logout': typeof ApiGithubLogoutRoute
+  '/api/strava/auth': typeof ApiStravaAuthRoute
+  '/api/strava/callback': typeof ApiStravaCallbackRoute
+  '/notes/$document/print': typeof NotesDocumentPrintRoute
+  '/api/notes/$document/pdf': typeof ApiNotesDocumentPdfRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/browser': typeof BrowserRoute
+  '/cv': typeof CvRoute
+  '/github': typeof GithubRoute
+  '/help': typeof HelpRoute
+  '/home': typeof HomeRoute
+  '/issues': typeof IssuesRoute
+  '/skills': typeof SkillsRoute
+  '/strava': typeof StravaRoute
+  '/terminal': typeof TerminalRoute
+  '/api/github/callback': typeof ApiGithubCallbackRoute
+  '/api/github/login': typeof ApiGithubLoginRoute
+  '/api/github/logout': typeof ApiGithubLogoutRoute
+  '/api/strava/auth': typeof ApiStravaAuthRoute
+  '/api/strava/callback': typeof ApiStravaCallbackRoute
+  '/notes/$document/print': typeof NotesDocumentPrintRoute
+  '/api/notes/$document/pdf': typeof ApiNotesDocumentPdfRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/browser'
+    | '/cv'
+    | '/github'
+    | '/help'
+    | '/home'
+    | '/issues'
+    | '/skills'
+    | '/strava'
+    | '/terminal'
+    | '/api/github/callback'
+    | '/api/github/login'
+    | '/api/github/logout'
+    | '/api/strava/auth'
+    | '/api/strava/callback'
+    | '/notes/$document/print'
+    | '/api/notes/$document/pdf'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about'
-  id: '__root__' | '/' | '/about'
+  to:
+    | '/'
+    | '/about'
+    | '/browser'
+    | '/cv'
+    | '/github'
+    | '/help'
+    | '/home'
+    | '/issues'
+    | '/skills'
+    | '/strava'
+    | '/terminal'
+    | '/api/github/callback'
+    | '/api/github/login'
+    | '/api/github/logout'
+    | '/api/strava/auth'
+    | '/api/strava/callback'
+    | '/notes/$document/print'
+    | '/api/notes/$document/pdf'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/browser'
+    | '/cv'
+    | '/github'
+    | '/help'
+    | '/home'
+    | '/issues'
+    | '/skills'
+    | '/strava'
+    | '/terminal'
+    | '/api/github/callback'
+    | '/api/github/login'
+    | '/api/github/logout'
+    | '/api/strava/auth'
+    | '/api/strava/callback'
+    | '/notes/$document/print'
+    | '/api/notes/$document/pdf'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  BrowserRoute: typeof BrowserRoute
+  CvRoute: typeof CvRoute
+  GithubRoute: typeof GithubRoute
+  HelpRoute: typeof HelpRoute
+  HomeRoute: typeof HomeRoute
+  IssuesRoute: typeof IssuesRoute
+  SkillsRoute: typeof SkillsRoute
+  StravaRoute: typeof StravaRoute
+  TerminalRoute: typeof TerminalRoute
+  ApiGithubCallbackRoute: typeof ApiGithubCallbackRoute
+  ApiGithubLoginRoute: typeof ApiGithubLoginRoute
+  ApiGithubLogoutRoute: typeof ApiGithubLogoutRoute
+  ApiStravaAuthRoute: typeof ApiStravaAuthRoute
+  ApiStravaCallbackRoute: typeof ApiStravaCallbackRoute
+  NotesDocumentPrintRoute: typeof NotesDocumentPrintRoute
+  ApiNotesDocumentPdfRoute: typeof ApiNotesDocumentPdfRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terminal': {
+      id: '/terminal'
+      path: '/terminal'
+      fullPath: '/terminal'
+      preLoaderRoute: typeof TerminalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/strava': {
+      id: '/strava'
+      path: '/strava'
+      fullPath: '/strava'
+      preLoaderRoute: typeof StravaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/skills': {
+      id: '/skills'
+      path: '/skills'
+      fullPath: '/skills'
+      preLoaderRoute: typeof SkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/issues': {
+      id: '/issues'
+      path: '/issues'
+      fullPath: '/issues'
+      preLoaderRoute: typeof IssuesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/github': {
+      id: '/github'
+      path: '/github'
+      fullPath: '/github'
+      preLoaderRoute: typeof GithubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cv': {
+      id: '/cv'
+      path: '/cv'
+      fullPath: '/cv'
+      preLoaderRoute: typeof CvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/browser': {
+      id: '/browser'
+      path: '/browser'
+      fullPath: '/browser'
+      preLoaderRoute: typeof BrowserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -65,12 +343,77 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notes/$document/print': {
+      id: '/notes/$document/print'
+      path: '/notes/$document/print'
+      fullPath: '/notes/$document/print'
+      preLoaderRoute: typeof NotesDocumentPrintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/strava/callback': {
+      id: '/api/strava/callback'
+      path: '/api/strava/callback'
+      fullPath: '/api/strava/callback'
+      preLoaderRoute: typeof ApiStravaCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/strava/auth': {
+      id: '/api/strava/auth'
+      path: '/api/strava/auth'
+      fullPath: '/api/strava/auth'
+      preLoaderRoute: typeof ApiStravaAuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/github/logout': {
+      id: '/api/github/logout'
+      path: '/api/github/logout'
+      fullPath: '/api/github/logout'
+      preLoaderRoute: typeof ApiGithubLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/github/login': {
+      id: '/api/github/login'
+      path: '/api/github/login'
+      fullPath: '/api/github/login'
+      preLoaderRoute: typeof ApiGithubLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/github/callback': {
+      id: '/api/github/callback'
+      path: '/api/github/callback'
+      fullPath: '/api/github/callback'
+      preLoaderRoute: typeof ApiGithubCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/notes/$document/pdf': {
+      id: '/api/notes/$document/pdf'
+      path: '/api/notes/$document/pdf'
+      fullPath: '/api/notes/$document/pdf'
+      preLoaderRoute: typeof ApiNotesDocumentPdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  BrowserRoute: BrowserRoute,
+  CvRoute: CvRoute,
+  GithubRoute: GithubRoute,
+  HelpRoute: HelpRoute,
+  HomeRoute: HomeRoute,
+  IssuesRoute: IssuesRoute,
+  SkillsRoute: SkillsRoute,
+  StravaRoute: StravaRoute,
+  TerminalRoute: TerminalRoute,
+  ApiGithubCallbackRoute: ApiGithubCallbackRoute,
+  ApiGithubLoginRoute: ApiGithubLoginRoute,
+  ApiGithubLogoutRoute: ApiGithubLogoutRoute,
+  ApiStravaAuthRoute: ApiStravaAuthRoute,
+  ApiStravaCallbackRoute: ApiStravaCallbackRoute,
+  NotesDocumentPrintRoute: NotesDocumentPrintRoute,
+  ApiNotesDocumentPdfRoute: ApiNotesDocumentPdfRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,7 +1,7 @@
 import { Github, Linkedin } from 'lucide-react'
 
 const GITHUB = 'https://github.com/felixwohnhaas'
-const LINKEDIN = 'https://www.linkedin.com/in/felix-wohnhaas/'
+const LINKEDIN = 'https://www.linkedin.com/in/felix-wohnhaas-b44623142/'
 
 type SocialLinksProps = {
   className?: string
