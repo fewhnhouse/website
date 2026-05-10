@@ -5,10 +5,10 @@ import type { RefObject } from 'react'
 import type { NotesDocumentId } from '@/desktop/types'
 
 import { initialNotesMarkdown } from './documents'
+import { loadLocalMdxEditor } from './loadMdxEditor.client'
+import { RenderedMarkdown } from './RenderedMarkdown'
 
-const LocalMdxEditor = lazy(() =>
-  import('./MdxEditor.client').then((module) => ({ default: module.LocalMdxEditor })),
-)
+const LocalMdxEditor = lazy(loadLocalMdxEditor)
 
 type NotesAppProps = {
   document: NotesDocumentId
@@ -86,16 +86,20 @@ export function NotesApp({
         className={documentClass}
         aria-label={readOnly ? `${filename} preview` : `${filename} editor`}
       >
-        <ClientOnly fallback={<pre className={fallbackClass}>{markdown}</pre>}>
-          <Suspense fallback={<pre className={fallbackClass}>{markdown}</pre>}>
-            <LocalMdxEditor
-              key={`${document}-${mode}`}
-              markdown={markdown}
-              onChange={(nextMarkdown) => onMarkdownChange(document, nextMarkdown)}
-              readOnly={readOnly}
-            />
-          </Suspense>
-        </ClientOnly>
+        {readOnly ? (
+          <RenderedMarkdown className="felix-mdx-preview felix-mdx-content" markdown={markdown} />
+        ) : (
+          <ClientOnly fallback={<pre className={fallbackClass}>{markdown}</pre>}>
+            <Suspense fallback={<pre className={fallbackClass}>{markdown}</pre>}>
+              <LocalMdxEditor
+                key={`${document}-${mode}`}
+                markdown={markdown}
+                onChange={(nextMarkdown) => onMarkdownChange(document, nextMarkdown)}
+                readOnly={readOnly}
+              />
+            </Suspense>
+          </ClientOnly>
+        )}
       </section>
     </>
   )

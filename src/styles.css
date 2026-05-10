@@ -287,6 +287,11 @@ pre code {
   padding-top: 1.5rem;
 }
 
+.felix-mdx-preview {
+  min-height: 100%;
+  background: rgba(255, 255, 255, 0.42);
+}
+
 .felix-mdx-content h1,
 .felix-mdx-content h2,
 .felix-mdx-content h3 {
@@ -313,6 +318,24 @@ pre code {
 .felix-mdx-content p,
 .felix-mdx-content ul {
   margin-top: 0;
+}
+
+.felix-mdx-content ul {
+  list-style: disc;
+  padding-left: 1.2rem;
+}
+
+.felix-mdx-content a {
+  font-weight: 800;
+}
+
+.felix-mdx-content code {
+  border: 1px solid var(--color-os-border);
+  border-radius: 0.35rem;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0.08rem 0.28rem;
+  font-family: var(--font-mono);
+  font-size: 0.84em;
 }
 
 .felix-mdx-content img {
