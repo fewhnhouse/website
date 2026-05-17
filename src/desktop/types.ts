@@ -10,6 +10,7 @@ export type NotesDocumentId = 'home' | 'cv'
 
 export type AppId =
   | 'browser'
+  | 'game'
   | 'github'
   | 'help'
   | 'issues'

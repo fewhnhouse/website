@@ -4,6 +4,7 @@ import {
   CircleHelp,
   FileText,
   Gauge,
+  Gamepad2,
   Github,
   Globe2,
   MonitorCog,
@@ -89,6 +90,16 @@ export const appCatalog: readonly AppCatalogItem[] = [
     terminalAliases: ['web', 'google', 'search'],
   },
   {
+    id: 'game',
+    title: 'Runner',
+    subtitle: 'High score',
+    icon: Gamepad2,
+    accent: '#f66d44',
+    target: { app: 'game' },
+    terminalName: 'runner.app',
+    terminalAliases: ['game', 'gaming', 'dino'],
+  },
+  {
     id: 'github',
     title: 'GitHub',
     subtitle: 'Live data',
@@ -157,6 +168,7 @@ export const openableDesktopEntries: OpenableDesktopEntry[] = appCatalog.map((ap
 export const dockApps = [
   { id: 'notes', label: 'Notes', icon: FileText },
   { id: 'browser', label: 'Browser', icon: Globe2 },
+  { id: 'game', label: 'Runner', icon: Gamepad2 },
   { id: 'terminal', label: 'Terminal', icon: Terminal },
   { id: 'skills', label: 'Skills', icon: Gauge },
   { id: 'github', label: 'GitHub', icon: Github },

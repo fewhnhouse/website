@@ -2,6 +2,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { BrowserApp } from '@/apps/browser/BrowserApp'
+import { RunnerGameApp } from '@/apps/game/RunnerGameApp'
 import { GithubApp } from '@/apps/github/GithubApp'
 import { getGithubData } from '@/apps/github/githubData'
 import type { GithubData } from '@/apps/github/types'
@@ -14,7 +15,7 @@ import { SkillsApp } from '@/apps/skills/SkillsApp'
 import { StravaApp } from '@/apps/strava/StravaApp'
 import { getStravaData, type StravaDataResult } from '@/apps/strava/stravaData'
 import { TerminalApp } from '@/apps/terminal/TerminalApp'
-import { defaultDesktopSettings, wallpaperOptions } from '@/desktop/Desktop'
+import { defaultDesktopSettings, wallpaperOptions } from '@/desktop/desktopSettings'
 import type { AppId, NotesDocumentId, RouteApp } from '@/desktop/types'
 
 type MobileAppPageProps = {
@@ -142,6 +143,7 @@ export function MobileAppPage({ initialGithubData = null, routeApp }: MobileAppP
   return (
     <main className="felix-mobile-app min-h-[100svh] bg-foam text-os-ink">
       {routeApp.app === 'browser' ? <BrowserApp initialUrl={routeApp.url} /> : null}
+      {routeApp.app === 'game' ? <RunnerGameApp /> : null}
       {routeApp.app === 'github' ? (
         <GithubApp
           data={githubData}
@@ -193,6 +195,7 @@ const defaultMobileSearch = {
 
 function routeForApp(app: AppId, document?: NotesDocumentId) {
   if (app === 'browser') return '/browser'
+  if (app === 'game') return '/game'
   if (app === 'notes') return document === 'cv' ? '/cv' : '/home'
   if (app === 'github') return '/github'
   if (app === 'help') return '/help'

@@ -17,6 +17,7 @@ import { Route as IssuesRouteImport } from './routes/issues'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as GithubRouteImport } from './routes/github'
+import { Route as GameRouteImport } from './routes/game'
 import { Route as CvRouteImport } from './routes/cv'
 import { Route as BrowserRouteImport } from './routes/browser'
 import { Route as AboutRouteImport } from './routes/about'
@@ -67,6 +68,11 @@ const HelpRoute = HelpRouteImport.update({
 const GithubRoute = GithubRouteImport.update({
   id: '/github',
   path: '/github',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GameRoute = GameRouteImport.update({
+  id: '/game',
+  path: '/game',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CvRoute = CvRouteImport.update({
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/browser': typeof BrowserRoute
   '/cv': typeof CvRoute
+  '/game': typeof GameRoute
   '/github': typeof GithubRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/browser': typeof BrowserRoute
   '/cv': typeof CvRoute
+  '/game': typeof GameRoute
   '/github': typeof GithubRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/browser': typeof BrowserRoute
   '/cv': typeof CvRoute
+  '/game': typeof GameRoute
   '/github': typeof GithubRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/browser'
     | '/cv'
+    | '/game'
     | '/github'
     | '/help'
     | '/home'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/browser'
     | '/cv'
+    | '/game'
     | '/github'
     | '/help'
     | '/home'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/browser'
     | '/cv'
+    | '/game'
     | '/github'
     | '/help'
     | '/home'
@@ -260,6 +272,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   BrowserRoute: typeof BrowserRoute
   CvRoute: typeof CvRoute
+  GameRoute: typeof GameRoute
   GithubRoute: typeof GithubRoute
   HelpRoute: typeof HelpRoute
   HomeRoute: typeof HomeRoute
@@ -333,6 +346,13 @@ declare module '@tanstack/react-router' {
       path: '/github'
       fullPath: '/github'
       preLoaderRoute: typeof GithubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/game': {
+      id: '/game'
+      path: '/game'
+      fullPath: '/game'
+      preLoaderRoute: typeof GameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cv': {
@@ -420,6 +440,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   BrowserRoute: BrowserRoute,
   CvRoute: CvRoute,
+  GameRoute: GameRoute,
   GithubRoute: GithubRoute,
   HelpRoute: HelpRoute,
   HomeRoute: HomeRoute,

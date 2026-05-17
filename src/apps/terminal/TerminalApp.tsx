@@ -24,9 +24,9 @@ const initialTranscript: TranscriptLine[] = [
 ]
 
 const terminalShellClass =
-  'flex min-h-0 flex-1 flex-col bg-[#071416] text-[#d7fff5] [max-height:calc(min(640px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:max-h-none'
+  'flex min-h-[17rem] flex-1 flex-col bg-[#071416] text-[#d7fff5] [max-height:calc(min(640px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:max-h-none'
 const terminalBodyClass =
-  'min-h-0 flex-1 overflow-y-auto px-4 py-3 font-mono text-[0.84rem] leading-relaxed [scrollbar-color:rgba(141,229,219,0.38)_transparent] max-[720px]:px-3 max-[720px]:text-[0.78rem]'
+  'min-h-[12rem] flex-1 overflow-y-auto px-4 py-3 font-mono text-[0.84rem] leading-relaxed [scrollbar-color:rgba(141,229,219,0.38)_transparent] max-[720px]:min-h-[10rem] max-[720px]:px-3 max-[720px]:text-[0.78rem]'
 const promptClass = 'text-[#8de5db]'
 const openCommandPattern = /^open(?:\s+(\S*))?$/i
 

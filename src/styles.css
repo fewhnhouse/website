@@ -474,6 +474,34 @@ pre code {
   width: 100%;
 }
 
+.felix-mobile-app > :is(section, div) > :first-child {
+  flex-wrap: wrap;
+}
+
+.felix-mobile-app > :is(section, div) > :first-child::after {
+  display: block;
+  flex-basis: 100%;
+  margin-top: 0.65rem;
+  color: var(--color-os-ink-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.35;
+  content: "For the full FelixOS experience, visit on a desktop screen.";
+}
+
+.felix-mobile-app > .bg-strava-bg > :first-child::after,
+.felix-mobile-app > .bg-\[\#071416\] > :first-child::after {
+  color: var(--color-strava-muted);
+}
+
+.felix-mobile-experience-banner {
+  margin: 0.55rem auto 0;
+  color: var(--color-os-ink-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
 .felix-mobile-mdx p,
 .felix-mobile-mdx ul {
   margin-bottom: 1rem;
@@ -486,14 +514,6 @@ pre code {
 
 .felix-mobile-mdx a {
   font-weight: 800;
-}
-
-.felix-mobile-experience-hint {
-  margin: 0.55rem auto 0;
-  color: var(--color-os-ink-soft);
-  font-size: 0.72rem;
-  font-weight: 800;
-  line-height: 1.35;
 }
 
 .felix-pdf-mdx {

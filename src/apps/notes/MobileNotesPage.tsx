@@ -45,7 +45,7 @@ export function MobileNotesPage({ document, print = false }: MobileNotesPageProp
               {alternateLabel}
             </Link>
           </nav>
-          <p className="felix-mobile-experience-hint mx-auto max-w-2xl">
+          <p className="felix-mobile-experience-banner mx-auto max-w-2xl">
             For the full FelixOS experience, visit on a desktop screen.
           </p>
         </header>
