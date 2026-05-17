@@ -464,6 +464,16 @@ pre code {
   background: rgba(255, 255, 255, 0.34);
 }
 
+.felix-mobile-app > *,
+.felix-mobile-app .os-app-shell {
+  min-height: 100svh;
+  max-height: none;
+}
+
+.felix-mobile-app > section {
+  width: 100%;
+}
+
 .felix-mobile-mdx p,
 .felix-mobile-mdx ul {
   margin-bottom: 1rem;

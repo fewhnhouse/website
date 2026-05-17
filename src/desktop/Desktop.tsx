@@ -63,7 +63,7 @@ const dockButtonClass =
 const desktopStorageKey = 'felixos.desktop.settings'
 const desktopSettingsVersion = 1
 
-const wallpaperOptions = [
+export const wallpaperOptions = [
   {
     id: 'aurora',
     name: 'Aurora',
@@ -133,7 +133,7 @@ type DesktopSettings = {
   wallpaper: WallpaperId
 }
 
-const defaultDesktopSettings: DesktopSettings = {
+export const defaultDesktopSettings: DesktopSettings = {
   version: desktopSettingsVersion,
   screensaverMinutes: 5,
   screensaver: 'dvd',

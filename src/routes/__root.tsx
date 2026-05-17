@@ -2,6 +2,7 @@ import { HeadContent, Outlet, Scripts, createRootRoute, useRouterState } from '@
 import { lazy, Suspense } from 'react'
 
 import type { GithubData } from '@/apps/github/types'
+import { MobileAppPage } from '@/apps/mobile/MobileAppPage'
 import { MobileNotesPage } from '@/apps/notes/MobileNotesPage'
 import { Desktop } from '@/desktop/Desktop'
 import type { NotesDocumentId } from '@/desktop/types'
@@ -86,8 +87,10 @@ function RootApp() {
       <div className="md:hidden">
         {isMobileNoteRoute ? (
           <MobileNotesPage document={mobileDocumentFromPathname(pathname)} />
+        ) : routeApp === 'none' ? (
+          <MobileNotesPage document="home" />
         ) : (
-          <Desktop initialGithubData={githubData ?? null} routeApp={routeApp} />
+          <MobileAppPage initialGithubData={githubData ?? null} routeApp={routeApp} />
         )}
       </div>
     </>

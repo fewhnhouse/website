@@ -1,5 +1,5 @@
 export const osAppShellClass =
-  'flex min-h-0 flex-1 flex-col text-os-ink [max-height:calc(min(var(--os-app-max-height),calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:max-h-none'
+  'os-app-shell flex min-h-0 flex-1 flex-col text-os-ink [max-height:calc(min(var(--os-app-max-height),calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:max-h-none'
 
 export const osAppHeight = {
   compact: '[--os-app-max-height:620px]',
