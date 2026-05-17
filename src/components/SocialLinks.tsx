@@ -18,7 +18,7 @@ export default function SocialLinks({
         href={GITHUB}
         target="_blank"
         rel="noopener noreferrer"
-        className="rounded-xl p-2 text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
+        className="rounded-xl p-2 text-ink-soft transition hover:bg-link-hover-bg hover:text-ink"
       >
         <span className="sr-only">Felix on GitHub</span>
         <Github className={iconClassName} aria-hidden />
@@ -27,7 +27,7 @@ export default function SocialLinks({
         href={LINKEDIN}
         target="_blank"
         rel="noopener noreferrer"
-        className="rounded-xl p-2 text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
+        className="rounded-xl p-2 text-ink-soft transition hover:bg-link-hover-bg hover:text-ink"
       >
         <span className="sr-only">Felix on LinkedIn</span>
         <Linkedin className={iconClassName} aria-hidden />

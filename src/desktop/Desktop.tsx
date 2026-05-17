@@ -13,7 +13,7 @@ import {
   Wifi,
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent, RefObject } from 'react'
 
 import { BrowserApp } from '@/apps/browser/BrowserApp'
@@ -61,6 +61,7 @@ const dockButtonClass =
   'group relative grid size-dock-icon cursor-pointer appearance-none place-items-center rounded-[14px] border border-os-border bg-white/60 font-[inherit] text-ink transition hover:-translate-y-1 hover:outline-none focus-visible:-translate-y-1 focus-visible:outline-none max-[720px]:size-12'
 
 const desktopStorageKey = 'felixos.desktop.settings'
+const desktopSettingsVersion = 1
 
 const wallpaperOptions = [
   {
@@ -126,12 +127,14 @@ type ScreensaverId = (typeof screensaverOptions)[number]['id']
 type ScreensaverMode = 'idle' | 'preview'
 
 type DesktopSettings = {
+  version: typeof desktopSettingsVersion
   screensaverMinutes: number
   screensaver: ScreensaverId
   wallpaper: WallpaperId
 }
 
 const defaultDesktopSettings: DesktopSettings = {
+  version: desktopSettingsVersion,
   screensaverMinutes: 5,
   screensaver: 'dvd',
   wallpaper: 'aurora',
@@ -154,6 +157,7 @@ function parseDesktopSettings(value: string | null): DesktopSettings {
         : defaultDesktopSettings.screensaverMinutes
 
     return {
+      version: desktopSettingsVersion,
       screensaverMinutes,
       screensaver,
       wallpaper,
@@ -205,10 +209,27 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   const [commandOpen, setCommandOpen] = useState(false)
   const [screensaverMode, setScreensaverMode] = useState<ScreensaverMode | null>(null)
   const [desktopSettings, setDesktopSettings] = useState<DesktopSettings>(defaultDesktopSettings)
+  const desktopSettingsHydrated = useRef(false)
   const stravaRequestAttempted = useRef(false)
   const editorDocumentRef = useRef<HTMLElement | null>(null)
   const activeWallpaper =
     wallpaperOptions.find((option) => option.id === desktopSettings.wallpaper) ?? wallpaperOptions[0]
+  const visibleWindows = useMemo(
+    () => windows.filter((window) => !window.minimized),
+    [windows],
+  )
+  const githubIsVisible = useMemo(
+    () => visibleWindows.some((window) => window.app === 'github'),
+    [visibleWindows],
+  )
+  const issuesIsVisible = useMemo(
+    () => visibleWindows.some((window) => window.app === 'issues'),
+    [visibleWindows],
+  )
+  const stravaIsVisible = useMemo(
+    () => visibleWindows.some((window) => window.app === 'strava'),
+    [visibleWindows],
+  )
 
   useEffect(() => {
     const toggleCommand = (event: globalThis.KeyboardEvent) => {
@@ -224,9 +245,12 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
 
   useEffect(() => {
     setDesktopSettings(parseDesktopSettings(window.localStorage.getItem(desktopStorageKey)))
+    desktopSettingsHydrated.current = true
   }, [])
 
   useEffect(() => {
+    if (!desktopSettingsHydrated.current) return
+
     window.localStorage.setItem(desktopStorageKey, JSON.stringify(desktopSettings))
   }, [desktopSettings])
 
@@ -267,8 +291,6 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   }, [initialGithubData])
 
   useEffect(() => {
-    const githubIsVisible = windows.some((window) => window.app === 'github' && !window.minimized)
-
     if (!githubIsVisible || githubData || githubLoading) return
 
     setGithubError(null)
@@ -283,11 +305,9 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
       .finally(() => {
         setGithubLoading(false)
       })
-  }, [githubData, githubLoading, windows])
+  }, [githubData, githubIsVisible, githubLoading])
 
   useEffect(() => {
-    const stravaIsVisible = windows.some((window) => window.app === 'strava' && !window.minimized)
-
     if (!stravaIsVisible || stravaResult || stravaLoading || stravaRequestAttempted.current) return
 
     stravaRequestAttempted.current = true
@@ -303,11 +323,9 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
       .finally(() => {
         setStravaLoading(false)
       })
-  }, [stravaLoading, stravaResult, windows])
+  }, [stravaIsVisible, stravaLoading, stravaResult])
 
   useEffect(() => {
-    const issuesIsVisible = windows.some((window) => window.app === 'issues' && !window.minimized)
-
     if (!issuesIsVisible || issuesData || issuesLoading) return
 
     setIssuesError(null)
@@ -322,7 +340,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
       .finally(() => {
         setIssuesLoading(false)
       })
-  }, [issuesData, issuesLoading, windows])
+  }, [issuesData, issuesIsVisible, issuesLoading])
 
   const openHome = () => {
     openApp('notes', 'home')
@@ -457,7 +475,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
         </div>
         <button
           type="button"
-          className="flex min-h-7 w-full min-w-0 cursor-pointer appearance-none items-center justify-center gap-2 justify-self-center rounded-full border border-os-border bg-white/55 px-3 text-meta font-bold text-os-ink-soft transition hover:border-os-border-strong hover:bg-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lagoon/35 max-[640px]:hidden"
+          className="flex min-h-7 w-full min-w-0 cursor-pointer appearance-none items-center justify-center gap-2 justify-self-center rounded-full border border-os-border bg-white/55 px-3 text-meta font-bold text-os-ink-soft transition hover:border-os-border-strong hover:bg-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 max-[640px]:hidden"
           onClick={() => setCommandOpen(true)}
           aria-label="Search Felix's computer"
           aria-haspopup="dialog"
@@ -488,55 +506,53 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
             onOpenTarget={openCommandTarget}
           />
         ) : null}
-        {windows
-          .filter((window) => !window.minimized)
-          .map((window) => (
-            <DesktopWindow
-              key={`${windowKey(window)}-window`}
-              active={focusedWindow === windowKey(window)}
-              closeWindow={closeWindow}
-              desktopSettings={desktopSettings}
-              focusWindow={focusWindow}
-              githubData={githubData}
-              githubError={githubError}
-              githubLoading={githubLoading}
-              issuesData={issuesData}
-              issuesError={issuesError}
-              issuesLoading={issuesLoading}
-              minimizeWindow={minimizeWindow}
-              moveWindow={moveWindow}
-              onGithubRefresh={refreshGithub}
-              onIssueCreated={addCreatedIssue}
-              onIssuesRefresh={refreshIssues}
-              onPreviewScreensaver={() => setScreensaverMode('preview')}
-              notesMarkdown={notesMarkdown}
-              onOpenApp={openApp}
-              onResetNotesDocument={resetNotesDocument}
-              onScreensaverMinutesChange={(minutes) =>
-                setDesktopSettings((current) => ({
-                  ...current,
-                  screensaverMinutes: minutes,
-                }))
-              }
-              onStravaRefresh={refreshStrava}
-              onUpdateNotesMarkdown={updateNotesMarkdown}
-              onWallpaperChange={(wallpaper) =>
-                setDesktopSettings((current) => ({
-                  ...current,
-                  wallpaper: isWallpaperId(wallpaper) ? wallpaper : current.wallpaper,
-                }))
-              }
-              startDrag={startDrag}
-              stopDrag={stopDrag}
-              stravaError={stravaError}
-              stravaLoading={stravaLoading}
-              stravaResult={stravaResult}
-              toggleMaximizeWindow={toggleMaximizeWindow}
-              window={window}
-              windowExit={windowExit}
-              editorDocumentRef={editorDocumentRef}
-            />
-          ))}
+        {visibleWindows.map((window) => (
+          <DesktopWindow
+            key={`${windowKey(window)}-window`}
+            active={focusedWindow === windowKey(window)}
+            closeWindow={closeWindow}
+            desktopSettings={desktopSettings}
+            focusWindow={focusWindow}
+            githubData={githubData}
+            githubError={githubError}
+            githubLoading={githubLoading}
+            issuesData={issuesData}
+            issuesError={issuesError}
+            issuesLoading={issuesLoading}
+            minimizeWindow={minimizeWindow}
+            moveWindow={moveWindow}
+            onGithubRefresh={refreshGithub}
+            onIssueCreated={addCreatedIssue}
+            onIssuesRefresh={refreshIssues}
+            onPreviewScreensaver={() => setScreensaverMode('preview')}
+            notesMarkdown={notesMarkdown}
+            onOpenApp={openApp}
+            onResetNotesDocument={resetNotesDocument}
+            onScreensaverMinutesChange={(minutes) =>
+              setDesktopSettings((current) => ({
+                ...current,
+                screensaverMinutes: minutes,
+              }))
+            }
+            onStravaRefresh={refreshStrava}
+            onUpdateNotesMarkdown={updateNotesMarkdown}
+            onWallpaperChange={(wallpaper) =>
+              setDesktopSettings((current) => ({
+                ...current,
+                wallpaper: isWallpaperId(wallpaper) ? wallpaper : current.wallpaper,
+              }))
+            }
+            startDrag={startDrag}
+            stopDrag={stopDrag}
+            stravaError={stravaError}
+            stravaLoading={stravaLoading}
+            stravaResult={stravaResult}
+            toggleMaximizeWindow={toggleMaximizeWindow}
+            window={window}
+            windowExit={windowExit}
+            editorDocumentRef={editorDocumentRef}
+          />
+        ))}
       </AnimatePresence>
 
       <Dock
@@ -893,17 +909,17 @@ function DesktopWindow({
       >
         <div className="flex gap-2">
           <TrafficButton
-            className="bg-[#ff6b5f] before:h-[1.5px] before:w-[0.45rem] before:rotate-45 before:rounded-full before:bg-current after:h-[1.5px] after:w-[0.45rem] after:-rotate-45 after:rounded-full after:bg-current"
+            className="bg-traffic-close before:h-[1.5px] before:w-[0.45rem] before:rotate-45 before:rounded-full before:bg-current after:h-[1.5px] after:w-[0.45rem] after:-rotate-45 after:rounded-full after:bg-current"
             label={`Close ${activeAppTitle}`}
             onClick={() => closeWindow(window)}
           />
           <TrafficButton
-            className="bg-[#f6c85f] before:h-[1.6px] before:w-[0.48rem] before:rounded-full before:bg-current"
+            className="bg-traffic-minimize before:h-[1.6px] before:w-[0.48rem] before:rounded-full before:bg-current"
             label={`Minimize ${activeAppTitle}`}
             onClick={() => minimizeWindow(window)}
           />
           <TrafficButton
-            className="bg-[#69c779] before:h-[0.38rem] before:w-[0.38rem] before:rounded-[2px] before:border-[1.5px] before:border-current"
+            className="bg-traffic-maximize before:h-[0.38rem] before:w-[0.38rem] before:rounded-[2px] before:border-[1.5px] before:border-current"
             label={window.maximized ? `Restore ${activeAppTitle}` : `Maximize ${activeAppTitle}`}
             onClick={() => toggleMaximizeWindow(window)}
           />

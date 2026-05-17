@@ -22,6 +22,18 @@
   --color-chip-bg: var(--chip-bg);
   --color-chip-line: var(--chip-line);
   --color-link-hover-bg: var(--link-bg-hover);
+  --color-background: var(--bg-base);
+  --color-foreground: var(--sea-ink);
+  --color-card: var(--surface-strong);
+  --color-card-foreground: var(--sea-ink);
+  --color-muted: var(--sand);
+  --color-muted-foreground: var(--sea-ink-soft);
+  --color-accent: var(--lagoon);
+  --color-accent-foreground: var(--sea-ink);
+  --color-border: var(--line);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
 
   --color-os-ink: #14262d;
   --color-os-ink-muted: rgba(20, 38, 45, 0.68);
@@ -45,6 +57,10 @@
   --color-strava-panel: #171717;
   --color-strava-text: #f7f7f4;
   --color-strava-muted: rgba(215, 215, 209, 0.7);
+  --color-focus: #6f7cff;
+  --color-traffic-close: #ff6b5f;
+  --color-traffic-minimize: #f6c85f;
+  --color-traffic-maximize: #69c779;
 
   --text-caption: 0.72rem;
   --text-meta: 0.78rem;
@@ -89,6 +105,9 @@
   --chip-bg: rgba(255, 255, 255, 0.8);
   --chip-line: rgba(47, 106, 74, 0.18);
   --link-bg-hover: rgba(255, 255, 255, 0.9);
+  --ring: #6f7cff;
+  --destructive: #cf222e;
+  --destructive-foreground: #fff7f7;
   --hero-a: rgba(79, 184, 178, 0.36);
   --hero-b: rgba(47, 106, 74, 0.2);
   --os-shell-bg:
@@ -126,6 +145,9 @@
   --chip-bg: rgba(13, 28, 32, 0.9);
   --chip-line: rgba(141, 229, 219, 0.24);
   --link-bg-hover: rgba(24, 44, 49, 0.8);
+  --ring: #8c96ff;
+  --destructive: #ff8a8a;
+  --destructive-foreground: #200a0a;
   --hero-a: rgba(96, 215, 207, 0.18);
   --hero-b: rgba(110, 200, 154, 0.12);
 }
@@ -149,6 +171,9 @@
     --chip-bg: rgba(13, 28, 32, 0.9);
     --chip-line: rgba(141, 229, 219, 0.24);
     --link-bg-hover: rgba(24, 44, 49, 0.8);
+    --ring: #8c96ff;
+    --destructive: #ff8a8a;
+    --destructive-foreground: #200a0a;
     --hero-a: rgba(96, 215, 207, 0.18);
     --hero-b: rgba(110, 200, 154, 0.12);
   }
@@ -157,6 +182,8 @@
 * {
   box-sizing: border-box;
 }
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 html,
 body,

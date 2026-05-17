@@ -160,7 +160,7 @@ export const IssuesApp = memo(function IssuesApp({
             </label>
             <button
               type="submit"
-              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-md border border-[#5965e0] bg-[#6f7cff] px-3 py-2 text-sm font-black text-white shadow-chip disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-md border border-ring/70 bg-ring px-3 py-2 text-sm font-black text-white shadow-chip disabled:cursor-not-allowed disabled:opacity-60"
               disabled={!authUser || submitting}
             >
               <Plus aria-hidden="true" size={16} />
@@ -289,13 +289,13 @@ function GithubAuthPanel({
         </div>
       </div>
       <a
-        className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-os-border bg-white px-3 py-2 text-sm font-black text-[#24292f] no-underline shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] transition hover:border-[#8c96ff] hover:bg-[#f6f7ff] focus-visible:border-[#6f7cff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6f7cff]/25"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-os-border bg-white px-3 py-2 text-sm font-black text-[#24292f] no-underline shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] transition hover:border-ring/60 hover:bg-[#f6f7ff] focus-visible:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25"
         href="/api/github/login"
       >
         <Github aria-hidden="true" size={16} />
         Sign in with GitHub
       </a>
-      {error ? <p className="mt-2 mb-0 text-caption font-bold text-[#9a1c1c]">{error}</p> : null}
+      {error ? <p className="mt-2 mb-0 text-caption font-bold text-destructive">{error}</p> : null}
     </div>
   )
 }
@@ -386,7 +386,7 @@ function Metric({ label, value }: { label: string; value: number }) {
 
 function Notice({ children }: { children: ReactNode }) {
   return (
-    <div className="mt-3 rounded-card border border-[#ffd1d1] bg-[#fff7f7] p-3 text-meta font-extrabold leading-relaxed text-[#9a1c1c]">
+    <div className="mt-3 rounded-card border border-destructive/20 bg-destructive-foreground p-3 text-meta font-extrabold leading-relaxed text-destructive">
       {children}
     </div>
   )

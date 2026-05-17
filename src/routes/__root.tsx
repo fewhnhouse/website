@@ -1,6 +1,5 @@
 import { HeadContent, Outlet, Scripts, createRootRoute, useRouterState } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
+import { lazy, Suspense } from 'react'
 
 import type { GithubData } from '@/apps/github/types'
 import { MobileNotesPage } from '@/apps/notes/MobileNotesPage'
@@ -11,6 +10,33 @@ import type { RouteApp } from '@/desktop/types'
 import appCss from '../styles.css?url'
 
 const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='auto')?stored:'auto';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`
+
+const DevtoolsPanel = import.meta.env.DEV
+  ? lazy(async () => {
+      const [{ TanStackDevtools }, { TanStackRouterDevtoolsPanel }] = await Promise.all([
+        import('@tanstack/react-devtools'),
+        import('@tanstack/react-router-devtools'),
+      ])
+
+      return {
+        default: function DevtoolsPanel() {
+          return (
+            <TanStackDevtools
+              config={{
+                position: 'bottom-right',
+              }}
+              plugins={[
+                {
+                  name: 'Tanstack Router',
+                  render: <TanStackRouterDevtoolsPanel />,
+                },
+              ]}
+            />
+          )
+        },
+      }
+    })
+  : null
 
 export const Route = createRootRoute({
   component: RootApp,
@@ -48,6 +74,7 @@ function RootApp() {
     }),
   })
   const routeApp = routeAppFromPathname(pathname, search)
+  const isMobileNoteRoute = pathname === '/home' || pathname === '/cv'
 
   if (!routeApp) return <Outlet />
 
@@ -57,7 +84,11 @@ function RootApp() {
         <Desktop initialGithubData={githubData ?? null} routeApp={routeApp} />
       </div>
       <div className="md:hidden">
-        <MobileNotesPage document={mobileDocumentFromPathname(pathname)} />
+        {isMobileNoteRoute ? (
+          <MobileNotesPage document={mobileDocumentFromPathname(pathname)} />
+        ) : (
+          <Desktop initialGithubData={githubData ?? null} routeApp={routeApp} />
+        )}
       </div>
     </>
   )
@@ -96,17 +127,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)]">
         {children}
-        <TanStackDevtools
-          config={{
-            position: 'bottom-right',
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
+        {DevtoolsPanel ? (
+          <Suspense fallback={null}>
+            <DevtoolsPanel />
+          </Suspense>
+        ) : null}
         <Scripts />
       </body>
     </html>

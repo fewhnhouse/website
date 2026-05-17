@@ -19,6 +19,8 @@ type BrowserAppProps = {
 
 const defaultUrl = 'https://www.google.com/search?igu=1'
 const linkedInUrl = 'https://www.linkedin.com/in/felix-wohnhaas-b44623142/'
+const browserIconButtonClass =
+  'grid size-8 shrink-0 cursor-pointer place-items-center rounded-control border border-os-border bg-white/70 text-os-ink-muted transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25 disabled:cursor-default disabled:opacity-45'
 
 const bookmarks = [
   {
@@ -99,7 +101,7 @@ export function BrowserApp({ initialUrl }: BrowserAppProps) {
         <div className="flex min-w-0 items-center gap-1.5">
           <button
             type="button"
-            className="grid size-8 shrink-0 cursor-pointer place-items-center rounded-control border border-os-border bg-white/70 text-os-ink-muted transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6f7cff]/25 disabled:cursor-default disabled:opacity-45"
+            className={browserIconButtonClass}
             onClick={goBack}
             disabled={historyIndex === 0}
             aria-label="Go back"
@@ -108,7 +110,7 @@ export function BrowserApp({ initialUrl }: BrowserAppProps) {
           </button>
           <button
             type="button"
-            className="grid size-8 shrink-0 cursor-pointer place-items-center rounded-control border border-os-border bg-white/70 text-os-ink-muted transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6f7cff]/25 disabled:cursor-default disabled:opacity-45"
+            className={browserIconButtonClass}
             onClick={goForward}
             disabled={historyIndex >= history.length - 1}
             aria-label="Go forward"
@@ -117,7 +119,7 @@ export function BrowserApp({ initialUrl }: BrowserAppProps) {
           </button>
           <button
             type="button"
-            className="grid size-8 shrink-0 cursor-pointer place-items-center rounded-control border border-os-border bg-white/70 text-os-ink-muted transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6f7cff]/25"
+            className={browserIconButtonClass}
             onClick={reload}
             aria-label="Reload page"
           >
@@ -133,7 +135,7 @@ export function BrowserApp({ initialUrl }: BrowserAppProps) {
               />
               <input
                 name="address"
-                className="h-8 w-full rounded-full border border-os-border bg-white/82 pl-8 pr-10 text-[0.82rem] font-bold text-os-ink outline-none transition placeholder:text-os-ink-soft focus:border-[#6f7cff] focus:bg-white focus:ring-2 focus:ring-[#6f7cff]/18"
+                className="h-8 w-full rounded-full border border-os-border bg-white/82 pl-8 pr-10 text-[0.82rem] font-bold text-os-ink outline-none transition placeholder:text-os-ink-soft focus:border-ring focus:bg-white focus:ring-2 focus:ring-ring/20"
                 value={address}
                 onChange={(event) => setAddress(event.currentTarget.value)}
                 onKeyDown={(event) => {
@@ -147,7 +149,7 @@ export function BrowserApp({ initialUrl }: BrowserAppProps) {
               />
               <button
                 type="submit"
-                className="absolute right-1 top-1/2 grid size-6 -translate-y-1/2 cursor-pointer place-items-center rounded-full border border-transparent text-os-ink-muted transition hover:border-os-border hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6f7cff]/25"
+                className="absolute right-1 top-1/2 grid size-6 -translate-y-1/2 cursor-pointer place-items-center rounded-full border border-transparent text-os-ink-muted transition hover:border-os-border hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25"
                 aria-label="Open address"
               >
                 <Search aria-hidden="true" size={14} />
@@ -156,7 +158,7 @@ export function BrowserApp({ initialUrl }: BrowserAppProps) {
           </form>
           <button
             type="button"
-            className="grid size-8 shrink-0 cursor-pointer place-items-center rounded-control border border-os-border bg-white/70 text-os-ink-muted transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6f7cff]/25"
+            className={browserIconButtonClass}
             onClick={openExternal}
             aria-label="Open current page externally"
           >
@@ -169,7 +171,7 @@ export function BrowserApp({ initialUrl }: BrowserAppProps) {
             <button
               key={bookmark.url}
               type="button"
-              className="inline-flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-os-border bg-white/64 px-2.5 text-caption font-black text-os-ink-muted transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6f7cff]/25"
+              className="inline-flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-os-border bg-white/64 px-2.5 text-caption font-black text-os-ink-muted transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25"
               onClick={() => navigateTo(bookmark.url)}
             >
               <Globe2 aria-hidden="true" size={13} />

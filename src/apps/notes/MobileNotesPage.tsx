@@ -15,33 +15,34 @@ export function MobileNotesPage({ document, print = false }: MobileNotesPageProp
   const renderedMarkdown = print
     ? markdown.replace('image="/felix-portrait.jpg"', 'image="/felix-portrait-pdf.jpg"')
     : markdown
+  const currentLabel = document === 'cv' ? 'cv.mdx' : 'home.mdx'
+  const alternateDocument = document === 'cv' ? 'home' : 'cv'
+  const alternateLabel = alternateDocument === 'cv' ? 'cv.mdx' : 'home.mdx'
 
   return (
     <main className="min-h-[100svh] bg-foam text-os-ink">
       {print ? null : (
         <header className="sticky top-0 z-10 border-b border-os-border bg-foam/92 px-4 py-3 backdrop-blur-xl">
           <nav className="mx-auto flex max-w-2xl items-center justify-between gap-3" aria-label="Mobile documents">
-            <Link
-              to="/home"
-              search={{ minimized: false, maximized: false, x: 84, y: 92 }}
-              className="flex min-w-0 items-center gap-2 text-os-ink no-underline"
-              activeProps={{ 'aria-current': 'page' }}
-            >
+            <div className="flex min-w-0 items-center gap-2 text-os-ink">
               <img
                 className="size-8 rounded-full border border-white/80 object-cover object-[50%_31%] shadow-os-logo"
                 src="/felix-portrait.jpg"
                 alt=""
                 aria-hidden="true"
               />
-              <span className="truncate font-black">home.mdx</span>
-            </Link>
+              <span className="truncate font-black">{currentLabel}</span>
+            </div>
             <Link
-              to="/cv"
-              search={{ minimized: false, maximized: false, x: 122, y: 118 }}
+              to={alternateDocument === 'cv' ? '/cv' : '/home'}
+              search={
+                alternateDocument === 'cv'
+                  ? { minimized: false, maximized: false, x: 122, y: 118 }
+                  : { minimized: false, maximized: false, x: 84, y: 92 }
+              }
               className="shrink-0 rounded-control border border-os-border bg-white/65 px-3 py-1.5 text-caption font-black text-lagoon-deep no-underline"
-              activeProps={{ 'aria-current': 'page' }}
             >
-              cv.mdx
+              {alternateLabel}
             </Link>
           </nav>
           <p className="felix-mobile-experience-hint mx-auto max-w-2xl">

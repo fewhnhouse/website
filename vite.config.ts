@@ -18,7 +18,9 @@ const config = defineConfig(({ mode }) => {
     // use the `vercel` preset so `.vercel/output` is generated; otherwise Vite’s default
     // `dist/` layout is not wired to Vercel’s routing and every path returns 404.
     plugins: [
-      devtools(),
+      devtools({
+        removeDevtoolsOnBuild: true,
+      }),
       tailwindcss(),
       tanstackStart(),
       viteReact(),
