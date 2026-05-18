@@ -3,6 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { osAppHeight, osAppShellClass } from '@/apps/shared/appStyles'
 
+import type { RunnerScore } from './scoresTypes'
+
 type RunnerState = 'ready' | 'running' | 'paused' | 'gameover'
 
 type Obstacle = {
@@ -12,13 +14,6 @@ type Obstacle = {
   width: number
   x: number
   y: number
-}
-
-type RunnerScore = {
-  id: string
-  name: string
-  score: number
-  submittedAt: string
 }
 
 type GameModel = {
@@ -59,7 +54,7 @@ const player = {
 }
 const gravity = 2500
 const jumpVelocity = -860
-const highScoreStorageKey = 'felix-runner-high-scores'
+const scoresEndpoint = '/api/runner/scores'
 const initialGroundY = 300
 const spriteSources = {
   forestBack: '/game/parallax-forest-back-trees.png',
@@ -123,6 +118,9 @@ export function RunnerGameApp() {
   const [playerName, setPlayerName] = useState('')
   const [savedScoreId, setSavedScoreId] = useState<string | null>(null)
   const [highScoresOpen, setHighScoresOpen] = useState(false)
+  const [scoresLoading, setScoresLoading] = useState(true)
+  const [scoresError, setScoresError] = useState<string | null>(null)
+  const [savingScore, setSavingScore] = useState(false)
 
   const setGameState = useCallback((nextState: RunnerState) => {
     stateRef.current = nextState
@@ -166,7 +164,32 @@ export function RunnerGameApp() {
   }, [setGameState])
 
   useEffect(() => {
-    setHighScores(readHighScores())
+    let cancelled = false
+    setScoresLoading(true)
+    setScoresError(null)
+
+    fetch(scoresEndpoint, { headers: { Accept: 'application/json' } })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`)
+        const parsed = (await response.json()) as unknown
+        return Array.isArray(parsed) ? (parsed as RunnerScore[]) : []
+      })
+      .then((scores) => {
+        if (cancelled) return
+        setHighScores(scores)
+      })
+      .catch((error) => {
+        if (cancelled) return
+        console.error('Failed to load runner scores', error)
+        setScoresError("Couldn't load leaderboard")
+      })
+      .finally(() => {
+        if (!cancelled) setScoresLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   useEffect(() => {
@@ -251,25 +274,42 @@ export function RunnerGameApp() {
     return () => window.cancelAnimationFrame(animationId)
   }, [setGameState])
 
-  const saveScore = () => {
-    const trimmedName = playerName.trim()
-    const name = trimmedName.length > 0 ? trimmedName.slice(0, 18) : 'Anonymous'
-    const entry = {
-      id: `${Date.now()}-${Math.round(score)}`,
-      name,
-      score: Math.round(score),
-      submittedAt: new Date().toISOString(),
-    }
-    const nextScores = [entry, ...highScores]
-      .sort((a, b) => b.score - a.score || a.submittedAt.localeCompare(b.submittedAt))
-      .slice(0, 10)
+  const saveScore = async () => {
+    if (savingScore || savedScoreId !== null) return
 
-    window.localStorage.setItem(highScoreStorageKey, JSON.stringify(nextScores))
-    setHighScores(nextScores)
-    setSavedScoreId(entry.id)
+    const submittedScore = Math.round(score)
+    setSavingScore(true)
+    setScoresError(null)
+
+    try {
+      const response = await fetch(scoresEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: playerName, score: submittedScore }),
+      })
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+
+      const parsed = (await response.json()) as unknown
+      const nextScores = Array.isArray(parsed) ? (parsed as RunnerScore[]) : []
+      setHighScores(nextScores)
+
+      const justSaved = nextScores.find(
+        (entry) =>
+          entry.score === submittedScore &&
+          entry.name === (playerName.trim().slice(0, 18) || 'Anonymous'),
+      )
+      setSavedScoreId(justSaved?.id ?? `local-${Date.now()}`)
+    } catch (error) {
+      console.error('Failed to submit runner score', error)
+      setScoresError("Couldn't save score. Try again.")
+    } finally {
+      setSavingScore(false)
+    }
   }
 
-  const canSaveScore = runnerState === 'gameover' && savedScoreId === null
+  const canSaveScore =
+    runnerState === 'gameover' && savedScoreId === null && !savingScore
 
   return (
     <section
@@ -293,6 +333,8 @@ export function RunnerGameApp() {
             {highScoresOpen ? (
               <HighScoresView
                 highScores={highScores}
+                loading={scoresLoading}
+                error={scoresError}
                 savedScoreId={savedScoreId}
                 onBack={() => setHighScoresOpen(false)}
               />
@@ -336,6 +378,8 @@ export function RunnerGameApp() {
             {highScoresOpen ? (
               <HighScoresView
                 highScores={highScores}
+                loading={scoresLoading}
+                error={scoresError}
                 savedScoreId={savedScoreId}
                 onBack={() => setHighScoresOpen(false)}
               />
@@ -355,10 +399,10 @@ export function RunnerGameApp() {
                 </div>
                 <form
                   className="mt-4 w-[min(29rem,92vw)]"
-                  onSubmit={(event) => {
+                  onSubmit={async (event) => {
                     event.preventDefault()
-                    saveScore()
-                    setHighScoresOpen(true)
+                    await saveScore()
+                    if (!scoresError) setHighScoresOpen(true)
                   }}
                 >
                   <div className="flex gap-2">
@@ -371,9 +415,14 @@ export function RunnerGameApp() {
                       disabled={!canSaveScore}
                     />
                     <ArcadeButton type="submit" disabled={!canSaveScore}>
-                      {savedScoreId ? 'Saved' : 'Save'}
+                      {savingScore ? '...' : savedScoreId ? 'Saved' : 'Save'}
                     </ArcadeButton>
                   </div>
+                  {scoresError ? (
+                    <p className="felix-arcade-tag mt-2 text-center text-sm uppercase tracking-[0.1em] text-[#ff8a8a]">
+                      {scoresError}
+                    </p>
+                  ) : null}
                 </form>
               </>
             )}
@@ -421,11 +470,15 @@ function GameOverlay({ children }: { children: React.ReactNode }) {
 }
 
 function HighScoresView({
+  error,
   highScores,
+  loading,
   onBack,
   savedScoreId,
 }: {
+  error: string | null
   highScores: RunnerScore[]
+  loading: boolean
   onBack: () => void
   savedScoreId: string | null
 }) {
@@ -434,7 +487,17 @@ function HighScoresView({
       <h2 className="felix-arcade felix-arcade-title text-[clamp(1.4rem,3.6vw,2.4rem)] uppercase leading-[1.05]">
         Top Scores
       </h2>
-      <HighScoresList highScores={highScores} savedScoreId={savedScoreId} />
+      {loading ? (
+        <p className="felix-arcade-tag mt-5 text-base uppercase tracking-[0.18em] text-cyan-100/70">
+          Loading…
+        </p>
+      ) : error ? (
+        <p className="felix-arcade-tag mt-5 text-base uppercase tracking-[0.12em] text-[#ff8a8a]">
+          {error}
+        </p>
+      ) : (
+        <HighScoresList highScores={highScores} savedScoreId={savedScoreId} />
+      )}
       <div className="mt-4 flex justify-center">
         <ArcadeButton variant="cool" onClick={onBack}>
           Back
@@ -970,29 +1033,3 @@ function seededRandom(model: GameModel) {
   return (model.seed - 1) / 2147483646
 }
 
-function readHighScores(): RunnerScore[] {
-  try {
-    const parsed = JSON.parse(window.localStorage.getItem(highScoreStorageKey) ?? '[]')
-    if (!Array.isArray(parsed)) return []
-
-    return parsed
-      .filter(isRunnerScore)
-      .sort((a, b) => b.score - a.score || a.submittedAt.localeCompare(b.submittedAt))
-      .slice(0, 10)
-  } catch {
-    return []
-  }
-}
-
-function isRunnerScore(value: unknown): value is RunnerScore {
-  if (!value || typeof value !== 'object') return false
-
-  const score = value as Record<string, unknown>
-  return (
-    typeof score.id === 'string' &&
-    typeof score.name === 'string' &&
-    typeof score.score === 'number' &&
-    Number.isFinite(score.score) &&
-    typeof score.submittedAt === 'string'
-  )
-}

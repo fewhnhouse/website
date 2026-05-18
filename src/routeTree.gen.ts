@@ -25,6 +25,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as NotesDocumentPrintRouteImport } from './routes/notes.$document.print'
 import { Route as ApiStravaCallbackRouteImport } from './routes/api.strava.callback'
 import { Route as ApiStravaAuthRouteImport } from './routes/api.strava.auth'
+import { Route as ApiRunnerScoresRouteImport } from './routes/api.runner.scores'
 import { Route as ApiGithubLogoutRouteImport } from './routes/api.github.logout'
 import { Route as ApiGithubLoginRouteImport } from './routes/api.github.login'
 import { Route as ApiGithubCallbackRouteImport } from './routes/api.github.callback'
@@ -110,6 +111,11 @@ const ApiStravaAuthRoute = ApiStravaAuthRouteImport.update({
   path: '/api/strava/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiRunnerScoresRoute = ApiRunnerScoresRouteImport.update({
+  id: '/api/runner/scores',
+  path: '/api/runner/scores',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGithubLogoutRoute = ApiGithubLogoutRouteImport.update({
   id: '/api/github/logout',
   path: '/api/github/logout',
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/api/github/callback': typeof ApiGithubCallbackRoute
   '/api/github/login': typeof ApiGithubLoginRoute
   '/api/github/logout': typeof ApiGithubLogoutRoute
+  '/api/runner/scores': typeof ApiRunnerScoresRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
   '/notes/$document/print': typeof NotesDocumentPrintRoute
@@ -170,6 +177,7 @@ export interface FileRoutesByTo {
   '/api/github/callback': typeof ApiGithubCallbackRoute
   '/api/github/login': typeof ApiGithubLoginRoute
   '/api/github/logout': typeof ApiGithubLogoutRoute
+  '/api/runner/scores': typeof ApiRunnerScoresRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
   '/notes/$document/print': typeof NotesDocumentPrintRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/api/github/callback': typeof ApiGithubCallbackRoute
   '/api/github/login': typeof ApiGithubLoginRoute
   '/api/github/logout': typeof ApiGithubLogoutRoute
+  '/api/runner/scores': typeof ApiRunnerScoresRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
   '/notes/$document/print': typeof NotesDocumentPrintRoute
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/api/github/callback'
     | '/api/github/login'
     | '/api/github/logout'
+    | '/api/runner/scores'
     | '/api/strava/auth'
     | '/api/strava/callback'
     | '/notes/$document/print'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/api/github/callback'
     | '/api/github/login'
     | '/api/github/logout'
+    | '/api/runner/scores'
     | '/api/strava/auth'
     | '/api/strava/callback'
     | '/notes/$document/print'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/api/github/callback'
     | '/api/github/login'
     | '/api/github/logout'
+    | '/api/runner/scores'
     | '/api/strava/auth'
     | '/api/strava/callback'
     | '/notes/$document/print'
@@ -284,6 +296,7 @@ export interface RootRouteChildren {
   ApiGithubCallbackRoute: typeof ApiGithubCallbackRoute
   ApiGithubLoginRoute: typeof ApiGithubLoginRoute
   ApiGithubLogoutRoute: typeof ApiGithubLogoutRoute
+  ApiRunnerScoresRoute: typeof ApiRunnerScoresRoute
   ApiStravaAuthRoute: typeof ApiStravaAuthRoute
   ApiStravaCallbackRoute: typeof ApiStravaCallbackRoute
   NotesDocumentPrintRoute: typeof NotesDocumentPrintRoute
@@ -404,6 +417,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiStravaAuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/runner/scores': {
+      id: '/api/runner/scores'
+      path: '/api/runner/scores'
+      fullPath: '/api/runner/scores'
+      preLoaderRoute: typeof ApiRunnerScoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/github/logout': {
       id: '/api/github/logout'
       path: '/api/github/logout'
@@ -452,6 +472,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGithubCallbackRoute: ApiGithubCallbackRoute,
   ApiGithubLoginRoute: ApiGithubLoginRoute,
   ApiGithubLogoutRoute: ApiGithubLogoutRoute,
+  ApiRunnerScoresRoute: ApiRunnerScoresRoute,
   ApiStravaAuthRoute: ApiStravaAuthRoute,
   ApiStravaCallbackRoute: ApiStravaCallbackRoute,
   NotesDocumentPrintRoute: NotesDocumentPrintRoute,
