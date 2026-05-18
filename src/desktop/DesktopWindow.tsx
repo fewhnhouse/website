@@ -174,9 +174,7 @@ export function DesktopWindow({
           <ActiveAppIcon aria-hidden="true" size={16} />
           <span>{activeAppTitle}</span>
         </div>
-        <span className="justify-self-end text-caption font-black text-os-ink-soft max-[720px]:hidden">
-          saved
-        </span>
+        <span aria-hidden="true" className="justify-self-end" />
       </div>
 
       {window.app === 'browser' ? <BrowserApp initialUrl={window.url} /> : null}
@@ -282,16 +280,35 @@ function getAppWindowIcon(app: AppId) {
   return FileText
 }
 
-function getAppWindowClass(app: AppId) {
-  if (app === 'github') return 'bg-[rgba(246,248,250,0.94)]'
-  if (app === 'browser') return 'bg-[rgba(248,249,255,0.94)]'
-  if (app === 'game') return 'border-[#18464c] bg-[#081719]'
-  if (app === 'help') return 'bg-[rgba(250,252,247,0.94)]'
-  if (app === 'issues') return 'bg-[rgba(248,249,255,0.94)]'
-  if (app === 'settings') return 'bg-[rgba(250,252,247,0.94)]'
-  if (app === 'skills') return 'bg-[rgba(247,252,249,0.94)]'
-  if (app === 'strava') return 'border-strava/45 bg-strava-bg'
-  if (app === 'terminal') return 'border-[#17383b] bg-[#071416]'
+// Per-app size override. The base windowBaseClass caps every window at 720×640.
+// Apps that prefer a larger window get an explicit override class.
+// NOTE: classes must be string literals so Tailwind's JIT scanner sees them.
+const appSizeClasses: Partial<Record<AppId, string>> = {
+  browser: '!w-[min(980px,calc(100vw_-_1.5rem))] !max-h-[min(680px,calc(100svh_-_4.5rem))]',
+  game: '!w-[min(900px,calc(100vw_-_1.5rem))] !max-h-[min(880px,calc(100svh_-_4.5rem))]',
+  github: '!w-[min(920px,calc(100vw_-_1.5rem))]',
+  issues: '!w-[min(980px,calc(100vw_-_1.5rem))] !max-h-[min(680px,calc(100svh_-_4.5rem))]',
+  skills: '!w-[min(920px,calc(100vw_-_1.5rem))]',
+  strava: '!w-[min(920px,calc(100vw_-_1.5rem))]',
+  terminal: '!w-[min(760px,calc(100vw_-_1.5rem))]',
+}
 
-  return ''
+function getAppWindowSizeClass(app: AppId) {
+  return appSizeClasses[app] ?? ''
+}
+
+function getAppWindowClass(app: AppId) {
+  const sizeClass = getAppWindowSizeClass(app)
+  const prefix = sizeClass ? `${sizeClass} ` : ''
+  if (app === 'github') return `${prefix}bg-[rgba(246,248,250,0.94)]`
+  if (app === 'browser') return `${prefix}bg-[rgba(248,249,255,0.94)]`
+  if (app === 'game') return `${prefix}border-[#18464c] bg-[#081719]`
+  if (app === 'help') return `${prefix}bg-[rgba(250,252,247,0.94)]`
+  if (app === 'issues') return `${prefix}bg-[rgba(248,249,255,0.94)]`
+  if (app === 'settings') return `${prefix}bg-[rgba(250,252,247,0.94)]`
+  if (app === 'skills') return `${prefix}bg-[rgba(247,252,249,0.94)]`
+  if (app === 'strava') return `${prefix}border-strava/45 bg-strava-bg`
+  if (app === 'terminal') return `${prefix}border-[#17383b] bg-[#071416]`
+
+  return prefix.trim()
 }

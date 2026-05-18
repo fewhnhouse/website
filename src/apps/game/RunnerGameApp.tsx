@@ -313,7 +313,7 @@ export function RunnerGameApp() {
 
   return (
     <section
-      className={`${osAppShellClass} ${osAppHeight.tall} felix-arcade-screen text-white`}
+      className={`${osAppShellClass} ${osAppHeight.xl} felix-arcade-screen text-white`}
     >
       <div className="relative min-h-0 flex-1 overflow-hidden">
         <canvas

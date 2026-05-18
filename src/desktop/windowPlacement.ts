@@ -5,7 +5,7 @@ const desktopMargin = 12
 const titlebarOffset = 54
 const dockOffset = 116
 
-const appSizes = {
+export const appSizes = {
   browser: { width: 980, height: 680 },
   game: { width: 900, height: 880 },
   github: { width: 920, height: 640 },

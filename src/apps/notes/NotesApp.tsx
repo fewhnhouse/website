@@ -26,7 +26,9 @@ const documentClass =
 const fallbackClass =
   'm-0 h-full overflow-auto whitespace-pre-wrap px-6 pt-5 pb-6 font-mono text-[0.84rem] leading-relaxed text-os-ink [scrollbar-color:rgba(50,143,151,0.46)_transparent] max-[720px]:p-4'
 const notesToolbarControlClass =
-  'box-border inline-flex h-8 shrink-0 cursor-pointer appearance-none items-center justify-center rounded-control border border-os-border bg-white/65 px-2.5 py-0 font-[inherit] text-[0.72rem] font-black leading-none text-os-ink-muted no-underline hover:bg-white/85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lagoon-deep/45 disabled:cursor-default disabled:opacity-55'
+  'box-border inline-flex h-8 shrink-0 cursor-pointer appearance-none items-center justify-center rounded-control border border-[rgba(20,38,45,0.12)] bg-white/65 px-2.5 py-0 font-[inherit] text-[0.72rem] font-black leading-none text-[#3b5560] no-underline hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2c4a55]/45 disabled:cursor-default disabled:opacity-55'
+const notesToolbarSegmentClass =
+  'box-border inline-flex h-8 shrink-0 cursor-pointer appearance-none items-center justify-center border-0 bg-transparent px-3 py-0 font-[inherit] text-[0.72rem] font-black leading-none text-[#3b5560] no-underline hover:bg-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#2c4a55]/45 disabled:cursor-default disabled:opacity-55'
 const notesToolbarChipClass =
   'box-border inline-flex h-8 shrink-0 items-center rounded-control border px-2.5 py-0 text-[0.72rem] font-black leading-none'
 
@@ -46,38 +48,38 @@ export function NotesApp({
   return (
     <>
       <div
-        className="flex flex-wrap items-center gap-2 border-b border-os-border bg-foam/80 px-3 py-2.5"
+        className="flex flex-wrap items-center gap-2 border-b border-[rgba(20,38,45,0.1)] bg-[#eef3f0]/95 px-3 py-2.5"
         aria-label="Document toolbar"
       >
-        <span className="box-border inline-flex h-8 min-w-0 items-center rounded-control border border-os-border bg-white/55 px-2.5 py-0 font-mono text-[0.72rem] font-black leading-none text-lagoon-deep">
+        <span className="box-border inline-flex h-8 min-w-0 items-center rounded-control border border-[rgba(20,38,45,0.12)] bg-white/70 px-2.5 py-0 font-mono text-[0.72rem] font-black leading-none text-[#2c4a55]">
           ~/felix-website/{filename}
         </span>
-        <button
-          type="button"
-          className={cn(
-            notesToolbarControlClass,
-            mode === 'preview' && osToolbarButtonActiveClass,
-          )}
-          onClick={() => setMode('preview')}
-        >
-          Preview
-        </button>
-        <button
-          type="button"
-          className={cn(notesToolbarControlClass, mode === 'edit' && osToolbarButtonActiveClass)}
-          onClick={() => setMode('edit')}
-        >
-          Edit
-        </button>
-        <span
-          className={`${notesToolbarChipClass} ${
-            isEdited
-              ? 'border-lagoon-deep/30 bg-lagoon/15 text-lagoon-deep'
-              : 'border-os-border bg-white/45 text-os-ink-soft'
-          }`}
-        >
-          {isEdited ? 'edited locally' : 'original'}
-        </span>
+        <div className="ml-1 inline-flex overflow-hidden rounded-control border border-[rgba(20,38,45,0.12)] bg-white/55">
+          <button
+            type="button"
+            className={cn(
+              notesToolbarSegmentClass,
+              mode === 'preview' && osToolbarButtonActiveClass,
+            )}
+            onClick={() => setMode('preview')}
+          >
+            Preview
+          </button>
+          <button
+            type="button"
+            className={cn(notesToolbarSegmentClass, mode === 'edit' && osToolbarButtonActiveClass)}
+            onClick={() => setMode('edit')}
+          >
+            Edit
+          </button>
+        </div>
+        {isEdited ? (
+          <span
+            className={`${notesToolbarChipClass} border-[#2c4a55]/25 bg-[#2c4a55]/10 text-[#2c4a55]`}
+          >
+            edited locally
+          </span>
+        ) : null}
         <button
           type="button"
           className={notesToolbarControlClass}
