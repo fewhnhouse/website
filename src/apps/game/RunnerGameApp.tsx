@@ -1,22 +1,17 @@
-import { Pause, Play, RotateCcw, Trophy } from 'lucide-react'
+import { Trophy } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import {
-  osAppHeight,
-  osAppShellClass,
-  osInputClass,
-  osPanelBareClass,
-  osPanelClass,
-  osToolbarButtonClass,
-} from '@/apps/shared/appStyles'
+import { osAppHeight, osAppShellClass } from '@/apps/shared/appStyles'
 
 type RunnerState = 'ready' | 'running' | 'paused' | 'gameover'
 
 type Obstacle = {
+  gapAfter: number
   height: number
-  kind: 'block' | 'spike'
+  kind: 'birdHigh' | 'birdLow' | 'birdSky' | 'hedge' | 'log' | 'mushroom' | 'spike'
   width: number
   x: number
+  y: number
 }
 
 type RunnerScore = {
@@ -27,9 +22,11 @@ type RunnerScore = {
 }
 
 type GameModel = {
+  crouching: boolean
   distance: number
   groundY: number
   lastSpawn: number
+  nextSpawnGap: number
   obstacles: Obstacle[]
   playerY: number
   seed: number
@@ -37,23 +34,75 @@ type GameModel = {
   velocityY: number
 }
 
+type SpriteKey =
+  | 'forestBack'
+  | 'forestFront'
+  | 'forestLights'
+  | 'forestMiddle'
+  | 'otter'
+
+type SpriteAssets = Partial<Record<SpriteKey, HTMLImageElement>>
+
+type SpriteFrame = {
+  height: number
+  width: number
+  x: number
+  y: number
+}
+
 const canvasWidth = 900
 const canvasHeight = 360
 const player = {
   x: 96,
-  width: 34,
-  height: 44,
+  width: 48,
+  height: 58,
 }
 const gravity = 2500
 const jumpVelocity = -860
 const highScoreStorageKey = 'felix-runner-high-scores'
 const initialGroundY = 300
+const spriteSources = {
+  forestBack: '/game/parallax-forest-back-trees.png',
+  forestFront: '/game/parallax-forest-front-trees.png',
+  forestLights: '/game/parallax-forest-lights.png',
+  forestMiddle: '/game/parallax-forest-middle-trees.png',
+  otter: '/spritesheet.webp',
+} satisfies Record<SpriteKey, string>
+// The otter spritesheet is a clean 8 columns × 9 rows grid of 192 × 208 cells.
+const spriteCellWidth = 192
+const spriteCellHeight = 208
+const spriteCell = (col: number, row: number): SpriteFrame => ({
+  x: col * spriteCellWidth,
+  y: row * spriteCellHeight,
+  width: spriteCellWidth,
+  height: spriteCellHeight,
+})
+
+const otterIdleFrames: SpriteFrame[] = [spriteCell(0, 0), spriteCell(1, 0)]
+const otterRunFrames: SpriteFrame[] = [
+  spriteCell(0, 1),
+  spriteCell(1, 1),
+  spriteCell(2, 1),
+  spriteCell(3, 1),
+  spriteCell(4, 1),
+  spriteCell(5, 1),
+  spriteCell(6, 1),
+  spriteCell(7, 1),
+]
+// Row 3 has the "arms raised" otters — sells the jump pose much better.
+const otterJumpFrame = spriteCell(0, 3)
+// No real crouch art exists in the sheet, so we reuse the calm sitting otter
+// and squash it on the draw call to get a low/ducking silhouette.
+const otterCrouchFrame = spriteCell(0, 0)
+const jumpAirTime = Math.abs((2 * jumpVelocity) / gravity)
 
 function createGame(): GameModel {
   return {
+    crouching: false,
     distance: 0,
     groundY: initialGroundY,
     lastSpawn: 0,
+    nextSpawnGap: 620,
     obstacles: [],
     playerY: initialGroundY - player.height,
     seed: Math.floor(Math.random() * 100_000) + 1,
@@ -65,6 +114,7 @@ function createGame(): GameModel {
 export function RunnerGameApp() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const modelRef = useRef(createGame())
+  const spritesRef = useRef<SpriteAssets>({})
   const lastFrameRef = useRef<number | null>(null)
   const stateRef = useRef<RunnerState>('ready')
   const [runnerState, setRunnerState] = useState<RunnerState>('ready')
@@ -72,6 +122,7 @@ export function RunnerGameApp() {
   const [highScores, setHighScores] = useState<RunnerScore[]>([])
   const [playerName, setPlayerName] = useState('')
   const [savedScoreId, setSavedScoreId] = useState<string | null>(null)
+  const [highScoresOpen, setHighScoresOpen] = useState(false)
 
   const setGameState = useCallback((nextState: RunnerState) => {
     stateRef.current = nextState
@@ -98,6 +149,7 @@ export function RunnerGameApp() {
     const onGround = model.playerY >= model.groundY - player.height - 0.5
     if (!onGround) return
 
+    model.crouching = false
     model.velocityY = jumpVelocity
   }, [setGameState])
 
@@ -118,8 +170,29 @@ export function RunnerGameApp() {
   }, [])
 
   useEffect(() => {
+    const sprites: SpriteAssets = {}
+
+    Object.entries(spriteSources).forEach(([key, src]) => {
+      const image = new Image()
+      image.src = src
+      sprites[key as SpriteKey] = image
+    })
+
+    spritesRef.current = sprites
+  }, [])
+
+  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.target instanceof HTMLElement && event.target.closest('input,textarea')) return
+
+      if (event.code === 'ArrowDown' || event.code === 'KeyS') {
+        event.preventDefault()
+        const model = modelRef.current
+        const onGround = model.playerY >= model.groundY - player.height - 0.5
+        if (stateRef.current === 'running' && onGround) {
+          model.crouching = true
+        }
+      }
 
       if (event.code === 'Space' || event.code === 'ArrowUp') {
         event.preventDefault()
@@ -137,8 +210,18 @@ export function RunnerGameApp() {
       }
     }
 
+    const onKeyUp = (event: KeyboardEvent) => {
+      if (event.code === 'ArrowDown' || event.code === 'KeyS') {
+        modelRef.current.crouching = false
+      }
+    }
+
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('keyup', onKeyUp)
+    }
   }, [jump, resetGame, togglePause])
 
   useEffect(() => {
@@ -155,10 +238,12 @@ export function RunnerGameApp() {
 
         if (hasCollision(modelRef.current)) {
           setGameState('gameover')
+          setHighScoresOpen(false)
         }
       }
 
-      drawGame(canvasRef.current, modelRef.current, stateRef.current)
+      const liveScore = Math.floor(modelRef.current.distance / 9)
+      drawGame(canvasRef.current, modelRef.current, stateRef.current, spritesRef.current, liveScore)
       animationId = window.requestAnimationFrame(frame)
     }
 
@@ -184,153 +269,229 @@ export function RunnerGameApp() {
     setSavedScoreId(entry.id)
   }
 
-  const topScore = highScores[0]?.score ?? 0
   const canSaveScore = runnerState === 'gameover' && savedScoreId === null
 
   return (
-    <section className={`${osAppShellClass} ${osAppHeight.tall} bg-[#081719] text-white`}>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-white/[0.04] px-4 py-3">
-        <div>
-          <p className="text-caption font-black uppercase tracking-[0.14em] text-[#7fdad1]">
-            runner.app
-          </p>
-          <h1 className="text-lg font-black leading-tight">Offline Runner</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className={`${osToolbarButtonClass} border-white/15 bg-white/10 text-white hover:bg-white/18`}
-            onClick={togglePause}
-            disabled={runnerState === 'ready' || runnerState === 'gameover'}
-            aria-label={runnerState === 'paused' ? 'Resume game' : 'Pause game'}
-          >
-            {runnerState === 'paused' ? <Play aria-hidden="true" size={16} /> : <Pause aria-hidden="true" size={16} />}
-          </button>
-          <button
-            type="button"
-            className={`${osToolbarButtonClass} border-white/15 bg-white/10 text-white hover:bg-white/18`}
-            onClick={resetGame}
-            aria-label="Reset game"
-          >
-            <RotateCcw aria-hidden="true" size={16} />
-          </button>
-        </div>
-      </div>
+    <section
+      className={`${osAppShellClass} ${osAppHeight.tall} felix-arcade-screen text-white`}
+    >
+      <div className="relative min-h-0 flex-1 overflow-hidden">
+        <canvas
+          ref={canvasRef}
+          width={canvasWidth}
+          height={canvasHeight}
+          className="block h-full w-full touch-none object-cover [image-rendering:pixelated]"
+          onPointerDown={runnerState === 'ready' ? jump : undefined}
+          aria-label="Procedurally generated runner game"
+        />
 
-      <div className="grid min-h-0 flex-1 gap-4 overflow-auto p-4 lg:grid-cols-[minmax(0,1fr)_260px]">
-        <div className="min-w-0">
-          <div className="relative overflow-hidden rounded-card border border-white/12 bg-[#0b2225] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-            <canvas
-              ref={canvasRef}
-              width={canvasWidth}
-              height={canvasHeight}
-              className="block aspect-[5/2] w-full touch-none"
-              onPointerDown={jump}
-              aria-label="Procedurally generated runner game"
-            />
-            {runnerState !== 'running' ? (
-              <div className="pointer-events-none absolute inset-0 grid place-items-center bg-black/20 px-6 text-center">
-                <div>
-                  <p className="text-2xl font-black">
-                    {runnerState === 'gameover'
-                      ? 'Crash'
-                      : runnerState === 'paused'
-                        ? 'Paused'
-                        : 'Press Space'}
-                  </p>
-                  <p className="mt-1 text-sm font-bold text-white/72">
-                    {runnerState === 'gameover'
-                      ? 'Save your score or restart.'
-                      : 'Jump over generated obstacles. Space, arrow up, or tap.'}
-                  </p>
-                </div>
-              </div>
-            ) : null}
-          </div>
+        <div className="felix-arcade-scanlines" aria-hidden="true" />
+        <div className="felix-arcade-vignette" aria-hidden="true" />
 
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            <Stat label="Score" value={Math.round(score).toLocaleString()} />
-            <Stat label="Best" value={topScore.toLocaleString()} />
-            <Stat label="Speed" value={`${Math.round(modelRef.current.speed)} px/s`} />
-          </div>
-
-          {runnerState === 'gameover' ? (
-            <form
-              className={`${osPanelClass} mt-3 border-white/12 bg-white/[0.06]`}
-              onSubmit={(event) => {
-                event.preventDefault()
-                saveScore()
-              }}
-            >
-              <label className="text-caption font-black uppercase tracking-[0.12em] text-white/60">
-                High score name
-              </label>
-              <div className="mt-2 flex gap-2">
-                <input
-                  className={`${osInputClass} border-white/15 bg-white/10 text-white placeholder:text-white/40`}
-                  value={playerName}
-                  onChange={(event) => setPlayerName(event.target.value)}
-                  placeholder="Your name"
-                  maxLength={18}
-                  disabled={!canSaveScore}
-                />
-                <button
-                  type="submit"
-                  className={`${osToolbarButtonClass} border-[#7fdad1]/40 bg-[#7fdad1]/20 text-white hover:bg-[#7fdad1]/28`}
-                  disabled={!canSaveScore}
-                >
-                  Submit
-                </button>
-              </div>
-            </form>
-          ) : null}
-        </div>
-
-        <aside className={`${osPanelBareClass} border-white/12 bg-white/[0.06] p-3 text-white`}>
-          <div className="mb-3 flex items-center gap-2">
-            <Trophy aria-hidden="true" size={18} className="text-[#f6c85f]" />
-            <h2 className="text-sm font-black">High Scores</h2>
-          </div>
-          <ol className="space-y-2">
-            {highScores.length > 0 ? (
-              highScores.map((entry, index) => (
-                <li
-                  key={entry.id}
-                  className={`grid grid-cols-[1.7rem_minmax(0,1fr)_auto] items-center gap-2 rounded-control border px-2 py-2 text-sm ${
-                    entry.id === savedScoreId
-                      ? 'border-[#7fdad1]/40 bg-[#7fdad1]/14'
-                      : 'border-white/10 bg-white/[0.05]'
-                  }`}
-                >
-                  <span className="font-black text-white/45">{index + 1}</span>
-                  <span className="truncate font-bold">{entry.name}</span>
-                  <span className="font-black tabular-nums">{entry.score.toLocaleString()}</span>
-                </li>
-              ))
+        {runnerState === 'ready' ? (
+          <GameOverlay>
+            {highScoresOpen ? (
+              <HighScoresView
+                highScores={highScores}
+                savedScoreId={savedScoreId}
+                onBack={() => setHighScoresOpen(false)}
+              />
             ) : (
-              <li className="rounded-control border border-white/10 bg-white/[0.05] px-3 py-4 text-sm font-bold text-white/55">
-                No scores yet.
-              </li>
+              <>
+                <p className="felix-arcade-tag mb-2 text-[clamp(0.95rem,2.2vw,1.3rem)] uppercase tracking-[0.3em] text-cyan-200/90">
+                  FelixOS Arcade · 1P
+                </p>
+                <h1 className="felix-arcade felix-arcade-title text-[clamp(1.6rem,4.2vw,3rem)] uppercase leading-[1.05]">
+                  Offline Runner
+                </h1>
+                <p className="felix-arcade-tag mt-4 text-[clamp(0.95rem,2vw,1.2rem)] uppercase tracking-[0.18em] text-white/70">
+                  <span className="felix-arcade-blink">▶</span> Press{' '}
+                  <span className="text-[#ffd23f]">SPACE</span> to jump ·{' '}
+                  <span className="text-[#ffd23f]">↓</span> to duck
+                </p>
+                <div className="mt-7 flex flex-wrap justify-center gap-3">
+                  <ArcadeButton onClick={jump}>Insert Coin</ArcadeButton>
+                  <ArcadeButton variant="cool" onClick={() => setHighScoresOpen(true)}>
+                    Hi-Scores
+                  </ArcadeButton>
+                </div>
+              </>
             )}
-          </ol>
-        </aside>
+          </GameOverlay>
+        ) : null}
+
+        {runnerState === 'paused' ? (
+          <GameOverlay>
+            <h2 className="felix-arcade felix-arcade-glow text-[clamp(1.4rem,3.6vw,2.4rem)] uppercase text-cyan-200">
+              ▮▮ Paused
+            </h2>
+            <div className="mt-7 flex justify-center">
+              <ArcadeButton onClick={togglePause}>Resume</ArcadeButton>
+            </div>
+          </GameOverlay>
+        ) : null}
+
+        {runnerState === 'gameover' ? (
+          <GameOverlay>
+            {highScoresOpen ? (
+              <HighScoresView
+                highScores={highScores}
+                savedScoreId={savedScoreId}
+                onBack={() => setHighScoresOpen(false)}
+              />
+            ) : (
+              <>
+                <h2 className="felix-arcade felix-arcade-title-crash text-[clamp(1.6rem,4.2vw,3rem)] uppercase leading-[1.05]">
+                  Game Over
+                </h2>
+                <p className="felix-arcade-tag mt-2 text-[clamp(1.1rem,2.4vw,1.6rem)] uppercase tracking-[0.2em] text-[#ffd23f]">
+                  Score · {Math.round(score).toString().padStart(6, '0')}
+                </p>
+                <div className="mt-4 flex flex-wrap justify-center gap-3">
+                  <ArcadeButton onClick={resetGame}>Retry</ArcadeButton>
+                  <ArcadeButton variant="cool" onClick={() => setHighScoresOpen(true)}>
+                    Hi-Scores
+                  </ArcadeButton>
+                </div>
+                <form
+                  className="mt-4 w-[min(29rem,92vw)]"
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    saveScore()
+                    setHighScoresOpen(true)
+                  }}
+                >
+                  <div className="flex gap-2">
+                    <input
+                      className="felix-arcade-input min-h-11 flex-1 rounded-control px-3 text-xs uppercase tracking-[0.1em] placeholder:text-[10px]"
+                      value={playerName}
+                      onChange={(event) => setPlayerName(event.target.value)}
+                      placeholder="AAA"
+                      maxLength={18}
+                      disabled={!canSaveScore}
+                    />
+                    <ArcadeButton type="submit" disabled={!canSaveScore}>
+                      {savedScoreId ? 'Saved' : 'Save'}
+                    </ArcadeButton>
+                  </div>
+                </form>
+              </>
+            )}
+          </GameOverlay>
+        ) : null}
       </div>
     </section>
   )
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function ArcadeButton({
+  children,
+  disabled = false,
+  onClick,
+  type = 'button',
+  variant = 'warm',
+}: {
+  children: React.ReactNode
+  disabled?: boolean
+  onClick?: () => void
+  type?: 'button' | 'submit'
+  variant?: 'warm' | 'cool'
+}) {
   return (
-    <div className="rounded-card border border-white/10 bg-white/[0.06] px-3 py-2">
-      <p className="text-caption font-black uppercase tracking-[0.12em] text-white/45">{label}</p>
-      <p className="mt-1 text-lg font-black tabular-nums text-white">{value}</p>
+    <button
+      type={type}
+      data-variant={variant}
+      className="felix-arcade-button min-h-11 min-w-32 cursor-pointer whitespace-nowrap rounded-control px-4 text-[11px] uppercase leading-none disabled:cursor-not-allowed disabled:opacity-45"
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {children}
+    </button>
+  )
+}
+
+function GameOverlay({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(120%_80%_at_50%_50%,rgba(0,0,0,0.35),rgba(0,0,0,0.7))] px-5 text-center">
+      <div className="flex max-h-[92%] max-w-[min(34rem,94vw)] flex-col items-center overflow-auto px-5 py-6">
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function HighScoresView({
+  highScores,
+  onBack,
+  savedScoreId,
+}: {
+  highScores: RunnerScore[]
+  onBack: () => void
+  savedScoreId: string | null
+}) {
+  return (
+    <>
+      <h2 className="felix-arcade felix-arcade-title text-[clamp(1.4rem,3.6vw,2.4rem)] uppercase leading-[1.05]">
+        Top Scores
+      </h2>
+      <HighScoresList highScores={highScores} savedScoreId={savedScoreId} />
+      <div className="mt-4 flex justify-center">
+        <ArcadeButton variant="cool" onClick={onBack}>
+          Back
+        </ArcadeButton>
+      </div>
+    </>
+  )
+}
+
+function HighScoresList({
+  highScores,
+  savedScoreId,
+}: {
+  highScores: RunnerScore[]
+  savedScoreId: string | null
+}) {
+  return (
+    <div className="mt-4 w-[min(29rem,92vw)] rounded-card border-2 border-cyan-300/40 bg-[#070d1a]/85 p-3 text-white shadow-[0_0_24px_rgba(110,240,255,0.18)]">
+      <div className="mb-2 flex items-center justify-center gap-2">
+        <Trophy aria-hidden="true" size={14} className="text-[#ffd23f]" />
+        <span className="felix-arcade text-[9px] uppercase tracking-[0.2em] text-[#ffd23f]/80">
+          Leaderboard
+        </span>
+      </div>
+      <ol className="space-y-1.5">
+        {highScores.length > 0 ? (
+          highScores.map((entry, index) => (
+            <li
+              key={entry.id}
+              className={`grid grid-cols-[1.7rem_minmax(0,1fr)_auto] items-center gap-2 rounded-control border px-2 py-2 felix-arcade-tag text-base uppercase tracking-[0.08em] ${
+                entry.id === savedScoreId
+                  ? 'border-[#ffd23f]/60 bg-[#ffd23f]/12 text-[#ffd23f]'
+                  : 'border-cyan-300/15 bg-white/[0.04] text-cyan-100/90'
+              }`}
+            >
+              <span className="text-cyan-300/70">{(index + 1).toString().padStart(2, '0')}</span>
+              <span className="truncate">{entry.name}</span>
+              <span className="tabular-nums text-white">
+                {entry.score.toString().padStart(6, '0')}
+              </span>
+            </li>
+          ))
+        ) : (
+          <li className="rounded-control border border-cyan-300/15 bg-white/[0.04] px-3 py-4 felix-arcade-tag text-base uppercase tracking-[0.08em] text-cyan-100/55">
+            No scores yet.
+          </li>
+        )}
+      </ol>
     </div>
   )
 }
 
 function updateGame(model: GameModel, deltaSeconds: number) {
   model.distance += model.speed * deltaSeconds
-  model.speed = Math.min(620, 330 + model.distance * 0.035)
+  // Ramp from 330 → 760 over ~8.6k distance (~960 score), so the game gets
+  // genuinely fast after the first ~30s but never outpaces a clean jump.
+  model.speed = Math.min(760, 330 + model.distance * 0.05)
   model.velocityY += gravity * deltaSeconds
   model.playerY = Math.min(
     model.groundY - player.height,
@@ -342,9 +503,11 @@ function updateGame(model: GameModel, deltaSeconds: number) {
   }
 
   model.lastSpawn += model.speed * deltaSeconds
-  if (model.lastSpawn > 360 + seededRandom(model) * 230) {
-    model.obstacles.push(createObstacle(model))
+  if (model.lastSpawn > model.nextSpawnGap) {
+    const obstacle = createObstacle(model)
+    model.obstacles.push(obstacle)
     model.lastSpawn = 0
+    model.nextSpawnGap = obstacle.gapAfter
   }
 
   model.obstacles = model.obstacles
@@ -358,31 +521,131 @@ function updateGame(model: GameModel, deltaSeconds: number) {
 }
 
 function createObstacle(model: GameModel): Obstacle {
-  const tall = seededRandom(model) > 0.62
-  const spike = seededRandom(model) > 0.72
+  const roll = seededRandom(model)
+  const kind: Obstacle['kind'] =
+    roll > 0.9
+      ? 'birdSky'
+      : roll > 0.78
+        ? 'birdHigh'
+        : roll > 0.64
+          ? 'birdLow'
+          : roll > 0.5
+            ? 'hedge'
+            : roll > 0.34
+              ? 'spike'
+              : roll > 0.17
+                ? 'mushroom'
+                : 'log'
+  const minimumGap = minimumJumpableGap(model.speed)
+  const gapAfter = minimumGap + 70 + seededRandom(model) * 190
+
+  if (kind === 'birdSky') {
+    // Sits well above a standing player but inside the jump arc, so it only
+    // hits when the otter is airborne.
+    const height = 28
+
+    return {
+      gapAfter,
+      height,
+      kind,
+      width: 48,
+      x: canvasWidth + 20,
+      y: model.groundY - 110,
+    }
+  }
+
+  if (kind === 'birdHigh' || kind === 'birdLow') {
+    const height = 28
+
+    return {
+      gapAfter,
+      height,
+      kind,
+      width: 48,
+      x: canvasWidth + 20,
+      // Both bird heights must overlap the standing player's hit box but clear
+      // the crouching hit box (top at groundY - 30), so y sits in the
+      // groundY - 70..groundY - 50 band.
+      y: kind === 'birdLow' ? model.groundY - 56 : model.groundY - 70,
+    }
+  }
+
+  if (kind === 'hedge') {
+    const height = 72
+
+    return {
+      gapAfter,
+      height,
+      kind,
+      width: 56,
+      x: canvasWidth + 20,
+      y: model.groundY - height,
+    }
+  }
+
+  if (kind === 'spike') {
+    const height = 34
+
+    return {
+      gapAfter,
+      height,
+      kind,
+      width: 42,
+      x: canvasWidth + 20,
+      y: model.groundY - height,
+    }
+  }
+
+  if (kind === 'mushroom') {
+    const height = 46
+
+    return {
+      gapAfter,
+      height,
+      kind,
+      width: 38,
+      x: canvasWidth + 20,
+      y: model.groundY - height,
+    }
+  }
 
   return {
-    height: spike ? 34 : tall ? 56 : 42,
-    kind: spike ? 'spike' : 'block',
-    width: spike ? 42 : tall ? 28 : 34,
+    gapAfter,
+    height: 34,
+    kind,
+    width: 58,
     x: canvasWidth + 20,
+    y: model.groundY - 34,
   }
 }
 
+function minimumJumpableGap(speed: number) {
+  // 1.05× the horizontal distance covered by a single jump, so even at max
+  // speed there is always enough room to land and re-jump cleanly.
+  return Math.max(390, speed * jumpAirTime * 1.05)
+}
+
 function hasCollision(model: GameModel) {
+  const crouchHeight = 34
+  const playerHeight = model.crouching ? crouchHeight : player.height
+  const playerTop = model.playerY + (model.crouching ? player.height - crouchHeight : 0)
   const playerBox = {
     x: player.x + 5,
-    y: model.playerY + 4,
+    y: playerTop + 4,
     width: player.width - 10,
-    height: player.height - 6,
+    height: playerHeight - 6,
   }
 
   return model.obstacles.some((obstacle) => {
+    const bird =
+      obstacle.kind === 'birdHigh' ||
+      obstacle.kind === 'birdLow' ||
+      obstacle.kind === 'birdSky'
     const obstacleBox = {
-      x: obstacle.x + 3,
-      y: model.groundY - obstacle.height,
-      width: obstacle.width - 6,
-      height: obstacle.height,
+      x: obstacle.x + (bird ? 8 : 5),
+      y: obstacle.y + (bird ? 7 : 4),
+      width: obstacle.width - (bird ? 16 : 10),
+      height: obstacle.height - (bird ? 14 : 8),
     }
 
     return (
@@ -394,62 +657,285 @@ function hasCollision(model: GameModel) {
   })
 }
 
-function drawGame(canvas: HTMLCanvasElement | null, model: GameModel, runnerState: RunnerState) {
+function drawGame(
+  canvas: HTMLCanvasElement | null,
+  model: GameModel,
+  runnerState: RunnerState,
+  sprites: SpriteAssets,
+  score: number,
+) {
   const context = canvas?.getContext('2d')
   if (!context) return
 
   context.clearRect(0, 0, canvasWidth, canvasHeight)
+  drawBackground(context, model, sprites)
+  drawGround(context, model)
+
+  model.obstacles.forEach((obstacle) => drawObstacle(context, model, obstacle))
+  drawPlayer(context, model, runnerState, sprites)
+  drawScore(context, score)
+}
+
+function drawScore(context: CanvasRenderingContext2D, score: number) {
+  const value = Math.round(score).toString().padStart(6, '0')
+  context.save()
+  context.font = '20px "Press Start 2P", ui-monospace, monospace'
+  context.textBaseline = 'top'
+
+  context.textAlign = 'left'
+  context.fillStyle = 'rgba(110, 240, 255, 0.75)'
+  context.fillText('SCORE', 22, 22)
+
+  context.textAlign = 'right'
+  context.fillStyle = 'rgba(0,0,0,0.5)'
+  context.fillText(value, canvasWidth - 20, 24)
+  context.fillStyle = '#ffd23f'
+  context.shadowColor = 'rgba(255, 138, 26, 0.85)'
+  context.shadowBlur = 12
+  context.fillText(value, canvasWidth - 22, 22)
+  context.restore()
+}
+
+function drawBackground(
+  context: CanvasRenderingContext2D,
+  model: GameModel,
+  sprites: SpriteAssets,
+) {
   const sky = context.createLinearGradient(0, 0, 0, canvasHeight)
-  sky.addColorStop(0, '#0b2225')
-  sky.addColorStop(1, '#102c2b')
+  sky.addColorStop(0, '#142a33')
+  sky.addColorStop(0.58, '#203f3c')
+  sky.addColorStop(1, '#101b18')
   context.fillStyle = sky
   context.fillRect(0, 0, canvasWidth, canvasHeight)
 
-  drawGrid(context, model.distance)
-  context.fillStyle = '#7fdad1'
-  context.fillRect(0, model.groundY, canvasWidth, 3)
-  context.fillStyle = 'rgba(127,218,209,0.18)'
-  context.fillRect(0, model.groundY + 3, canvasWidth, canvasHeight - model.groundY)
+  drawParallaxLayer(context, sprites.forestBack, model.distance, 0.08, 2.35, 0, 0.85)
+  drawParallaxLayer(context, sprites.forestLights, model.distance, 0.13, 2.35, 0, 0.82)
+  drawParallaxLayer(context, sprites.forestMiddle, model.distance, 0.22, 2.35, 0, 0.72)
+  drawParallaxLayer(context, sprites.forestFront, model.distance, 0.36, 2.35, 0, 0.9)
 
-  model.obstacles.forEach((obstacle) => drawObstacle(context, model, obstacle))
-  drawPlayer(context, model, runnerState)
+  const shade = context.createLinearGradient(0, 0, 0, canvasHeight)
+  shade.addColorStop(0, 'rgba(8,23,25,0.08)')
+  shade.addColorStop(0.7, 'rgba(8,23,25,0.12)')
+  shade.addColorStop(1, 'rgba(8,23,25,0.5)')
+  context.fillStyle = shade
+  context.fillRect(0, 0, canvasWidth, canvasHeight)
 }
 
-function drawGrid(context: CanvasRenderingContext2D, distance: number) {
-  context.strokeStyle = 'rgba(127,218,209,0.12)'
-  context.lineWidth = 1
-  const offset = -(distance % 44)
+function drawParallaxLayer(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement | undefined,
+  distance: number,
+  speed: number,
+  scale: number,
+  y: number,
+  opacity: number,
+) {
+  if (!image?.complete || image.naturalWidth === 0) return
 
-  for (let x = offset; x < canvasWidth; x += 44) {
-    context.beginPath()
-    context.moveTo(x, 0)
-    context.lineTo(x, canvasHeight)
-    context.stroke()
+  const width = image.naturalWidth * scale
+  const height = image.naturalHeight * scale
+  const offset = -((distance * speed) % width)
+
+  context.save()
+  context.globalAlpha = opacity
+  context.imageSmoothingEnabled = false
+
+  for (let x = offset - width; x < canvasWidth + width; x += width) {
+    context.drawImage(image, x, y, width, height)
+  }
+
+  context.restore()
+}
+
+function drawGround(context: CanvasRenderingContext2D, model: GameModel) {
+  context.fillStyle = '#1e2118'
+  context.fillRect(0, model.groundY, canvasWidth, canvasHeight - model.groundY)
+  context.fillStyle = '#6f5c38'
+  context.fillRect(0, model.groundY, canvasWidth, 4)
+  context.fillStyle = 'rgba(246,200,95,0.18)'
+
+  const tileWidth = 36
+  const offset = -((model.distance * 0.62) % tileWidth)
+  for (let x = offset; x < canvasWidth + tileWidth; x += tileWidth) {
+    context.fillRect(x, model.groundY + 12, 18, 3)
+    context.fillRect(x + 20, model.groundY + 34, 9, 3)
   }
 }
 
 function drawObstacle(context: CanvasRenderingContext2D, model: GameModel, obstacle: Obstacle) {
-  const y = model.groundY - obstacle.height
-
-  context.fillStyle = obstacle.kind === 'spike' ? '#f66d44' : '#f6c85f'
-  if (obstacle.kind === 'spike') {
-    context.beginPath()
-    context.moveTo(obstacle.x, model.groundY)
-    context.lineTo(obstacle.x + obstacle.width / 2, y)
-    context.lineTo(obstacle.x + obstacle.width, model.groundY)
-    context.closePath()
-    context.fill()
+  if (
+    obstacle.kind === 'birdHigh' ||
+    obstacle.kind === 'birdLow' ||
+    obstacle.kind === 'birdSky'
+  ) {
+    drawBirdObstacle(context, model, obstacle)
     return
   }
 
-  context.fillRect(obstacle.x, y, obstacle.width, obstacle.height)
-  context.fillStyle = 'rgba(8,23,25,0.22)'
-  context.fillRect(obstacle.x + obstacle.width - 8, y + 6, 4, obstacle.height - 12)
+  if (obstacle.kind === 'hedge') {
+    drawHedgeObstacle(context, obstacle)
+    return
+  }
+
+  if (obstacle.kind === 'spike') {
+    drawSpikeObstacle(context, obstacle)
+    return
+  }
+
+  if (obstacle.kind === 'mushroom') {
+    drawMushroomObstacle(context, obstacle)
+    return
+  }
+
+  drawLogObstacle(context, obstacle)
 }
 
-function drawPlayer(context: CanvasRenderingContext2D, model: GameModel, runnerState: RunnerState) {
-  const bob = runnerState === 'running' && model.velocityY === 0 ? Math.sin(model.distance / 24) * 2 : 0
+function drawHedgeObstacle(context: CanvasRenderingContext2D, obstacle: Obstacle) {
+  const { x, y, width, height } = obstacle
+  // Trunk
+  context.fillStyle = '#5a3a1c'
+  context.fillRect(x + width / 2 - 3, y + height - 14, 6, 14)
+  // Bush body (dark green base)
+  context.fillStyle = '#23502c'
+  context.fillRect(x + 2, y + 10, width - 4, height - 18)
+  // Lighter green crown
+  context.fillStyle = '#3c8b3f'
+  context.fillRect(x + 6, y + 4, width - 12, 18)
+  context.fillRect(x, y + 16, 10, 14)
+  context.fillRect(x + width - 10, y + 16, 10, 14)
+  // Pixel highlights
+  context.fillStyle = '#7ad06a'
+  context.fillRect(x + 12, y + 6, 6, 4)
+  context.fillRect(x + width - 22, y + 14, 6, 4)
+  context.fillRect(x + 4, y + 28, 4, 3)
+  // Berries
+  context.fillStyle = '#e84545'
+  context.fillRect(x + 18, y + 26, 4, 4)
+  context.fillRect(x + width - 22, y + 36, 4, 4)
+}
+
+function drawSpikeObstacle(context: CanvasRenderingContext2D, obstacle: Obstacle) {
+  context.fillStyle = '#e66e45'
+  context.beginPath()
+  context.moveTo(obstacle.x, obstacle.y + obstacle.height)
+  context.lineTo(obstacle.x + obstacle.width / 2, obstacle.y)
+  context.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height)
+  context.closePath()
+  context.fill()
+  context.fillStyle = '#f4c36b'
+  context.fillRect(obstacle.x + obstacle.width / 2 - 3, obstacle.y + 13, 6, 16)
+}
+
+function drawMushroomObstacle(context: CanvasRenderingContext2D, obstacle: Obstacle) {
+  context.fillStyle = '#e95b48'
+  context.beginPath()
+  context.ellipse(
+    obstacle.x + obstacle.width / 2,
+    obstacle.y + 17,
+    obstacle.width / 2,
+    18,
+    0,
+    Math.PI,
+    0,
+  )
+  context.fill()
+  context.fillStyle = '#f6d7a4'
+  context.fillRect(obstacle.x + 13, obstacle.y + 20, 13, 24)
+  context.fillStyle = '#f9ead0'
+  context.fillRect(obstacle.x + 8, obstacle.y + 13, 6, 5)
+  context.fillRect(obstacle.x + 24, obstacle.y + 9, 5, 5)
+}
+
+function drawLogObstacle(context: CanvasRenderingContext2D, obstacle: Obstacle) {
+  context.fillStyle = '#7a4f2c'
+  context.fillRect(obstacle.x, obstacle.y + 8, obstacle.width, 20)
+  context.fillStyle = '#a06a39'
+  context.fillRect(obstacle.x + 5, obstacle.y + 12, obstacle.width - 10, 4)
+  context.fillStyle = '#d0a15b'
+  context.beginPath()
+  context.ellipse(obstacle.x + obstacle.width - 6, obstacle.y + 18, 8, 10, 0, 0, Math.PI * 2)
+  context.fill()
+  context.fillStyle = '#59361e'
+  context.beginPath()
+  context.ellipse(obstacle.x + obstacle.width - 6, obstacle.y + 18, 4, 5, 0, 0, Math.PI * 2)
+  context.fill()
+}
+
+function drawBirdObstacle(
+  context: CanvasRenderingContext2D,
+  model: GameModel,
+  obstacle: Obstacle,
+) {
+  const flap = Math.sin(model.distance / 34) > 0 ? -6 : 6
+  // Birds are drawn ~16px above their hit box so they visually fly over the
+  // crouched otter. Collision logic still uses the (lower) obstacle box.
+  const visualLift = 16
+  const centerX = obstacle.x + obstacle.width / 2
+  const centerY = obstacle.y + obstacle.height / 2 - visualLift
+
+  const bodyColor =
+    obstacle.kind === 'birdSky'
+      ? '#ffb3d1'
+      : obstacle.kind === 'birdLow'
+        ? '#f0d47b'
+        : '#d7e7ef'
+  const wingColor =
+    obstacle.kind === 'birdSky'
+      ? '#a53266'
+      : obstacle.kind === 'birdLow'
+        ? '#6c4428'
+        : '#496575'
+  context.fillStyle = bodyColor
+  context.fillRect(centerX - 10, centerY - 6, 20, 13)
+  context.fillStyle = wingColor
+  context.beginPath()
+  context.moveTo(centerX - 4, centerY - 2)
+  context.lineTo(centerX - 24, centerY + flap)
+  context.lineTo(centerX - 6, centerY + 7)
+  context.closePath()
+  context.fill()
+  context.beginPath()
+  context.moveTo(centerX + 4, centerY - 2)
+  context.lineTo(centerX + 24, centerY + flap)
+  context.lineTo(centerX + 6, centerY + 7)
+  context.closePath()
+  context.fill()
+  context.fillStyle = '#151b18'
+  context.fillRect(centerX + 5, centerY - 4, 3, 3)
+}
+
+function drawPlayer(
+  context: CanvasRenderingContext2D,
+  model: GameModel,
+  runnerState: RunnerState,
+  sprites: SpriteAssets,
+) {
+  const bob =
+    runnerState === 'running' && model.velocityY === 0 ? Math.sin(model.distance / 24) * 2 : 0
   const y = model.playerY + bob
+  const otter = sprites.otter
+
+  if (otter?.complete && otter.naturalWidth > 0) {
+    const frame = getOtterFrame(model, runnerState)
+    const crouching = isPlayerCrouching(model, runnerState)
+
+    // Draw size: anchor the sprite by its feet to the bottom of the hit box.
+    // Standing keeps the source aspect ratio so the otter never compresses
+    // (the previous code stretched a 192×208 frame into a 100×104 box).
+    // Crouch is an intentional horizontal squash so the silhouette clearly
+    // sits below incoming birds.
+    const aspect = frame.width / frame.height
+    const drawHeight = crouching ? 44 : 96
+    const drawWidth = crouching ? 68 : drawHeight * aspect
+    const playerCenterX = player.x + player.width / 2
+    const playerFeetY = y + player.height
+    const drawX = playerCenterX - drawWidth / 2
+    const drawY = playerFeetY - drawHeight
+
+    context.imageSmoothingEnabled = false
+    context.drawImage(otter, frame.x, frame.y, frame.width, frame.height, drawX, drawY, drawWidth, drawHeight)
+    return
+  }
 
   context.fillStyle = '#eaf7f3'
   context.fillRect(player.x, y, player.width, player.height)
@@ -458,6 +944,25 @@ function drawPlayer(context: CanvasRenderingContext2D, model: GameModel, runnerS
   context.fillStyle = '#7fdad1'
   context.fillRect(player.x + 6, y + player.height - 8, 9, 8)
   context.fillRect(player.x + 22, y + player.height - 8, 9, 8)
+}
+
+function getOtterFrame(model: GameModel, runnerState: RunnerState) {
+  const onGround = model.playerY >= model.groundY - player.height - 0.5
+
+  if (isPlayerCrouching(model, runnerState)) return otterCrouchFrame
+
+  if (!onGround) return otterJumpFrame
+
+  if (runnerState !== 'running') {
+    return otterIdleFrames[Math.floor(Date.now() / 260) % otterIdleFrames.length]
+  }
+
+  return otterRunFrames[Math.floor(model.distance / 42) % otterRunFrames.length]
+}
+
+function isPlayerCrouching(model: GameModel, runnerState: RunnerState) {
+  const onGround = model.playerY >= model.groundY - player.height - 0.5
+  return runnerState === 'running' && model.crouching && onGround
 }
 
 function seededRandom(model: GameModel) {

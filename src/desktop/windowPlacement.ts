@@ -7,7 +7,7 @@ const dockOffset = 116
 
 const appSizes = {
   browser: { width: 980, height: 680 },
-  game: { width: 900, height: 650 },
+  game: { width: 900, height: 760 },
   github: { width: 920, height: 640 },
   help: { width: 680, height: 560 },
   issues: { width: 980, height: 680 },
