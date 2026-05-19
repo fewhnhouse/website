@@ -3,6 +3,7 @@ type PdfBlock =
   | { items: Array<string>; type: 'list' }
   | { lines: Array<string>; type: 'paragraph' }
   | { props: ProfileHeaderProps; type: 'profileHeader' }
+  | { props: CvHeaderProps; type: 'cvHeader' }
 
 type PdfPage = {
   commands: Array<string>
@@ -13,6 +14,16 @@ type ProfileHeaderProps = {
   location?: string
   name?: string
   role?: string
+}
+
+type CvHeaderProps = {
+  email?: string
+  github?: string
+  linkedin?: string
+  location?: string
+  name?: string
+  role?: string
+  website?: string
 }
 
 const PAGE_WIDTH = 595.28
@@ -56,6 +67,18 @@ function parseMarkdownBlocks(markdown: string) {
       }
 
       blocks.push({ type: 'profileHeader', props: parseProfileHeaderProps(componentLines.join(' ')) })
+      continue
+    }
+
+    if (line.startsWith('<CvHeader')) {
+      const componentLines = [line]
+
+      while (!lines[index].trim().endsWith('/>') && index + 1 < lines.length) {
+        index += 1
+        componentLines.push(lines[index].trim())
+      }
+
+      blocks.push({ type: 'cvHeader', props: parseCvHeaderProps(componentLines.join(' ')) })
       continue
     }
 
@@ -109,6 +132,18 @@ function parseProfileHeaderProps(source: string): ProfileHeaderProps {
   return props
 }
 
+function parseCvHeaderProps(source: string): CvHeaderProps {
+  const props: CvHeaderProps = {}
+  const attributePattern = /(name|role|location|email|website|linkedin|github)="([^"]*)"/g
+  let match: RegExpExecArray | null
+
+  while ((match = attributePattern.exec(source))) {
+    props[match[1] as keyof CvHeaderProps] = match[2]
+  }
+
+  return props
+}
+
 function stripInlineMarkdown(text: string) {
   return text
     .replace(/\[(`?)([^`\]]+)\1\]\([^)]+\)/g, '$2')
@@ -128,6 +163,8 @@ class PdfRenderer {
     for (const block of blocks) {
       if (block.type === 'profileHeader') {
         this.renderProfileHeader(block.props)
+      } else if (block.type === 'cvHeader') {
+        this.renderCvHeader(block.props)
       } else if (block.type === 'heading') {
         this.renderHeading(block.level, block.text)
       } else if (block.type === 'list') {
@@ -188,6 +225,48 @@ class PdfRenderer {
     chunks.push(`trailer\n<< /Size ${objects.length} /Root ${catalogId} 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`)
 
     return new TextEncoder().encode(chunks.join(''))
+  }
+
+  private renderCvHeader({
+    email = '',
+    github = '',
+    linkedin = '',
+    location = '',
+    name = 'Felix Wohnhaas',
+    role = '',
+    website = '',
+  }: CvHeaderProps) {
+    this.ensureSpace(132)
+    this.text('Curriculum vitae', MARGIN_X, this.y, 9.2, 'F2', INK_MUTED)
+    this.y -= 18
+    this.text(name, MARGIN_X, this.y, 25, 'F2', INK)
+    this.y -= 30
+
+    for (const line of wrapText(role, 11.2, CONTENT_WIDTH)) {
+      this.text(line, MARGIN_X, this.y, 11.2, 'F1', INK_MUTED)
+      this.y -= 18
+    }
+
+    this.y -= 4
+
+    const contact = [location, email].filter(Boolean).join('  |  ')
+    if (contact) {
+      this.text(contact, MARGIN_X, this.y, 10.2, 'F2', LAGOON)
+      this.y -= 20
+    }
+
+    const links = [
+      website ? `Website: ${website}` : '',
+      linkedin ? `LinkedIn: ${linkedin}` : '',
+      github ? `GitHub: ${github}` : '',
+    ].filter(Boolean)
+
+    if (links.length) {
+      this.text(links.join('  |  '), MARGIN_X, this.y, 9.4, 'F1', LAGOON)
+      this.y -= 20
+    }
+
+    this.y -= 8
   }
 
   private renderProfileHeader({ description = '', location = '', name = 'Felix Wohnhaas', role = '' }: ProfileHeaderProps) {

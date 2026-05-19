@@ -382,6 +382,101 @@ pre code {
   box-shadow: var(--shadow-avatar);
 }
 
+.felix-cv-header {
+  margin: 0;
+}
+
+.felix-mdx-content .felix-cv-header + h2 {
+  margin-top: 1.35rem;
+}
+
+.felix-cv-header__label {
+  margin: 0 0 0.45rem;
+  color: var(--color-os-ink-soft);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.felix-cv-header__name {
+  margin: 0 0 0.35rem;
+  color: var(--color-lagoon-deep);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5.5vw, 2.85rem);
+  font-weight: 900;
+  line-height: 1.02;
+}
+
+.felix-cv-header__role {
+  max-width: 40rem;
+  margin: 0 0 0.95rem;
+  color: var(--color-os-ink-muted);
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.felix-cv-header .felix-cv-header__contacts,
+.felix-cv-header .felix-cv-header__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.felix-cv-header .felix-cv-header__contacts {
+  margin-bottom: 0.55rem;
+}
+
+.felix-cv-header .felix-cv-header__contacts li,
+.felix-cv-header .felix-cv-header__links li {
+  list-style: none;
+}
+
+.felix-cv-header .felix-cv-header__contacts li,
+.felix-cv-header .felix-cv-header__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  color: var(--color-lagoon-deep);
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.felix-cv-header .felix-cv-header__contacts a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.felix-cv-header .felix-cv-header__contacts a:hover,
+.felix-cv-header .felix-cv-header__links a:hover {
+  color: var(--color-lagoon);
+  text-decoration: underline;
+  text-underline-offset: 0.14em;
+}
+
+.felix-cv-header .felix-cv-header__links a {
+  border: 1px solid rgba(50, 143, 151, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.58);
+  padding: 0.32rem 0.62rem 0.32rem 0.5rem;
+  text-decoration: none;
+}
+
+.felix-cv-header__icon {
+  width: 0.92rem;
+  height: 0.92rem;
+  flex: 0 0 auto;
+  color: var(--color-lagoon);
+  stroke-width: 2.25;
+}
+
 .felix-profile-header {
   display: flex;
   align-items: center;

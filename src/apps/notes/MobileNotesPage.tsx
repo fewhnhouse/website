@@ -1,9 +1,14 @@
 import { Link } from '@tanstack/react-router'
+import { Download } from 'lucide-react'
 
 import type { NotesDocumentId } from '@/desktop/types'
 
 import { initialNotesMarkdown } from './notesMarkdown'
+import { notesPdfFilename } from './pdfFilename'
 import { RenderedMarkdown } from './RenderedMarkdown'
+
+const mobileHeaderActionClass =
+  'inline-flex shrink-0 items-center gap-1.5 rounded-control border border-os-border bg-white/65 px-3 py-1.5 text-caption font-black text-lagoon-deep no-underline'
 
 type MobileNotesPageProps = {
   document: NotesDocumentId
@@ -18,6 +23,7 @@ export function MobileNotesPage({ document, print = false }: MobileNotesPageProp
   const currentLabel = document === 'cv' ? 'cv.mdx' : 'home.mdx'
   const alternateDocument = document === 'cv' ? 'home' : 'cv'
   const alternateLabel = alternateDocument === 'cv' ? 'cv.mdx' : 'home.mdx'
+  const pdfFilename = notesPdfFilename(document)
 
   return (
     <main className="min-h-[100svh] bg-foam text-os-ink">
@@ -33,17 +39,28 @@ export function MobileNotesPage({ document, print = false }: MobileNotesPageProp
               />
               <span className="truncate font-black">{currentLabel}</span>
             </div>
-            <Link
-              to={alternateDocument === 'cv' ? '/cv' : '/home'}
-              search={
-                alternateDocument === 'cv'
-                  ? { minimized: false, maximized: false, x: 122, y: 118 }
-                  : { minimized: false, maximized: false, x: 84, y: 92 }
-              }
-              className="shrink-0 rounded-control border border-os-border bg-white/65 px-3 py-1.5 text-caption font-black text-lagoon-deep no-underline"
-            >
-              {alternateLabel}
-            </Link>
+            <div className="flex shrink-0 items-center gap-2">
+              <a
+                href={`/api/notes/${document}/pdf`}
+                download={pdfFilename}
+                className={mobileHeaderActionClass}
+              >
+                <Download className="size-3.5" aria-hidden />
+                <span>PDF</span>
+                <span className="sr-only">Download {currentLabel}</span>
+              </a>
+              <Link
+                to={alternateDocument === 'cv' ? '/cv' : '/home'}
+                search={
+                  alternateDocument === 'cv'
+                    ? { minimized: false, maximized: false, x: 122, y: 118 }
+                    : { minimized: false, maximized: false, x: 84, y: 92 }
+                }
+                className={mobileHeaderActionClass}
+              >
+                {alternateLabel}
+              </Link>
+            </div>
           </nav>
           <p className="felix-mobile-experience-banner mx-auto max-w-2xl">
             For the full FelixOS experience, visit on a desktop screen.

@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { Github, Globe, Linkedin, Mail, MapPin } from 'lucide-react'
 import type { CSSProperties } from 'react'
 import type { ReactNode } from 'react'
 
@@ -13,6 +14,16 @@ type ProfileHeaderProps = {
   location?: string
   name?: string
   role?: string
+}
+
+type CvHeaderProps = {
+  email?: string
+  github?: string
+  linkedin?: string
+  location?: string
+  name?: string
+  role?: string
+  website?: string
 }
 
 export function RenderedMarkdown({ className, markdown }: RenderedMarkdownProps) {
@@ -55,6 +66,18 @@ function renderMarkdownBlocks(markdown: string) {
       }
 
       blocks.push(<ProfileHeader key={index} {...parseProfileHeaderProps(componentLines.join(' '))} />)
+      continue
+    }
+
+    if (line.startsWith('<CvHeader')) {
+      const componentLines = [line]
+
+      while (!lines[index].trim().endsWith('/>') && index + 1 < lines.length) {
+        index += 1
+        componentLines.push(lines[index].trim())
+      }
+
+      blocks.push(<CvHeader key={index} {...parseCvHeaderProps(componentLines.join(' '))} />)
       continue
     }
 
@@ -139,6 +162,68 @@ function parseProfileHeaderProps(source: string): ProfileHeaderProps {
   }
 
   return props
+}
+
+function parseCvHeaderProps(source: string): CvHeaderProps {
+  const props: CvHeaderProps = {}
+  const attributePattern = /(name|role|location|email|website|linkedin|github)="([^"]*)"/g
+  let match: RegExpExecArray | null
+
+  while ((match = attributePattern.exec(source))) {
+    props[match[1] as keyof CvHeaderProps] = match[2]
+  }
+
+  return props
+}
+
+function CvHeader({
+  email = '',
+  github = '',
+  linkedin = '',
+  location = '',
+  name = 'Felix Wohnhaas',
+  role = '',
+  website = '',
+}: CvHeaderProps) {
+  const links = [
+    website ? { href: website, icon: Globe, label: 'Website' } : null,
+    linkedin ? { href: linkedin, icon: Linkedin, label: 'LinkedIn' } : null,
+    github ? { href: github, icon: Github, label: 'GitHub' } : null,
+  ].filter((link): link is { href: string; icon: typeof Globe; label: string } => link !== null)
+
+  return (
+    <header className="felix-cv-header" aria-label={`${name} curriculum vitae`}>
+      <p className="felix-cv-header__label">Curriculum vitae</p>
+      <h1 className="felix-cv-header__name">{name}</h1>
+      {role ? <p className="felix-cv-header__role">{role}</p> : null}
+      <ul className="felix-cv-header__contacts">
+        {location ? (
+          <li>
+            <MapPin aria-hidden className="felix-cv-header__icon" />
+            <span>{location}</span>
+          </li>
+        ) : null}
+        {email ? (
+          <li>
+            <Mail aria-hidden className="felix-cv-header__icon" />
+            <a href={`mailto:${email}`}>{email}</a>
+          </li>
+        ) : null}
+      </ul>
+      {links.length ? (
+        <ul className="felix-cv-header__links">
+          {links.map(({ href, icon: Icon, label }) => (
+            <li key={label}>
+              <a href={href} target="_blank" rel="noreferrer">
+                <Icon aria-hidden className="felix-cv-header__icon" />
+                <span>{label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </header>
+  )
 }
 
 function ProfileHeader({
