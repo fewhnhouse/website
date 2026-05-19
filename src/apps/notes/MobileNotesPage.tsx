@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 
 import type { NotesDocumentId } from '@/desktop/types'
 
-import { initialNotesMarkdown } from './documents'
+import { initialNotesMarkdown } from './notesMarkdown'
 import { RenderedMarkdown } from './RenderedMarkdown'
 
 type MobileNotesPageProps = {

@@ -7,7 +7,7 @@ import { getGithubData } from '@/apps/github/githubData'
 import type { GithubData } from '@/apps/github/types'
 import { getIssuesBoardData } from '@/apps/issues/issuesData'
 import type { IssuesBoardData, ProjectIssue } from '@/apps/issues/types'
-import { initialNotesMarkdown, type NotesMarkdownByDocument } from '@/apps/notes/documents'
+import { initialNotesMarkdown, type NotesMarkdownByDocument } from '@/apps/notes/notesMarkdown'
 import { getStravaData, type StravaDataResult } from '@/apps/strava/stravaData'
 import {
   ContextMenu,

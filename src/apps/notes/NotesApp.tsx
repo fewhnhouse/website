@@ -5,7 +5,7 @@ import type { RefObject } from 'react'
 import type { NotesDocumentId } from '@/desktop/types'
 import { cn } from '@/lib/cn'
 
-import { initialNotesMarkdown } from './documents'
+import { initialNotesMarkdown } from './notesMarkdown'
 import { loadLocalMdxEditor } from './loadMdxEditor.client'
 import { notesPdfFilename } from './pdfFilename'
 import { RenderedMarkdown } from './RenderedMarkdown'
