@@ -3,10 +3,24 @@ import type { CSSProperties } from 'react'
 import { desktopApps } from './apps'
 import type { AppId, NotesDocumentId } from './types'
 
+// Whole-shortcut button: just a transparent click target. No background,
+// no border, no transitions of its own.
 const desktopIconClass =
-  'grid min-h-[94px] w-desktop-icon cursor-pointer appearance-none justify-items-center gap-1 rounded-[10px] border border-transparent bg-transparent text-center font-[inherit] text-[var(--desktop-icon-fg)] hover:border-white/45 hover:bg-white/20 focus-visible:border-white/45 focus-visible:bg-white/20 focus-visible:outline-none max-[720px]:w-[74px]'
+  'group/desktop-icon grid w-desktop-icon cursor-pointer appearance-none justify-items-center gap-2 border-0 bg-transparent p-1 text-center font-[inherit] text-[var(--desktop-icon-fg)] outline-none focus-visible:outline-none max-[720px]:w-[74px]'
+
+// The icon "chip" — 2px ink border + 3px ink shadow-stack on the per-app
+// accent color. Hover state is paint-only: a dashed coral `outline` (which
+// doesn't reflow or animate the tile's geometry, so no flicker). Press
+// instantly snaps the tile into its shadow — no transition, just the
+// canonical chunky pixel-UI feel.
 const desktopIconTileClass =
-  'grid size-desktop-tile place-items-center rounded-icon border border-white/50 bg-[image:var(--desktop-tile-bg)] text-[var(--desktop-tile-fg)] shadow-desktop-tile max-[720px]:size-12 max-[720px]:rounded-[14px]'
+  'relative grid size-desktop-tile place-items-center border-2 border-ink text-ink shadow-desktop-tile outline-2 outline-dashed outline-transparent outline-offset-[3px] group-hover/desktop-icon:outline-lagoon-deep group-focus-visible/desktop-icon:outline-lagoon-deep group-active/desktop-icon:translate-x-[2px] group-active/desktop-icon:translate-y-[2px] group-active/desktop-icon:shadow-none max-[720px]:size-12'
+
+const desktopIconLabelClass =
+  'max-w-[88px] overflow-hidden text-ellipsis whitespace-nowrap font-display text-[0.7rem] font-normal uppercase leading-tight tracking-[0.08em] text-[var(--desktop-icon-fg)]'
+
+const desktopIconSubtitleClass =
+  'text-[0.64rem] font-bold tracking-[0.02em] text-[var(--desktop-icon-muted)]'
 
 type DesktopShortcutsProps = {
   onOpenTarget: (app: AppId, document?: NotesDocumentId) => void
@@ -31,19 +45,28 @@ export function DesktopShortcuts({ onOpenTarget }: DesktopShortcutsProps) {
           >
             <span
               className={desktopIconTileClass}
-              style={{ '--accent': app.accent } as CSSProperties}
+              style={
+                {
+                  backgroundColor: app.accent,
+                  color: isDarkAccent(app.accent) ? '#FAF9F5' : '#1F1E1D',
+                } as CSSProperties
+              }
             >
-              <Icon aria-hidden="true" size={28} />
+              <Icon aria-hidden="true" size={32} />
             </span>
-            <span className="max-w-[82px] overflow-hidden text-ellipsis whitespace-nowrap text-[0.76rem] font-black leading-tight text-[var(--desktop-icon-fg)]">
-              {app.title}
+            <span className="grid gap-0.5">
+              <span className={desktopIconLabelClass}>{app.title}</span>
+              <small className={desktopIconSubtitleClass}>{app.subtitle}</small>
             </span>
-            <small className="text-[0.64rem] font-extrabold text-[var(--desktop-icon-muted)]">
-              {app.subtitle}
-            </small>
           </button>
         )
       })}
     </section>
   )
+}
+
+// Tiles use a per-app accent fill; flip the icon to cream on dark accents
+// (ink / terminal) so the silhouette stays readable.
+function isDarkAccent(accent: string) {
+  return accent.toLowerCase() === '#1f1e1d' || accent.toLowerCase() === '#14262d'
 }

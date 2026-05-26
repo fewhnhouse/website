@@ -9,8 +9,8 @@ import {
   Globe2,
   MonitorCog,
   Terminal,
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+  type PixelIconComponent,
+} from '@/components/PixelIcon'
 
 import type { AppId, NotesDocumentId } from './types'
 
@@ -23,7 +23,7 @@ type AppCatalogItem = {
   id: string
   title: string
   subtitle: string
-  icon: LucideIcon
+  icon: PixelIconComponent
   accent: string
   target: LaunchTarget
   terminalName: string
@@ -44,7 +44,7 @@ export const appCatalog: readonly AppCatalogItem[] = [
     title: 'home.mdx',
     subtitle: 'Start here',
     icon: FileText,
-    accent: '#f6c85f',
+    accent: '#D97757',
     target: { app: 'notes', document: 'home' },
     terminalName: 'home.mdx',
     terminalAliases: ['home', 'notes'],
@@ -54,7 +54,7 @@ export const appCatalog: readonly AppCatalogItem[] = [
     title: 'cv.mdx',
     subtitle: 'Resume',
     icon: FileText,
-    accent: '#8de5db',
+    accent: '#F4D9CB',
     target: { app: 'notes', document: 'cv' },
     terminalName: 'cv.mdx',
     terminalAliases: ['cv', 'resume'],
@@ -64,7 +64,7 @@ export const appCatalog: readonly AppCatalogItem[] = [
     title: 'Help',
     subtitle: 'FelixOS guide',
     icon: CircleHelp,
-    accent: '#7bc8ff',
+    accent: '#D8E0CE',
     target: { app: 'help' },
     terminalName: 'help.app',
     terminalAliases: ['help', 'manual'],
@@ -75,7 +75,7 @@ export const appCatalog: readonly AppCatalogItem[] = [
     title: 'Skills',
     subtitle: 'Stack map',
     icon: Gauge,
-    accent: '#60d7cf',
+    accent: '#D97757',
     target: { app: 'skills' },
     terminalName: 'skills.app',
   },
@@ -84,7 +84,7 @@ export const appCatalog: readonly AppCatalogItem[] = [
     title: 'Browser',
     subtitle: 'Web search',
     icon: Globe2,
-    accent: '#6f7cff',
+    accent: '#D8E0CE',
     target: { app: 'browser' },
     terminalName: 'browser.app',
     terminalAliases: ['web', 'google', 'search'],
@@ -94,7 +94,7 @@ export const appCatalog: readonly AppCatalogItem[] = [
     title: 'Runner',
     subtitle: 'High score',
     icon: Gamepad2,
-    accent: '#f66d44',
+    accent: '#1F1E1D',
     target: { app: 'game' },
     terminalName: 'runner.app',
     terminalAliases: ['game', 'gaming', 'dino'],
@@ -104,7 +104,7 @@ export const appCatalog: readonly AppCatalogItem[] = [
     title: 'GitHub',
     subtitle: 'Live data',
     icon: Github,
-    accent: '#f0f3f6',
+    accent: '#1F1E1D',
     target: { app: 'github' },
     terminalName: 'github.app',
     terminalAliases: ['git'],
@@ -114,7 +114,7 @@ export const appCatalog: readonly AppCatalogItem[] = [
     title: 'Issues',
     subtitle: 'Project board',
     icon: CircleDot,
-    accent: '#6f7cff',
+    accent: '#E1DEFB',
     target: { app: 'issues' },
     terminalName: 'issues.app',
     terminalAliases: ['issue', 'tickets', 'board'],
@@ -134,7 +134,7 @@ export const appCatalog: readonly AppCatalogItem[] = [
     title: 'Terminal',
     subtitle: 'Shell',
     icon: Terminal,
-    accent: '#14262d',
+    accent: '#1F1E1D',
     target: { app: 'terminal' },
     terminalName: 'terminal.app',
     terminalAliases: ['shell'],
@@ -144,7 +144,7 @@ export const appCatalog: readonly AppCatalogItem[] = [
     title: 'Settings',
     subtitle: 'Desktop',
     icon: MonitorCog,
-    accent: '#f6c85f',
+    accent: '#C28A2C',
     target: { app: 'settings' },
     terminalName: 'settings.app',
     terminalAliases: ['settings', 'preferences', 'desktop'],

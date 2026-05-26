@@ -1,4 +1,4 @@
-import { MonitorCog } from 'lucide-react'
+import { MonitorCog } from '@/components/PixelIcon'
 import { AnimatePresence } from 'motion/react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
@@ -302,7 +302,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <main
-          className="relative min-h-[100svh] overflow-hidden bg-[image:var(--os-shell-bg)] text-os-ink"
+          className="relative min-h-[100svh] overflow-hidden bg-[color:var(--os-shell-bg)] text-os-ink"
           style={
             {
               '--os-shell-bg': activeWallpaper.shell,
@@ -314,12 +314,23 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
             } as CSSProperties
           }
         >
-      <div className="pointer-events-none absolute inset-0 bg-[image:var(--os-wallpaper-bg)] opacity-90 after:absolute after:inset-0 after:bg-[image:var(--os-grid-bg)] after:bg-[length:42px_42px] after:opacity-15 after:[mask-image:linear-gradient(180deg,black,transparent_86%)] after:content-['']" />
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage: 'var(--os-wallpaper-bg)',
+          backgroundSize: '16px 16px',
+        }}
+      />
       <DesktopTopBar
         commandOpen={commandOpen}
+        onOpenBrowser={openBrowser}
         onOpenCommand={() => setCommandOpen(true)}
+        onOpenCv={() => openApp('notes', 'cv')}
         onOpenHelp={openHelp}
         onOpenHome={openHome}
+        onOpenSettings={openSettings}
+        onOpenTerminal={openTerminal}
+        onPreviewScreensaver={() => setScreensaverMode('preview')}
       />
 
       <DesktopShortcuts

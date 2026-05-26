@@ -24,7 +24,7 @@ function CommandInput({
     <CommandPrimitive.Input
       data-slot="command-input"
       className={cn(
-        'h-11 min-w-0 flex-1 border-0 bg-transparent p-0 font-[inherit] text-[0.98rem] font-extrabold text-os-ink outline-none placeholder:text-os-ink-soft disabled:cursor-not-allowed disabled:opacity-50',
+        'h-11 min-w-0 flex-1 border-0 bg-transparent p-0 font-mono text-[0.95rem] font-bold text-ink outline-none placeholder:text-ink-soft disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
       {...props}
@@ -69,7 +69,7 @@ function CommandGroup({
     <CommandPrimitive.Group
       data-slot="command-group"
       className={cn(
-        'space-y-1 [&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:py-1 [&_[cmdk-group-heading]]:text-[0.66rem] [&_[cmdk-group-heading]]:font-black [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-os-ink-soft',
+        'space-y-1 [&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:py-1 [&_[cmdk-group-heading]]:font-display [&_[cmdk-group-heading]]:text-[0.6rem] [&_[cmdk-group-heading]]:font-normal [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-lagoon-deep',
         className,
       )}
       {...props}
@@ -85,7 +85,7 @@ function CommandItem({
     <CommandPrimitive.Item
       data-slot="command-item"
       className={cn(
-        'group grid cursor-pointer select-none grid-cols-[2.45rem_1fr_auto] items-center gap-3 rounded-card border border-transparent bg-transparent px-2.5 py-2.5 text-left font-[inherit] outline-none transition data-[disabled=true]:pointer-events-none data-[selected=true]:border-os-border-strong data-[selected=true]:bg-white/82 data-[selected=true]:shadow-chip data-[disabled=true]:opacity-50 data-[selected=false]:hover:border-os-border data-[selected=false]:hover:bg-white/58',
+        'group grid cursor-pointer select-none grid-cols-[2.45rem_1fr_auto] items-center gap-3 border-2 border-transparent bg-transparent px-2.5 py-2.5 text-left font-[inherit] outline-none transition data-[disabled=true]:pointer-events-none data-[selected=true]:border-ink data-[selected=true]:bg-link-hover-bg data-[selected=true]:shadow-chip data-[disabled=true]:opacity-50 data-[selected=false]:hover:border-ink',
         className,
       )}
       {...props}
@@ -114,7 +114,7 @@ function CommandShortcut({
     <span
       data-slot="command-shortcut"
       className={cn(
-        'flex items-center gap-1 rounded-[6px] border border-os-border bg-white/72 px-1.5 py-1 text-[0.62rem] font-black text-os-ink-soft opacity-0 transition-opacity group-data-[selected=true]:opacity-100',
+        'flex items-center gap-1 border-2 border-ink bg-foam px-1.5 py-1 font-mono text-[0.62rem] font-bold text-ink opacity-0 transition-opacity group-data-[selected=true]:opacity-100',
         className,
       )}
       {...props}

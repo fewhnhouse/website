@@ -1,7 +1,15 @@
-import { Trophy } from 'lucide-react'
+import { Trophy } from '@/components/PixelIcon'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { osAppHeight, osAppShellClass } from '@/apps/shared/appStyles'
+import {
+  osAppHeight,
+  osAppShellClass,
+  osBtnPrimaryClass,
+  osBtnSecondaryClass,
+  osInputClass,
+  osPanelClass,
+} from '@/apps/shared/appStyles'
+import { cn } from '@/lib/cn'
 
 import type { RunnerScore } from './scoresTypes'
 
@@ -313,7 +321,7 @@ export function RunnerGameApp() {
 
   return (
     <section
-      className={`${osAppShellClass} ${osAppHeight.xl} felix-arcade-screen text-white`}
+      className={`${osAppShellClass} ${osAppHeight.xl} felix-arcade-screen text-ink`}
     >
       <div className="relative min-h-0 flex-1 overflow-hidden">
         <canvas
@@ -340,16 +348,16 @@ export function RunnerGameApp() {
               />
             ) : (
               <>
-                <p className="felix-arcade-tag mb-2 text-[clamp(0.95rem,2.2vw,1.3rem)] uppercase tracking-[0.3em] text-cyan-200/90">
+                <p className="felix-arcade-tag mb-2 text-[clamp(0.95rem,2.2vw,1.3rem)] uppercase tracking-[0.3em] text-lagoon-deep">
                   FelixOS Arcade · 1P
                 </p>
                 <h1 className="felix-arcade felix-arcade-title text-[clamp(1.6rem,4.2vw,3rem)] uppercase leading-[1.05]">
                   Offline Runner
                 </h1>
-                <p className="felix-arcade-tag mt-4 text-[clamp(0.95rem,2vw,1.2rem)] uppercase tracking-[0.18em] text-white/70">
-                  <span className="felix-arcade-blink">▶</span> Press{' '}
-                  <span className="text-[#ffd23f]">SPACE</span> to jump ·{' '}
-                  <span className="text-[#ffd23f]">↓</span> to duck
+                <p className="felix-arcade-tag mt-4 text-[clamp(0.95rem,2vw,1.2rem)] uppercase tracking-[0.18em] text-ink-soft">
+                  <span className="felix-arcade-blink text-lagoon">▶</span> Press{' '}
+                  <span className="text-lagoon-deep">SPACE</span> to jump ·{' '}
+                  <span className="text-lagoon-deep">↓</span> to duck
                 </p>
                 <div className="mt-7 flex flex-wrap justify-center gap-3">
                   <ArcadeButton onClick={jump}>Insert Coin</ArcadeButton>
@@ -364,7 +372,7 @@ export function RunnerGameApp() {
 
         {runnerState === 'paused' ? (
           <GameOverlay>
-            <h2 className="felix-arcade felix-arcade-glow text-[clamp(1.4rem,3.6vw,2.4rem)] uppercase text-cyan-200">
+            <h2 className="felix-arcade felix-arcade-glow text-[clamp(1.4rem,3.6vw,2.4rem)] uppercase text-ink">
               ▮▮ Paused
             </h2>
             <div className="mt-7 flex justify-center">
@@ -388,7 +396,7 @@ export function RunnerGameApp() {
                 <h2 className="felix-arcade felix-arcade-title-crash text-[clamp(1.6rem,4.2vw,3rem)] uppercase leading-[1.05]">
                   Game Over
                 </h2>
-                <p className="felix-arcade-tag mt-2 text-[clamp(1.1rem,2.4vw,1.6rem)] uppercase tracking-[0.2em] text-[#ffd23f]">
+                <p className="felix-arcade-tag mt-2 text-[clamp(1.1rem,2.4vw,1.6rem)] uppercase tracking-[0.2em] text-lagoon-deep">
                   Score · {Math.round(score).toString().padStart(6, '0')}
                 </p>
                 <div className="mt-4 flex flex-wrap justify-center gap-3">
@@ -407,7 +415,7 @@ export function RunnerGameApp() {
                 >
                   <div className="flex gap-2">
                     <input
-                      className="felix-arcade-input min-h-11 flex-1 rounded-control px-3 text-xs uppercase tracking-[0.1em] placeholder:text-[10px]"
+                      className={cn(osInputClass, 'min-h-11 flex-1 uppercase tracking-[0.1em]')}
                       value={playerName}
                       onChange={(event) => setPlayerName(event.target.value)}
                       placeholder="AAA"
@@ -419,7 +427,7 @@ export function RunnerGameApp() {
                     </ArcadeButton>
                   </div>
                   {scoresError ? (
-                    <p className="felix-arcade-tag mt-2 text-center text-sm uppercase tracking-[0.1em] text-[#ff8a8a]">
+                    <p className="felix-arcade-tag mt-2 text-center text-sm uppercase tracking-[0.1em] text-destructive">
                       {scoresError}
                     </p>
                   ) : null}
@@ -449,8 +457,10 @@ function ArcadeButton({
   return (
     <button
       type={type}
-      data-variant={variant}
-      className="felix-arcade-button min-h-11 min-w-32 cursor-pointer whitespace-nowrap rounded-control px-4 text-[11px] uppercase leading-none disabled:cursor-not-allowed disabled:opacity-45"
+      className={cn(
+        variant === 'warm' ? osBtnPrimaryClass : osBtnSecondaryClass,
+        'min-h-11 min-w-32',
+      )}
       onClick={onClick}
       disabled={disabled}
     >
@@ -461,7 +471,7 @@ function ArcadeButton({
 
 function GameOverlay({ children }: { children: React.ReactNode }) {
   return (
-    <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(120%_80%_at_50%_50%,rgba(0,0,0,0.35),rgba(0,0,0,0.7))] px-5 text-center">
+    <div className="absolute inset-0 grid place-items-center bg-foam/85 px-5 text-center">
       <div className="flex max-h-[92%] max-w-[min(34rem,94vw)] flex-col items-center overflow-auto px-5 py-6">
         {children}
       </div>
@@ -488,11 +498,11 @@ function HighScoresView({
         Top Scores
       </h2>
       {loading ? (
-        <p className="felix-arcade-tag mt-5 text-base uppercase tracking-[0.18em] text-cyan-100/70">
+        <p className="felix-arcade-tag mt-5 text-base uppercase tracking-[0.18em] text-ink-soft">
           Loading…
         </p>
       ) : error ? (
-        <p className="felix-arcade-tag mt-5 text-base uppercase tracking-[0.12em] text-[#ff8a8a]">
+        <p className="felix-arcade-tag mt-5 text-base uppercase tracking-[0.12em] text-destructive">
           {error}
         </p>
       ) : (
@@ -515,10 +525,10 @@ function HighScoresList({
   savedScoreId: string | null
 }) {
   return (
-    <div className="mt-4 w-[min(29rem,92vw)] rounded-card border-2 border-cyan-300/40 bg-[#070d1a]/85 p-3 text-white shadow-[0_0_24px_rgba(110,240,255,0.18)]">
+    <div className={cn(osPanelClass, 'mt-4 w-[min(29rem,92vw)] p-3')}>
       <div className="mb-2 flex items-center justify-center gap-2">
-        <Trophy aria-hidden="true" size={14} className="text-[#ffd23f]" />
-        <span className="felix-arcade text-[9px] uppercase tracking-[0.2em] text-[#ffd23f]/80">
+        <Trophy aria-hidden="true" size={14} className="text-lagoon" />
+        <span className="felix-arcade text-[9px] uppercase tracking-[0.2em] text-lagoon-deep">
           Leaderboard
         </span>
       </div>
@@ -527,21 +537,22 @@ function HighScoresList({
           highScores.map((entry, index) => (
             <li
               key={entry.id}
-              className={`grid grid-cols-[1.7rem_minmax(0,1fr)_auto] items-center gap-2 rounded-control border px-2 py-2 felix-arcade-tag text-base uppercase tracking-[0.08em] ${
+              className={cn(
+                'grid grid-cols-[1.7rem_minmax(0,1fr)_auto] items-center gap-2 border-2 px-2 py-2 felix-arcade-tag text-base uppercase tracking-[0.08em]',
                 entry.id === savedScoreId
-                  ? 'border-[#ffd23f]/60 bg-[#ffd23f]/12 text-[#ffd23f]'
-                  : 'border-cyan-300/15 bg-white/[0.04] text-cyan-100/90'
-              }`}
+                  ? 'border-ink bg-lagoon text-ink shadow-chip'
+                  : 'border-ink bg-foam text-ink',
+              )}
             >
-              <span className="text-cyan-300/70">{(index + 1).toString().padStart(2, '0')}</span>
+              <span className="text-lagoon-deep">{(index + 1).toString().padStart(2, '0')}</span>
               <span className="truncate">{entry.name}</span>
-              <span className="tabular-nums text-white">
+              <span className="tabular-nums text-ink">
                 {entry.score.toString().padStart(6, '0')}
               </span>
             </li>
           ))
         ) : (
-          <li className="rounded-control border border-cyan-300/15 bg-white/[0.04] px-3 py-4 felix-arcade-tag text-base uppercase tracking-[0.08em] text-cyan-100/55">
+          <li className="border-2 border-ink bg-foam px-3 py-4 felix-arcade-tag text-base uppercase tracking-[0.08em] text-ink-soft">
             No scores yet.
           </li>
         )}
@@ -746,15 +757,13 @@ function drawScore(context: CanvasRenderingContext2D, score: number) {
   context.textBaseline = 'top'
 
   context.textAlign = 'left'
-  context.fillStyle = 'rgba(110, 240, 255, 0.75)'
+  context.fillStyle = '#BC5A3C'
   context.fillText('SCORE', 22, 22)
 
   context.textAlign = 'right'
-  context.fillStyle = 'rgba(0,0,0,0.5)'
+  context.fillStyle = '#1F1E1D'
   context.fillText(value, canvasWidth - 20, 24)
-  context.fillStyle = '#ffd23f'
-  context.shadowColor = 'rgba(255, 138, 26, 0.85)'
-  context.shadowBlur = 12
+  context.fillStyle = '#D97757'
   context.fillText(value, canvasWidth - 22, 22)
   context.restore()
 }
@@ -764,24 +773,23 @@ function drawBackground(
   model: GameModel,
   sprites: SpriteAssets,
 ) {
-  const sky = context.createLinearGradient(0, 0, 0, canvasHeight)
-  sky.addColorStop(0, '#142a33')
-  sky.addColorStop(0.58, '#203f3c')
-  sky.addColorStop(1, '#101b18')
-  context.fillStyle = sky
+  // Flat warm-paper sky — no gradients, matches the OS canvas
+  context.fillStyle = '#F0EEE6'
   context.fillRect(0, 0, canvasWidth, canvasHeight)
 
-  drawParallaxLayer(context, sprites.forestBack, model.distance, 0.08, 2.35, 0, 0.85)
-  drawParallaxLayer(context, sprites.forestLights, model.distance, 0.13, 2.35, 0, 0.82)
-  drawParallaxLayer(context, sprites.forestMiddle, model.distance, 0.22, 2.35, 0, 0.72)
-  drawParallaxLayer(context, sprites.forestFront, model.distance, 0.36, 2.35, 0, 0.9)
+  // 16px pixel grid overlay (subtle)
+  context.fillStyle = 'rgba(31, 30, 29, 0.06)'
+  for (let x = 0; x < canvasWidth; x += 16) {
+    context.fillRect(x, 0, 1, canvasHeight)
+  }
+  for (let y = 0; y < canvasHeight; y += 16) {
+    context.fillRect(0, y, canvasWidth, 1)
+  }
 
-  const shade = context.createLinearGradient(0, 0, 0, canvasHeight)
-  shade.addColorStop(0, 'rgba(8,23,25,0.08)')
-  shade.addColorStop(0.7, 'rgba(8,23,25,0.12)')
-  shade.addColorStop(1, 'rgba(8,23,25,0.5)')
-  context.fillStyle = shade
-  context.fillRect(0, 0, canvasWidth, canvasHeight)
+  drawParallaxLayer(context, sprites.forestBack, model.distance, 0.08, 2.35, 0, 0.45)
+  drawParallaxLayer(context, sprites.forestLights, model.distance, 0.13, 2.35, 0, 0.4)
+  drawParallaxLayer(context, sprites.forestMiddle, model.distance, 0.22, 2.35, 0, 0.55)
+  drawParallaxLayer(context, sprites.forestFront, model.distance, 0.36, 2.35, 0, 0.75)
 }
 
 function drawParallaxLayer(
@@ -811,11 +819,12 @@ function drawParallaxLayer(
 }
 
 function drawGround(context: CanvasRenderingContext2D, model: GameModel) {
-  context.fillStyle = '#1e2118'
+  // Ground: warm stone fill with 2px ink top edge — matches design system
+  context.fillStyle = '#E8E5D9'
   context.fillRect(0, model.groundY, canvasWidth, canvasHeight - model.groundY)
-  context.fillStyle = '#6f5c38'
-  context.fillRect(0, model.groundY, canvasWidth, 4)
-  context.fillStyle = 'rgba(246,200,95,0.18)'
+  context.fillStyle = '#1F1E1D'
+  context.fillRect(0, model.groundY, canvasWidth, 2)
+  context.fillStyle = 'rgba(188, 90, 60, 0.28)'
 
   const tileWidth = 36
   const offset = -((model.distance * 0.62) % tileWidth)

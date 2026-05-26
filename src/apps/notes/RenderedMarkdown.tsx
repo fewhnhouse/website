@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Github, Globe, Linkedin, Mail, MapPin } from 'lucide-react'
+import { Github, Globe, Linkedin, Mail, MapPin } from '@/components/PixelIcon'
 import type { CSSProperties } from 'react'
 import type { ReactNode } from 'react'
 

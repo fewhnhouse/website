@@ -1,9 +1,15 @@
-import { Cloud, Code2, Container, Cpu } from 'lucide-react'
+import { Cloud, Code2, Container, Cpu } from '@/components/PixelIcon'
 import type { ComponentType } from 'react'
 
 import { cn } from '@/lib/cn'
 
-import { osAppHeight, osAppShellClass, osPanelClass } from '@/apps/shared/appStyles'
+import {
+  osAppHeight,
+  osAppShellClass,
+  osChipClass,
+  osPanelClass,
+  osScrollClass,
+} from '@/apps/shared/appStyles'
 
 type Skill = {
   name: string
@@ -83,20 +89,20 @@ export function SkillsApp() {
 
   return (
     <section className={cn(osAppShellClass, osAppHeight.default)} aria-label="Programming skills">
-      <div className="flex items-center justify-between gap-4 border-b border-os-border bg-foam/85 px-4 py-3">
+      <div className="os-section-header">
         <div>
-          <p className="m-0 text-caption font-black tracking-[0.14em] text-palm">SKILLS</p>
-          <strong className="block text-[0.95rem]">Programming stack</strong>
+          <p className="os-section-header__kicker">SKILLS</p>
+          <strong className="os-section-header__title">Programming stack</strong>
         </div>
-        <div className="rounded-control border border-os-border bg-white/70 px-3 py-1.5 text-meta font-black text-os-ink-muted">
-          Avg {averageLevel}/10
-        </div>
+        <div className={osChipClass}>Avg {averageLevel}/10</div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-auto p-4 [scrollbar-color:rgba(50,143,151,0.42)_transparent]">
+      <div className={cn('min-h-0 flex-1 overflow-auto p-4', osScrollClass)}>
         <header className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 max-sm:grid-cols-1">
           <div>
-            <h2 className="m-0 text-[1.55rem] tracking-normal">Skills matrix</h2>
+            <h2 className="m-0 font-display text-[1.4rem] font-normal lowercase tracking-normal text-ink">
+              Skills matrix
+            </h2>
             <p className="mt-1.5 mb-0 max-w-[46rem] text-body-compact leading-relaxed text-os-ink-muted">
               A practical view of the technologies I use to build products, services, workflows,
               and the infrastructure they run on.
@@ -120,9 +126,9 @@ export function SkillsApp() {
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-card border border-os-border bg-white/60 px-3 py-2">
-      <span className="block text-caption font-extrabold text-os-ink-soft">{label}</span>
-      <strong className="block text-base">{value}</strong>
+    <div className="os-panel--bare px-3 py-2">
+      <span className="block text-caption font-extrabold uppercase tracking-[0.1em] text-lagoon-deep">{label}</span>
+      <strong className="block font-mono text-base text-ink">{value}</strong>
     </div>
   )
 }
@@ -133,12 +139,12 @@ function SkillGroupCard({ group }: { group: SkillGroup }) {
   return (
     <section className={osPanelClass}>
       <header className="mb-3 flex items-start gap-3">
-        <div className="grid size-10 shrink-0 place-items-center rounded-card border border-os-border bg-[linear-gradient(145deg,rgba(96,215,207,0.26),rgba(246,200,95,0.2))] text-palm">
+        <div className="grid size-10 shrink-0 place-items-center border-2 border-ink bg-lagoon text-ink shadow-chip">
           <Icon aria-hidden={true} size={20} />
         </div>
         <div className="min-w-0">
-          <h3 className="m-0 text-base tracking-normal">{group.title}</h3>
-          <p className="mt-1 mb-0 text-meta leading-relaxed text-os-ink-muted">{group.summary}</p>
+          <h3 className="m-0 text-base font-extrabold tracking-normal text-ink">{group.title}</h3>
+          <p className="mt-1 mb-0 text-meta leading-relaxed text-ink-soft">{group.summary}</p>
         </div>
       </header>
 
@@ -149,16 +155,13 @@ function SkillGroupCard({ group }: { group: SkillGroup }) {
       </div>
 
       {group.suggestions?.length ? (
-        <footer className="mt-4 border-t border-os-border pt-3">
-          <span className="block text-caption font-black uppercase tracking-[0.12em] text-os-ink-soft">
+        <footer className="mt-4 border-t-2 border-ink pt-3">
+          <span className="block text-caption font-black uppercase tracking-[0.12em] text-lagoon-deep">
             Worth adding detail
           </span>
           <div className="mt-2 flex flex-wrap gap-2">
             {group.suggestions.map((suggestion) => (
-              <span
-                key={suggestion}
-                className="rounded-full border border-os-border bg-foam/80 px-2.5 py-1 text-caption font-extrabold text-os-ink-muted"
-              >
+              <span key={suggestion} className={osChipClass}>
                 {suggestion}
               </span>
             ))}
@@ -174,19 +177,17 @@ function SkillMeter({ skill }: { skill: Skill }) {
     <article>
       <div className="mb-1.5 flex items-baseline justify-between gap-3">
         <div className="min-w-0">
-          <h4 className="m-0 text-sm font-black">{skill.name}</h4>
+          <h4 className="m-0 text-sm font-black text-ink">{skill.name}</h4>
           {skill.detail ? (
-            <p className="mt-0.5 mb-0 text-caption font-bold leading-snug text-os-ink-soft">
+            <p className="mt-0.5 mb-0 text-caption font-bold leading-snug text-ink-soft">
               {skill.detail}
             </p>
           ) : null}
         </div>
-        <span className="shrink-0 rounded-control border border-os-border bg-white/70 px-2 py-1 text-caption font-black text-os-ink-muted">
-          {skill.level}/10
-        </span>
+        <span className={cn(osChipClass, 'shrink-0 font-mono')}>{skill.level}/10</span>
       </div>
       <div
-        className="h-2.5 overflow-hidden rounded-full border border-os-border bg-white/70"
+        className="h-3 overflow-hidden border-2 border-ink bg-foam"
         role="meter"
         aria-label={`${skill.name} skill level`}
         aria-valuemin={0}
@@ -194,7 +195,7 @@ function SkillMeter({ skill }: { skill: Skill }) {
         aria-valuenow={skill.level}
       >
         <div
-          className="h-full rounded-full bg-[linear-gradient(90deg,#328f97,#60d7cf,#f6c85f)]"
+          className="h-full bg-lagoon"
           style={{ width: `${skill.level * 10}%` }}
         />
       </div>

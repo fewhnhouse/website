@@ -6,7 +6,7 @@ import {
   Github,
   Plus,
   RefreshCw,
-} from 'lucide-react'
+} from '@/components/PixelIcon'
 import { memo, useEffect, useMemo, useState } from 'react'
 import type { ComponentType } from 'react'
 import type { FormEvent, ReactNode } from 'react'
@@ -15,8 +15,12 @@ import { openExternalLink } from '@/apps/github/format'
 import {
   osAppHeight,
   osAppShellClass,
+  osBtnPrimaryClass,
+  osBtnSmClass,
+  osChipClass,
   osInputClass,
   osPanelBareClass,
+  osScrollClass,
 } from '@/apps/shared/appStyles'
 import { cn } from '@/lib/cn'
 
@@ -104,16 +108,16 @@ export const IssuesApp = memo(function IssuesApp({
 
   return (
     <section className={cn(osAppShellClass, osAppHeight.tall)} aria-label="GitHub issue tracker">
-      <div className="flex items-center justify-between gap-4 border-b border-os-border bg-[#eef0ff]/90 px-4 py-3">
+      <div className="os-section-header">
         <div className="min-w-0">
-          <p className="m-0 text-caption font-black tracking-[0.14em] text-[#515bd4]">ISSUES</p>
-          <strong className="block truncate text-[0.95rem]">
+          <p className="os-section-header__kicker">ISSUES</p>
+          <strong className="os-section-header__title os-section-header__title--mono truncate">
             {data?.repository.fullName ?? 'fewhnhouse/website'}
           </strong>
         </div>
         <button
           type="button"
-          className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-os-border bg-white/74 px-2.5 py-1.5 text-meta font-extrabold text-os-ink"
+          className={osBtnSmClass}
           onClick={onRefresh}
           disabled={loading}
         >
@@ -122,7 +126,7 @@ export const IssuesApp = memo(function IssuesApp({
         </button>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[minmax(16rem,19rem)_minmax(0,1fr)] gap-4 overflow-auto p-4 [scrollbar-color:rgba(111,124,255,0.42)_transparent] max-lg:grid-cols-1">
+      <div className={cn('grid min-h-0 flex-1 grid-cols-[minmax(16rem,19rem)_minmax(0,1fr)] gap-4 overflow-auto p-4 max-lg:grid-cols-1', osScrollClass)}>
         <aside className={cn(osPanelBareClass, 'h-max p-4')}>
           <header className="mb-3">
             <h2 className="m-0 text-[1.12rem] tracking-normal">New issue</h2>
@@ -160,7 +164,7 @@ export const IssuesApp = memo(function IssuesApp({
             </label>
             <button
               type="submit"
-              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-md border border-ring/70 bg-ring px-3 py-2 text-sm font-black text-white shadow-chip disabled:cursor-not-allowed disabled:opacity-60"
+              className={osBtnPrimaryClass}
               disabled={!authUser || submitting}
             >
               <Plus aria-hidden="true" size={16} />
@@ -183,10 +187,10 @@ export const IssuesApp = memo(function IssuesApp({
             <div
               className={cn(
                 osPanelBareClass,
-                'mb-4 flex items-center gap-3 p-3.5 font-extrabold text-os-ink-muted',
+                'mb-4 flex items-center gap-3 p-3.5 font-extrabold text-ink',
               )}
             >
-              <span className="size-3.5 animate-spin rounded-full border-2 border-os-border border-t-[#6f7cff]" />
+              <span className="size-3.5 animate-spin border-2 border-ink border-t-lagoon" />
               Loading GitHub issues...
             </div>
           ) : null}
@@ -240,7 +244,7 @@ function GithubAuthPanel({
 }) {
   if (loading) {
     return (
-      <div className="rounded-card border border-os-border bg-white/54 p-3 text-meta font-extrabold text-os-ink-muted">
+      <div className="os-panel--bare p-3 text-meta font-extrabold text-ink">
         Checking GitHub sign-in...
       </div>
     )
@@ -248,27 +252,24 @@ function GithubAuthPanel({
 
   if (user) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-card border border-os-border bg-white/64 p-2.5">
+      <div className="flex items-center justify-between gap-3 os-panel--bare p-2.5">
         <div className="flex min-w-0 items-center gap-2">
           {user.avatarUrl ? (
             <img
-              className="size-7 rounded-full border border-os-border"
+              className="size-7 border-2 border-ink"
               src={user.avatarUrl}
               alt=""
             />
           ) : (
-            <span className="grid size-7 place-items-center rounded-full border border-os-border bg-white">
+            <span className="grid size-7 place-items-center border-2 border-ink bg-foam">
               <Github aria-hidden="true" size={15} />
             </span>
           )}
-          <span className="min-w-0 text-meta font-black text-os-ink">
+          <span className="min-w-0 text-meta font-black text-ink">
             Signed in as <span className="truncate">@{user.login}</span>
           </span>
         </div>
-        <a
-          className="shrink-0 rounded-md border border-os-border bg-white/74 px-2 py-1 text-caption font-black text-os-ink-muted no-underline"
-          href="/api/github/logout"
-        >
+        <a className={cn(osBtnSmClass, 'shrink-0')} href="/api/github/logout">
           Sign out
         </a>
       </div>
@@ -276,20 +277,20 @@ function GithubAuthPanel({
   }
 
   return (
-    <div className="rounded-card border border-os-border bg-white/64 p-3 shadow-chip">
+    <div className="os-panel p-3">
       <div className="mb-2.5 flex items-start gap-2">
-        <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-md border border-os-border bg-white/80 text-[#24292f]">
+        <span className="mt-0.5 grid size-7 shrink-0 place-items-center border-2 border-ink bg-foam text-ink">
           <Github aria-hidden="true" size={15} />
         </span>
         <div className="min-w-0">
-          <strong className="block text-sm leading-snug text-os-ink">GitHub sign-in required</strong>
-          <p className="mt-0.5 mb-0 text-meta font-bold leading-relaxed text-os-ink-muted">
+          <strong className="block text-sm leading-snug text-ink">GitHub sign-in required</strong>
+          <p className="mt-0.5 mb-0 text-meta font-bold leading-relaxed text-ink-soft">
             Submit issues with your GitHub account.
           </p>
         </div>
       </div>
       <a
-        className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-os-border bg-white px-3 py-2 text-sm font-black text-[#24292f] no-underline shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] transition hover:border-ring/60 hover:bg-[#f6f7ff] focus-visible:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25"
+        className={cn(osBtnPrimaryClass, 'w-full')}
         href="/api/github/login"
       >
         <Github aria-hidden="true" size={16} />
@@ -305,20 +306,18 @@ function IssueColumnPanel({ column }: { column: IssueColumn }) {
 
   return (
     <section className="min-w-0">
-      <header className="mb-2 flex items-center justify-between gap-3 rounded-card border border-os-border bg-white/62 px-3 py-2">
-        <h3 className="m-0 inline-flex min-w-0 items-center gap-2 text-sm tracking-normal">
+      <header className="mb-2 flex items-center justify-between gap-3 os-panel--bare px-3 py-2">
+        <h3 className="m-0 inline-flex min-w-0 items-center gap-2 text-sm font-extrabold tracking-normal text-ink">
           <Icon aria-hidden={true} size={16} />
           <span className="truncate">{column.title}</span>
         </h3>
-        <span className="rounded-control border border-os-border bg-white/76 px-2 py-1 text-caption font-black text-os-ink-muted">
-          {column.issues.length}
-        </span>
+        <span className={osChipClass}>{column.issues.length}</span>
       </header>
       <div className="grid gap-2.5">
         {column.issues.length > 0 ? (
           column.issues.map((issue) => <IssueCard key={issue.number} issue={issue} />)
         ) : (
-          <div className="rounded-card border border-dashed border-os-border bg-white/38 p-3 text-meta font-bold text-os-ink-soft">
+          <div className="border-2 border-dashed border-ink bg-foam p-3 text-meta font-bold text-ink-soft">
             No issues here.
           </div>
         )}
@@ -331,9 +330,9 @@ function IssueCard({ issue }: { issue: ProjectIssue }) {
   return (
     <article className={cn(osPanelBareClass, 'p-3')}>
       <div className="mb-2 flex items-start justify-between gap-2">
-        <h4 className="m-0 min-w-0 text-sm leading-snug tracking-normal">{issue.title}</h4>
+        <h4 className="m-0 min-w-0 text-sm font-extrabold leading-snug tracking-normal text-ink">{issue.title}</h4>
         <a
-          className="grid size-7 shrink-0 place-items-center rounded-md border border-os-border bg-white/74 text-os-ink-muted"
+          className="grid size-7 shrink-0 place-items-center border-2 border-ink bg-foam text-ink"
           href={issue.htmlUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -343,7 +342,7 @@ function IssueCard({ issue }: { issue: ProjectIssue }) {
           <ExternalLink aria-hidden="true" size={14} />
         </a>
       </div>
-      <p className="my-0 line-clamp-3 text-meta leading-relaxed text-os-ink-muted">
+      <p className="my-0 line-clamp-3 text-meta leading-relaxed text-ink-soft">
         {issue.body?.trim() || 'No description.'}
       </p>
       <div className="mt-3 flex flex-wrap gap-1.5">
@@ -352,12 +351,7 @@ function IssueCard({ issue }: { issue: ProjectIssue }) {
         {issue.labels.slice(0, 3).map((label) => (
           <span
             key={label.name}
-            className="rounded-full border px-2 py-1 text-caption font-black"
-            style={{
-              backgroundColor: `#${label.color}24`,
-              borderColor: `#${label.color}66`,
-              color: '#243042',
-            }}
+            className={cn(osChipClass, 'normal-case tracking-normal')}
           >
             {label.name}
           </span>
@@ -368,25 +362,21 @@ function IssueCard({ issue }: { issue: ProjectIssue }) {
 }
 
 function IssuePill({ children }: { children: ReactNode }) {
-  return (
-    <span className="rounded-full border border-os-border bg-white/70 px-2 py-1 text-caption font-black text-os-ink-muted">
-      {children}
-    </span>
-  )
+  return <span className={osChipClass}>{children}</span>
 }
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-card border border-os-border bg-white/60 px-2.5 py-2">
-      <span className="block text-caption font-extrabold text-os-ink-soft">{label}</span>
-      <strong className="block text-base">{value}</strong>
+    <div className="os-panel--bare px-2.5 py-2">
+      <span className="block text-caption font-extrabold uppercase tracking-[0.1em] text-lagoon-deep">{label}</span>
+      <strong className="block font-mono text-base text-ink">{value}</strong>
     </div>
   )
 }
 
 function Notice({ children }: { children: ReactNode }) {
   return (
-    <div className="mt-3 rounded-card border border-destructive/20 bg-destructive-foreground p-3 text-meta font-extrabold leading-relaxed text-destructive">
+    <div className="mt-3 border-2 border-destructive bg-destructive-foreground p-3 text-meta font-extrabold leading-relaxed text-destructive">
       {children}
     </div>
   )

@@ -1,4 +1,4 @@
-import { CornerDownLeft, Search } from 'lucide-react'
+import { CornerDownLeft, Search } from '@/components/PixelIcon'
 import { motion } from 'motion/react'
 import type { CSSProperties, KeyboardEvent } from 'react'
 
@@ -14,6 +14,10 @@ import {
 
 import { appCatalog } from './apps'
 import type { AppId, NotesDocumentId } from './types'
+
+function isDarkAccent(accent: string) {
+  return accent.toLowerCase() === '#1f1e1d' || accent.toLowerCase() === '#14262d'
+}
 
 const commandItems = appCatalog.map((app) => ({
   ...app,
@@ -41,7 +45,7 @@ export function CommandPalette({
 
   return (
     <motion.div
-      className="fixed inset-0 z-[2147483640] grid place-items-start justify-center bg-[rgba(20,38,45,0.22)] px-4 pt-[14svh] backdrop-blur-[6px]"
+      className="fixed inset-0 z-[2147483640] grid place-items-start justify-center bg-ink/30 px-4 pt-[14svh]"
       onPointerDown={onClose}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -50,7 +54,7 @@ export function CommandPalette({
       role="presentation"
     >
       <motion.div
-        className="w-[min(620px,calc(100vw_-_2rem))] overflow-hidden rounded-window border border-os-border-strong bg-[rgba(250,252,247,0.96)] shadow-window backdrop-blur-[22px]"
+        className="w-[min(620px,calc(100vw_-_2rem))] overflow-hidden border-2 border-ink bg-foam shadow-window"
         onPointerDown={(event) => event.stopPropagation()}
         initial={{ y: -18, scale: 0.98, opacity: 0 }}
         animate={{ y: 0, scale: 1, opacity: 1 }}
@@ -61,15 +65,19 @@ export function CommandPalette({
         aria-label="Search Felix's computer"
       >
         <Command onKeyDown={handleKeyDown}>
-          <div className="flex min-h-[3.35rem] items-center gap-3 border-b border-os-border px-4">
-            <Search aria-hidden="true" className="text-os-ink-soft" size={18} />
+          <div className="flex min-h-[3.35rem] items-center gap-3 border-b-2 border-ink px-4">
+            <Search aria-hidden="true" className="text-ink" size={18} />
             <CommandInput autoFocus placeholder="Search apps and documents..." />
-            <kbd className="rounded-[5px] border border-os-border bg-white/70 px-1.5 py-0.5 text-[0.62rem] font-black text-os-ink-soft">
+            <kbd className="inline-flex items-center border-2 border-ink bg-foam px-1.5 py-0.5 font-mono text-[0.62rem] font-bold leading-none text-ink">
               esc
             </kbd>
           </div>
           <CommandList aria-label="Search results">
-            <CommandEmpty>No apps or documents found.</CommandEmpty>
+            <CommandEmpty>
+              <span className="font-display text-[0.74rem] uppercase tracking-[0.08em] text-ink-soft">
+                No apps or documents found.
+              </span>
+            </CommandEmpty>
             <CommandGroup heading="Open">
               {commandItems.map((item) => {
                 const Icon = item.icon
@@ -82,19 +90,24 @@ export function CommandPalette({
                     onSelect={() => onOpenTarget(item.target.app, item.target.document)}
                   >
                     <span
-                      className="grid size-[2.35rem] place-items-center rounded-[10px] border border-white/55 bg-[image:var(--desktop-tile-bg)] shadow-desktop-tile"
-                      style={{ '--accent': item.accent } as CSSProperties}
+                      className="grid size-[2.35rem] place-items-center border-2 border-ink shadow-chip"
+                      style={
+                        {
+                          backgroundColor: item.accent,
+                          color: isDarkAccent(item.accent) ? '#FAF9F5' : '#1F1E1D',
+                        } as CSSProperties
+                      }
                     >
                       <Icon aria-hidden="true" size={19} />
                     </span>
                     <span className="min-w-0">
-                      <span className="block truncate text-window font-black text-os-ink">
+                      <span className="block truncate font-display text-[0.78rem] font-normal uppercase tracking-[0.06em] text-ink">
                         {item.title}
                       </span>
-                      <span className="block truncate text-caption font-extrabold text-os-ink-soft">
+                      <span className="block truncate font-mono text-caption font-bold text-ink-soft">
                         {item.target.app === 'notes'
-                          ? `Open ${item.target.document}.mdx in notes.app`
-                          : `Open ${item.title.toLowerCase()}.app`}
+                          ? `~/notes/${item.target.document}.mdx`
+                          : `${item.id}.app`}
                       </span>
                     </span>
                     <CommandShortcut>
