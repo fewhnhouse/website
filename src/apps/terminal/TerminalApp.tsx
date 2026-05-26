@@ -24,10 +24,10 @@ const initialTranscript: TranscriptLine[] = [
 ]
 
 const terminalShellClass =
-  'flex min-h-[17rem] flex-1 flex-col bg-[#071416] text-[#d7fff5] [max-height:calc(min(640px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:max-h-none'
+  'flex min-h-[17rem] flex-1 flex-col bg-[#1F1E1D] text-[#FAF9F5] [max-height:calc(min(640px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:max-h-none'
 const terminalBodyClass =
-  'min-h-[12rem] flex-1 overflow-y-auto px-4 py-3 font-mono text-[0.84rem] leading-relaxed [scrollbar-color:rgba(141,229,219,0.38)_transparent] max-[720px]:min-h-[10rem] max-[720px]:px-3 max-[720px]:text-[0.78rem]'
-const promptClass = 'text-[#8de5db]'
+  'os-scroll min-h-[12rem] flex-1 overflow-y-auto px-4 py-3 font-mono text-[0.84rem] leading-relaxed max-[720px]:min-h-[10rem] max-[720px]:px-3 max-[720px]:text-[0.78rem]'
+const promptClass = 'text-lagoon'
 const openCommandPattern = /^open(?:\s+(\S*))?$/i
 
 export function TerminalApp({ onOpenApp }: TerminalAppProps) {
@@ -275,9 +275,9 @@ export function TerminalApp({ onOpenApp }: TerminalAppProps) {
 
   return (
     <section className={terminalShellClass} aria-label="FelixOS terminal">
-      <div className="flex items-center justify-between gap-3 border-b border-white/10 bg-[#0d2023] px-4 py-2.5 font-mono text-caption font-black text-[#9deee2]">
+      <div className="flex items-center justify-between gap-3 border-b border-foam bg-[#29261B] px-4 py-2.5 font-mono text-caption font-black text-foam">
         <span>~/Desktop</span>
-        <span className="text-[#7ca9a3]">restricted shell</span>
+        <span className="text-foam/60">restricted shell</span>
       </div>
 
       <div
@@ -290,14 +290,14 @@ export function TerminalApp({ onOpenApp }: TerminalAppProps) {
         {transcript.map((line) => (
           <p key={line.id} className="m-0 whitespace-pre-wrap break-words">
             {line.kind === 'command' ? <span className={promptClass}>felix@felixos </span> : null}
-            {line.kind === 'command' ? <span className="text-[#6ec89a]">$ </span> : null}
+            {line.kind === 'command' ? <span className="text-lagoon">$ </span> : null}
             <span
               className={
                 line.kind === 'error'
-                  ? 'text-[#ffb199]'
+                  ? 'text-[#E58E8A]'
                   : line.kind === 'command'
-                    ? 'text-[#f4fff9]'
-                    : 'text-[#d7fff5]'
+                    ? 'text-foam'
+                    : 'text-foam/85'
               }
             >
               {line.text}
@@ -307,10 +307,10 @@ export function TerminalApp({ onOpenApp }: TerminalAppProps) {
 
         <label className="mt-1 flex min-w-0 items-center gap-2">
           <span className={`${promptClass} shrink-0`}>felix@felixos</span>
-          <span className="shrink-0 text-[#6ec89a]">$</span>
+          <span className="shrink-0 text-lagoon">$</span>
           <input
             ref={inputRef}
-            className="min-w-0 flex-1 border-0 bg-transparent p-0 font-mono text-[inherit] text-[#f4fff9] caret-[#8de5db] outline-none"
+            className="min-w-0 flex-1 border-0 bg-transparent p-0 font-mono text-[inherit] text-foam caret-lagoon outline-none"
             value={command}
             onChange={(event) => {
               setCommand(event.target.value)

@@ -9,7 +9,7 @@ import {
   Globe2,
   MonitorCog,
   Terminal,
-} from 'lucide-react'
+} from '@/components/PixelIcon'
 import { motion } from 'motion/react'
 import type { PointerEvent, RefObject } from 'react'
 
@@ -170,7 +170,7 @@ export function DesktopWindow({
             onClick={() => toggleMaximizeWindow(window)}
           />
         </div>
-        <div className="flex items-center justify-center gap-2 text-window font-black text-os-ink-muted">
+        <div className="flex items-center justify-center gap-2 font-display text-[0.78rem] font-normal uppercase tracking-[0.06em] text-ink">
           <ActiveAppIcon aria-hidden="true" size={16} />
           <span>{activeAppTitle}</span>
         </div>
@@ -300,15 +300,15 @@ function getAppWindowSizeClass(app: AppId) {
 function getAppWindowClass(app: AppId) {
   const sizeClass = getAppWindowSizeClass(app)
   const prefix = sizeClass ? `${sizeClass} ` : ''
-  if (app === 'github') return `${prefix}bg-[rgba(246,248,250,0.94)]`
-  if (app === 'browser') return `${prefix}bg-[rgba(248,249,255,0.94)]`
-  if (app === 'game') return `${prefix}border-[#18464c] bg-[#081719]`
-  if (app === 'help') return `${prefix}bg-[rgba(250,252,247,0.94)]`
-  if (app === 'issues') return `${prefix}bg-[rgba(248,249,255,0.94)]`
-  if (app === 'settings') return `${prefix}bg-[rgba(250,252,247,0.94)]`
-  if (app === 'skills') return `${prefix}bg-[rgba(247,252,249,0.94)]`
-  if (app === 'strava') return `${prefix}border-strava/45 bg-strava-bg`
-  if (app === 'terminal') return `${prefix}border-[#17383b] bg-[#071416]`
+  if (app === 'github') return `${prefix}bg-os-panel`
+  if (app === 'browser') return `${prefix}bg-os-panel`
+  if (app === 'game') return `${prefix}border-ink bg-[#0A1118]`
+  if (app === 'help') return `${prefix}bg-os-panel`
+  if (app === 'issues') return `${prefix}bg-os-panel`
+  if (app === 'settings') return `${prefix}bg-os-panel`
+  if (app === 'skills') return `${prefix}bg-os-panel`
+  if (app === 'strava') return `${prefix}border-ink bg-strava-bg`
+  if (app === 'terminal') return `${prefix}border-ink bg-[#1F1E1D]`
 
   return prefix.trim()
 }

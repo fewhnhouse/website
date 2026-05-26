@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Download } from 'lucide-react'
+import { Download } from '@/components/PixelIcon'
 
 import type { NotesDocumentId } from '@/desktop/types'
 

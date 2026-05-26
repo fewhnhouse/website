@@ -1,12 +1,20 @@
-import { Activity, Bike, Clock3, Flame, MapPinned, RotateCw, Trophy } from 'lucide-react'
+import { Activity, Bike, Clock3, Flame, MapPinned, RotateCw, Trophy } from '@/components/PixelIcon'
 import type { ComponentType, ReactNode } from 'react'
+
+import {
+  osAppHeight,
+  osAppShellClass,
+  osBtnSmClass,
+  osPanelClass,
+  osScrollClass,
+} from '@/apps/shared/appStyles'
+import { cn } from '@/lib/cn'
 
 import type { StravaActivity, StravaDataResult, StravaTotals } from './stravaData'
 
-const panelClass = 'rounded-xl border border-strava/25 bg-white/[0.06] p-4'
-const mutedTextClass = 'text-strava-muted'
-const metricCardClass =
-  'rounded-xl border border-strava/25 bg-[linear-gradient(145deg,rgba(252,76,2,0.22),rgba(255,255,255,0.06))] p-4'
+const metricCardClass = 'os-panel grid gap-1'
+const statTileClass = 'os-panel--bare p-3'
+const activityRowClass = 'os-panel--bare grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 p-3'
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat('en').format(value)
@@ -25,28 +33,21 @@ function formatSportType(value: string) {
   return value.replace(/([a-z])([A-Z])/g, '$1 $2')
 }
 
-function sportIconClassName(value: string) {
-  const normalized = value.toLowerCase()
-  const base = 'grid h-10 w-10 shrink-0 place-items-center rounded-xl border'
-
-  if (normalized.includes('run')) return `${base} border-emerald-300/30 bg-emerald-300/15 text-emerald-200`
-  if (normalized.includes('bike') || normalized.includes('ride')) {
-    return `${base} border-strava/40 bg-strava/20 text-[#ff9a66]`
-  }
-  if (normalized.includes('ski')) return `${base} border-sky-300/35 bg-sky-300/15 text-sky-200`
-
-  return `${base} border-white/20 bg-white/10 text-white`
+function sportIconClassName() {
+  return 'grid h-10 w-10 shrink-0 place-items-center border-2 border-ink bg-lagoon text-ink'
 }
 
 function StatTile({ label, totals }: { label: string; totals: StravaTotals }) {
   return (
-    <article className="rounded-lg border border-white/10 bg-black/20 p-3">
-      <span className={`block text-caption font-extrabold uppercase tracking-[0.12em] ${mutedTextClass}`}>
+    <article className={statTileClass}>
+      <span className="block text-caption font-black uppercase tracking-[0.12em] text-lagoon-deep">
         {label}
       </span>
-      <strong className="mt-1 block text-lg text-white">{formatNumber(totals.distanceKm)} km</strong>
-      <small className={`mt-1 block text-caption font-bold ${mutedTextClass}`}>
-        {formatNumber(totals.activities)} activities / {formatNumber(totals.elevationMeters)} m
+      <strong className="mt-1 block text-lg font-mono text-ink">
+        {formatNumber(totals.distanceKm)} km
+      </strong>
+      <small className="mt-1 block text-caption font-bold text-ink-soft">
+        {formatNumber(totals.activities)} activities · {formatNumber(totals.elevationMeters)} m
       </small>
     </article>
   )
@@ -54,21 +55,21 @@ function StatTile({ label, totals }: { label: string; totals: StravaTotals }) {
 
 function ActivityRow({ activity }: { activity: StravaActivity }) {
   return (
-    <article className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 rounded-lg border border-white/10 bg-black/20 p-3">
-      <div className={sportIconClassName(activity.sportType)}>
+    <article className={activityRowClass}>
+      <div className={sportIconClassName()}>
         <Activity aria-hidden="true" size={18} />
       </div>
       <div className="min-w-0">
         <header className="flex items-start justify-between gap-3">
-          <h3 className="m-0 line-clamp-2 text-sm font-extrabold text-white">{activity.name}</h3>
-          <span className={`shrink-0 text-caption font-bold ${mutedTextClass}`}>
+          <h3 className="m-0 line-clamp-2 text-sm font-extrabold text-ink">{activity.name}</h3>
+          <span className="shrink-0 font-mono text-caption font-bold text-ink-soft">
             {formatDate(activity.startedAt)}
           </span>
         </header>
-        <p className={`mt-1 mb-2 text-[0.76rem] font-bold ${mutedTextClass}`}>
+        <p className="mt-1 mb-2 text-[0.76rem] font-bold text-ink-soft">
           {formatSportType(activity.sportType)}
         </p>
-        <footer className={`flex flex-wrap gap-2 text-caption font-bold ${mutedTextClass}`}>
+        <footer className="flex flex-wrap gap-2 text-caption font-mono text-ink">
           <span>{activity.distanceKm} km</span>
           <span>{activity.elevationMeters} m</span>
           <span>{activity.movingMinutes} min</span>
@@ -100,35 +101,35 @@ export function StravaApp({
 
   return (
     <section
-      className="flex min-h-0 flex-1 flex-col bg-strava-bg text-strava-text [max-height:calc(min(700px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:max-h-none"
+      className={cn(osAppShellClass, osAppHeight.tall, 'bg-bg-base text-ink')}
       aria-label="Strava live data"
     >
-      <div className="flex items-center justify-between gap-4 border-b border-strava/30 bg-strava-panel px-4 py-3">
+      <div className="os-section-header">
         <div>
-          <p className="m-0 text-caption font-black tracking-[0.14em] text-strava">STRAVA</p>
-          <strong className="block text-[0.95rem]">{data ? data.athlete.name : 'Athlete dashboard'}</strong>
+          <p className="os-section-header__kicker">STRAVA</p>
+          <strong className="os-section-header__title">
+            {data ? data.athlete.name : 'Athlete dashboard'}
+          </strong>
         </div>
         <button
           type="button"
-          className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-strava/35 bg-strava px-2.5 py-1.5 text-meta font-extrabold text-white"
+          className={osBtnSmClass}
           onClick={onRefresh}
           aria-label="Refresh Strava data"
         >
-          <RotateCw aria-hidden="true" size={15} />
+          <RotateCw aria-hidden="true" size={14} />
           Refresh
         </button>
       </div>
 
       {loading ? (
         <StatusPanel>
-          <span className="size-3.5 animate-spin rounded-full border-2 border-white/20 border-t-strava" />
+          <span className="size-3.5 animate-spin rounded-none border-2 border-ink border-t-lagoon" />
           Syncing Strava data...
         </StatusPanel>
       ) : null}
 
-      {error ? (
-        <ErrorPanel title="Could not load Strava data." message={error} />
-      ) : null}
+      {error ? <ErrorPanel title="Could not load Strava data." message={error} /> : null}
 
       {result?.status === 'missing_config' ? (
         <ErrorPanel
@@ -138,29 +139,31 @@ export function StravaApp({
       ) : null}
 
       {data ? (
-        <div className="min-h-0 flex-1 overflow-auto p-4 [scrollbar-color:rgba(252,76,2,0.42)_transparent]">
+        <div className={cn('min-h-0 flex-1 overflow-auto p-4', osScrollClass)}>
           <header className="mb-4 grid grid-cols-[4.5rem_minmax(0,1fr)_auto] items-center gap-3.5 max-sm:grid-cols-1">
             {data.athlete.avatarUrl ? (
               <img
-                className="aspect-square w-[4.5rem] rounded-full border border-strava/35 object-cover"
+                className="aspect-square w-[4.5rem] border-2 border-ink object-cover shadow-chip"
                 src={data.athlete.avatarUrl}
                 alt={data.athlete.name}
               />
             ) : null}
             <div>
-              <p className="m-0 text-caption font-black tracking-[0.14em] text-strava">
-                Live from Strava
+              <p className="m-0 text-caption font-black tracking-[0.14em] text-lagoon-deep">
+                LIVE FROM STRAVA
               </p>
-              <h2 className="m-0 text-[1.4rem] tracking-normal text-white">{data.athlete.name}</h2>
+              <h2 className="m-0 font-display text-[1.4rem] font-normal lowercase tracking-normal text-ink">
+                {data.athlete.name}
+              </h2>
               {data.athlete.location ? (
-                <span className={`mt-1 inline-flex items-center gap-1 text-sm font-bold ${mutedTextClass}`}>
+                <span className="mt-1 inline-flex items-center gap-1 text-sm font-bold text-ink-soft">
                   <MapPinned aria-hidden="true" size={15} />
                   {data.athlete.location}
                 </span>
               ) : null}
             </div>
             <a
-              className="rounded-md border border-white/15 bg-white/10 px-3 py-2 text-sm font-extrabold text-white no-underline hover:text-white"
+              className={osBtnSmClass}
               href={data.athlete.profileUrl}
               target="_blank"
               rel="noreferrer"
@@ -169,24 +172,35 @@ export function StravaApp({
             </a>
           </header>
 
-          <section className="mb-4 grid grid-cols-4 gap-3 max-lg:grid-cols-2 max-sm:grid-cols-1" aria-label="Year to date training totals">
+          <section
+            className="mb-4 grid grid-cols-4 gap-3 max-lg:grid-cols-2 max-sm:grid-cols-1"
+            aria-label="Year to date training totals"
+          >
             <HeroStat icon={Bike} label="YTD Distance" value={`${formatNumber(yearDistance)} km`} />
-            <HeroStat icon={Trophy} label="YTD Elevation" value={`${formatNumber(yearElevation)} m`} />
+            <HeroStat
+              icon={Trophy}
+              label="YTD Elevation"
+              value={`${formatNumber(yearElevation)} m`}
+            />
             <HeroStat
               icon={Clock3}
               label="YTD Moving Time"
-              value={`${formatNumber(data.totals.yearRide.movingHours + data.totals.yearRun.movingHours)} h`}
+              value={`${formatNumber(
+                data.totals.yearRide.movingHours + data.totals.yearRun.movingHours,
+              )} h`}
             />
             <HeroStat
               icon={Flame}
               label="Last 4 Weeks"
-              value={`${formatNumber(data.totals.recentRide.distanceKm + data.totals.recentRun.distanceKm)} km`}
+              value={`${formatNumber(
+                data.totals.recentRide.distanceKm + data.totals.recentRun.distanceKm,
+              )} km`}
             />
           </section>
 
           <div className="grid grid-cols-2 gap-4 max-lg:grid-cols-1">
-            <section className={panelClass}>
-              <h3 className="mt-0 mb-3 text-base text-white">Training totals</h3>
+            <section className={osPanelClass}>
+              <h3 className="mt-0 mb-3 text-base font-extrabold text-ink">Training totals</h3>
               <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
                 <StatTile label="All rides" totals={data.totals.allRide} />
                 <StatTile label="All runs" totals={data.totals.allRun} />
@@ -195,8 +209,8 @@ export function StravaApp({
               </div>
             </section>
 
-            <section className={panelClass}>
-              <h3 className="mt-0 mb-3 text-base text-white">Recent activities</h3>
+            <section className={osPanelClass}>
+              <h3 className="mt-0 mb-3 text-base font-extrabold text-ink">Recent activities</h3>
               <div className="grid gap-2.5">
                 {data.recentActivities.map((activity) => (
                   <ActivityRow key={activity.id} activity={activity} />
@@ -212,15 +226,13 @@ export function StravaApp({
 
 function StatusPanel({ children }: { children: ReactNode }) {
   return (
-    <div className="m-4 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.06] p-4 font-extrabold text-strava-muted">
-      {children}
-    </div>
+    <div className="m-4 flex items-center gap-3 os-panel font-extrabold text-ink">{children}</div>
   )
 }
 
 function ErrorPanel({ message, title }: { message: string; title: string }) {
   return (
-    <div className="m-4 flex flex-col items-start gap-2 rounded-xl border border-red-400/30 bg-red-500/10 p-4 font-extrabold text-red-200">
+    <div className="m-4 flex flex-col items-start gap-2 os-panel border-destructive bg-destructive-foreground font-extrabold text-destructive">
       <strong>{title}</strong>
       <span>{message}</span>
     </div>
@@ -239,10 +251,10 @@ function HeroStat({
   return (
     <article className={metricCardClass}>
       <Icon aria-hidden={true} size={20} />
-      <span className={`mt-3 block text-caption font-black uppercase tracking-[0.12em] ${mutedTextClass}`}>
+      <span className="mt-2 block text-caption font-black uppercase tracking-[0.12em] text-lagoon-deep">
         {label}
       </span>
-      <strong className="mt-1 block text-xl text-white">{value}</strong>
+      <strong className="mt-1 block text-xl font-mono text-ink">{value}</strong>
     </article>
   )
 }

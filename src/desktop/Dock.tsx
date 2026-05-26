@@ -51,7 +51,7 @@ export function Dock({
             type="button"
             className={`${dockButtonClass} ${
               isRunning
-                ? 'after:absolute after:bottom-1 after:h-[0.32rem] after:w-[0.32rem] after:rounded-full after:bg-[#328f97] after:content-[""]'
+                ? 'after:absolute after:bottom-1 after:h-[0.32rem] after:w-[0.32rem] after:rounded-full after:bg-lagoon after:content-[""]'
                 : ''
             }`}
             onClick={
@@ -94,7 +94,7 @@ export function Dock({
             }
           >
             <Icon aria-hidden="true" size={24} />
-            <span className="pointer-events-none absolute bottom-[calc(100%_+_0.48rem)] translate-y-[3px] whitespace-nowrap rounded-control bg-os-tooltip px-1.5 py-1 text-[0.68rem] font-black text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
+            <span className="pointer-events-none absolute bottom-[calc(100%_+_0.48rem)] translate-y-[3px] whitespace-nowrap border-2 border-ink bg-foam px-2 py-1 font-display text-[0.62rem] font-normal uppercase tracking-[0.08em] text-ink opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
               {app.label}
             </span>
           </button>

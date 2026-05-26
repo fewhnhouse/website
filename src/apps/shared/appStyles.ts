@@ -8,14 +8,26 @@ export const osAppHeight = {
   xl: '[--os-app-max-height:880px]',
 } as const
 
-export const osPanelClass = 'rounded-card border border-os-border bg-white/62 p-4 shadow-chip'
-export const osPanelBareClass = 'rounded-card border border-os-border bg-white/68 shadow-chip'
+// Thin wrappers around the .os-* utility classes defined in styles.css.
+// Components import these names so the design system stays the single
+// source of truth — never hand-roll button/panel/input styles per app.
+export const osPanelClass = 'os-panel'
+export const osPanelBareClass = 'os-panel--bare'
+export const osPanelSunkenClass = 'os-panel--sunken'
+export const osInputClass = 'os-input'
 
-export const osToolbarButtonClass =
-  'cursor-pointer rounded-control border border-os-border bg-white/65 px-2.5 py-1.5 text-caption font-black text-os-ink-muted hover:bg-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/35 disabled:cursor-default disabled:opacity-55'
+export const osBtnClass = 'os-btn'
+export const osBtnPrimaryClass = 'os-btn os-btn--primary'
+export const osBtnSecondaryClass = 'os-btn os-btn--secondary'
+export const osBtnGhostClass = 'os-btn os-btn--ghost'
+export const osBtnSmClass = 'os-btn os-btn--sm'
+export const osBtnIconClass = 'os-btn os-btn--icon'
 
+export const osChipClass = 'os-chip'
+export const osScrollClass = 'os-scroll'
+
+// Toolbar buttons (small ghost-style controls) — used by the Notes
+// toolbar segment and similar inline strips.
+export const osToolbarButtonClass = 'os-btn os-btn--sm os-btn--ghost'
 export const osToolbarButtonActiveClass =
-  'border-[#2c4a55]/70 bg-[#2c4a55] text-white shadow-[inset_0_-1px_0_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.18)] hover:!bg-[#365764]'
-
-export const osInputClass =
-  'w-full rounded-card border border-os-border bg-white/78 px-3 py-2 text-sm font-bold text-os-ink outline-none transition placeholder:text-os-ink-soft focus:border-ring focus:bg-white focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-55'
+  '!bg-lagoon !text-foam !shadow-[2px_2px_0_0_var(--line)]'

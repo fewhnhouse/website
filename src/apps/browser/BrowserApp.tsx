@@ -7,11 +7,18 @@ import {
   Lock,
   RotateCw,
   Search,
-} from 'lucide-react'
+} from '@/components/PixelIcon'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 
-import { osAppHeight, osAppShellClass } from '@/apps/shared/appStyles'
+import {
+  osAppHeight,
+  osAppShellClass,
+  osBtnIconClass,
+  osBtnSmClass,
+  osInputClass,
+} from '@/apps/shared/appStyles'
+import { cn } from '@/lib/cn'
 
 type BrowserAppProps = {
   initialUrl?: string
@@ -19,8 +26,7 @@ type BrowserAppProps = {
 
 const defaultUrl = 'https://www.google.com/search?igu=1'
 const linkedInUrl = 'https://www.linkedin.com/in/felix-wohnhaas-b44623142/'
-const browserIconButtonClass =
-  'grid size-8 shrink-0 cursor-pointer place-items-center rounded-control border border-os-border bg-white/70 text-os-ink-muted transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25 disabled:cursor-default disabled:opacity-45'
+const browserIconButtonClass = osBtnIconClass
 
 const bookmarks = [
   {
@@ -96,8 +102,8 @@ export function BrowserApp({ initialUrl }: BrowserAppProps) {
   }
 
   return (
-    <div className={`${osAppShellClass} ${osAppHeight.tall} bg-[rgba(248,249,255,0.94)]`}>
-      <div className="grid gap-2 border-b border-os-border bg-white/54 p-2.5">
+    <div className={`${osAppShellClass} ${osAppHeight.tall} bg-bg-base`}>
+      <div className="grid gap-2 border-b-2 border-ink bg-foam p-2.5">
         <div className="flex min-w-0 items-center gap-1.5">
           <button
             type="button"
@@ -130,12 +136,12 @@ export function BrowserApp({ initialUrl }: BrowserAppProps) {
               <span className="sr-only">Search or enter website</span>
               <Lock
                 aria-hidden="true"
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-os-ink-soft"
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink"
                 size={14}
               />
               <input
                 name="address"
-                className="h-8 w-full rounded-full border border-os-border bg-white/82 pl-8 pr-10 text-[0.82rem] font-bold text-os-ink outline-none transition placeholder:text-os-ink-soft focus:border-ring focus:bg-white focus:ring-2 focus:ring-ring/20"
+                className={cn(osInputClass, 'h-8 pl-8 pr-10')}
                 value={address}
                 onChange={(event) => setAddress(event.currentTarget.value)}
                 onKeyDown={(event) => {
@@ -149,7 +155,7 @@ export function BrowserApp({ initialUrl }: BrowserAppProps) {
               />
               <button
                 type="submit"
-                className="absolute right-1 top-1/2 grid size-6 -translate-y-1/2 cursor-pointer place-items-center rounded-full border border-transparent text-os-ink-muted transition hover:border-os-border hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25"
+                className="absolute right-1 top-1/2 grid size-6 -translate-y-1/2 cursor-pointer place-items-center border-2 border-transparent text-ink transition hover:border-ink hover:bg-foam focus-visible:outline-none"
                 aria-label="Open address"
               >
                 <Search aria-hidden="true" size={14} />
@@ -171,7 +177,7 @@ export function BrowserApp({ initialUrl }: BrowserAppProps) {
             <button
               key={bookmark.url}
               type="button"
-              className="inline-flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-os-border bg-white/64 px-2.5 text-caption font-black text-os-ink-muted transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25"
+              className={osBtnSmClass}
               onClick={() => navigateTo(bookmark.url)}
             >
               <Globe2 aria-hidden="true" size={13} />
@@ -183,8 +189,8 @@ export function BrowserApp({ initialUrl }: BrowserAppProps) {
 
       <div className="relative min-h-0 flex-1 bg-white">
         {isProbablyBlocked ? (
-          <div className="absolute inset-x-0 top-0 z-10 flex items-start gap-2 border-b border-[#f6c85f]/45 bg-[#fff8dc]/95 px-3 py-2 text-caption font-bold text-[#6b5617] shadow-chip">
-            <AlertTriangle aria-hidden="true" className="mt-0.5 shrink-0" size={15} />
+          <div className="absolute inset-x-0 top-0 z-10 flex items-start gap-2 border-b-2 border-ink bg-link-hover-bg px-3 py-2 text-caption font-bold text-ink shadow-chip">
+            <AlertTriangle aria-hidden="true" className="mt-0.5 shrink-0 text-lagoon-deep" size={15} />
             <p className="m-0 min-w-0">
               {currentUrlInfo.host} often blocks embedded browsers. Use the external button if the
               page below stays blank.

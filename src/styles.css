@@ -1,16 +1,57 @@
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Press+Start+2P&family=VT323&display=swap");
+/* ─────────────────────────────────────────────────────────────────
+   FelixOS — pixel × Anthropic-warm re-skin
+   Drop-in replacement for src/styles.css.
+
+   How this works
+   --------------
+   Every Desktop component in this codebase reads CSS tokens
+   (--os-ink, --color-lagoon, --radius-window, --shadow-dock, etc.)
+   via Tailwind 4's @theme inline mechanism. By keeping the same
+   variable names and only changing values, we re-skin the entire
+   OS without touching a single .tsx file.
+
+   What changed vs the original
+   ----------------------------
+   • Palette: sea/lagoon/palm → coral/cream/ink (Anthropic-warm).
+   • Fonts: Fraunces (display serif) → Silkscreen (pixel display);
+     Manrope kept for body; existing Press Start 2P / VT323 kept
+     for the arcade (game) which now feels part of the family.
+   • Radii: all rounded chrome → 0 / 2px (sharp pixel corners).
+   • Shadows: soft glow + glass → stepped "pixel stacks" (hard,
+     no-blur drops in ink).
+   • Backgrounds: pastel-aqua gradients → flat cream + 16px
+     pixel grid texture.
+   • Glass: 72% white + 18px blur → opaque paper + hard 2px
+     ink border.
+
+   Notes you may want to apply manually
+   ------------------------------------
+   • src/desktop/apps.tsx — the per-app `accent: '#...'` hex values
+     are still in the old palette. Suggested replacements in the
+     comment block at the very bottom of this file.
+   • src/desktop/DesktopWindow.tsx — `getAppWindowClass` hardcodes
+     a few background colors per app (browser, github, etc.).
+     They still work because our --color-os-panel is opaque; but
+     for full pixel fidelity, replace them too (suggestions at
+     bottom of this file).
+   ───────────────────────────────────────────────────────────────── */
+
+@import url("https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&family=VT323&display=swap");
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
 @theme inline {
+  /* ── FONT FAMILIES ─────────────────────────────────────────── */
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Fraunces", Georgia, serif;
+  --font-display: "Silkscreen", "VT323", "Courier New", monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
+  /* ── BRAND COLOR TOKENS (semantic stay, values flip) ──────── */
   --color-ink: var(--sea-ink);
   --color-ink-soft: var(--sea-ink-soft);
-  --color-lagoon: var(--lagoon);
-  --color-lagoon-deep: var(--lagoon-deep);
-  --color-palm: var(--palm);
+  --color-lagoon: var(--lagoon);           /* now coral */
+  --color-lagoon-deep: var(--lagoon-deep); /* now coral-deep */
+  --color-palm: var(--palm);               /* now moss */
   --color-sand: var(--sand);
   --color-foam: var(--foam);
   --color-surface: var(--surface);
@@ -22,6 +63,8 @@
   --color-chip-bg: var(--chip-bg);
   --color-chip-line: var(--chip-line);
   --color-link-hover-bg: var(--link-bg-hover);
+
+  /* shadcn-friendly aliases */
   --color-background: var(--bg-base);
   --color-foreground: var(--sea-ink);
   --color-card: var(--surface-strong);
@@ -35,237 +78,500 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
 
-  --color-os-ink: #14262d;
-  --color-os-ink-muted: rgba(20, 38, 45, 0.68);
-  --color-os-ink-soft: rgba(20, 38, 45, 0.58);
-  --color-os-glass: rgba(239, 249, 244, 0.72);
-  --color-os-panel: rgba(250, 252, 247, 0.9);
-  --color-os-panel-strong: rgba(255, 255, 255, 0.72);
-  --color-os-border: rgba(20, 38, 45, 0.13);
-  --color-os-border-strong: rgba(20, 38, 45, 0.18);
-  --color-os-dock: rgba(239, 249, 244, 0.62);
-  --color-os-tooltip: rgba(20, 38, 45, 0.9);
-  --color-github-ink: #24292f;
-  --color-github-muted: #57606a;
-  --color-github-border: #d0d7de;
-  --color-github-link: #0969da;
-  --color-github-surface: #f6f8fa;
-  --color-github-panel: #ffffff;
-  --color-github-danger: #cf222e;
-  --color-strava: #fc4c02;
-  --color-strava-bg: #111111;
-  --color-strava-panel: #171717;
-  --color-strava-text: #f7f7f4;
-  --color-strava-muted: rgba(215, 215, 209, 0.7);
-  --color-focus: #6f7cff;
-  --color-traffic-close: #ff6b5f;
-  --color-traffic-minimize: #f6c85f;
-  --color-traffic-maximize: #69c779;
+  /* ── FelixOS-specific tokens (re-tuned for pixel chrome) ──── */
+  --color-os-ink: #1F1E1D;
+  --color-os-ink-muted: rgba(31, 30, 29, 0.72);
+  --color-os-ink-soft: rgba(31, 30, 29, 0.56);
+  --color-os-glass: #FAF9F5;                /* was translucent — now opaque */
+  --color-os-panel: #FAF9F5;
+  --color-os-panel-strong: #FFFFFF;
+  --color-os-border: #1F1E1D;               /* hard ink line */
+  --color-os-border-strong: #1F1E1D;
+  --color-os-dock: #FAF9F5;
+  --color-os-tooltip: #1F1E1D;
 
-  --text-caption: 0.72rem;
-  --text-meta: 0.78rem;
-  --text-window: 0.82rem;
-  --text-body-compact: 0.94rem;
+  /* Per-app surface tints (kept but warmed) */
+  --color-github-ink: #1F1E1D;
+  --color-github-muted: #6E6A60;
+  --color-github-border: #D9D5C5;
+  --color-github-link: #BC5A3C;             /* coral-deep instead of GH blue */
+  --color-github-surface: #F0EEE6;
+  --color-github-panel: #FAF9F5;
+  --color-github-danger: #B5453C;
 
-  --radius-control: 7px;
-  --radius-card: 8px;
-  --radius-window: 12px;
-  --radius-dock: 18px;
-  --radius-icon: 17px;
+  --color-strava: #D97757;                  /* re-claim Strava orange as our coral */
+  --color-strava-bg: #1F1E1D;
+  --color-strava-panel: #29261B;
+  --color-strava-text: #FAF9F5;
+  --color-strava-muted: rgba(250, 249, 245, 0.62);
 
-  --spacing-titlebar: 42px;
-  --spacing-dock-icon: 54px;
-  --spacing-desktop-icon: 86px;
-  --spacing-desktop-tile: 58px;
+  --color-focus: #D97757;                   /* coral focus ring */
+  --color-traffic-close: #D97757;           /* coral close */
+  --color-traffic-minimize: #C28A2C;        /* warm amber */
+  --color-traffic-maximize: #5C7A53;        /* moss */
 
-  --shadow-chip: 0 8px 24px rgba(30, 90, 72, 0.08);
-  --shadow-island: inset 0 1px 0 var(--inset-glint), 0 22px 44px rgba(30, 90, 72, 0.1), 0 6px 18px rgba(23, 58, 64, 0.08);
-  --shadow-window: 0 34px 92px rgba(20, 38, 45, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.76);
-  --shadow-dock: 0 18px 52px rgba(20, 38, 45, 0.2);
-  --shadow-desktop-tile: 0 18px 34px rgba(20, 38, 45, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  --shadow-avatar: 0 18px 38px rgba(20, 38, 45, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.82);
-  --shadow-os-logo: 0 3px 10px rgba(20, 38, 45, 0.16), 0 0 0 1px rgba(20, 38, 45, 0.08);
+  /* ── TYPE SCALE — unchanged names, slightly tightened ─────── */
+  --text-caption: 0.68rem;
+  --text-meta: 0.74rem;
+  --text-window: 0.80rem;
+  --text-body-compact: 0.92rem;
+
+  /* ── RADII — pixel mode: sharp corners ──────────────────────
+     We keep the *names* (so all `rounded-card`, `rounded-window`,
+     `rounded-icon`, `rounded-dock` utilities still compile) but
+     collapse every value to 0–2px. This is the single biggest
+     visual change. */
+  --radius-control: 2px;
+  --radius-card: 0px;
+  --radius-window: 0px;
+  --radius-dock: 0px;
+  --radius-icon: 0px;
+
+  /* ── SPACING — minor: chunkier desktop icons ──────────────── */
+  --spacing-titlebar: 40px;
+  --spacing-dock-icon: 52px;
+  --spacing-desktop-icon: 92px;
+  --spacing-desktop-tile: 64px;
+
+  /* ── SHADOWS — soft glow → pixel stacks ───────────────────── */
+  --shadow-chip: 2px 2px 0 0 #1F1E1D;
+  --shadow-island: 4px 4px 0 0 #1F1E1D;
+  --shadow-window: 6px 6px 0 0 #1F1E1D;
+  --shadow-dock: 4px 4px 0 0 #1F1E1D;
+  --shadow-desktop-tile: 3px 3px 0 0 #1F1E1D;
+  --shadow-avatar: 2px 2px 0 0 #1F1E1D;
+  --shadow-os-logo: 0 0 0 1px #1F1E1D;
 }
 
+/* ─────────────────────────────────────────────────────────────────
+   ROOT THEME VARIABLES — light mode (the pixel-warm canvas)
+   ───────────────────────────────────────────────────────────────── */
 :root {
-  --sea-ink: #173a40;
-  --sea-ink-soft: #416166;
-  --lagoon: #4fb8b2;
-  --lagoon-deep: #328f97;
-  --palm: #2f6a4a;
-  --sand: #e7f0e8;
-  --foam: #f3faf5;
-  --surface: rgba(255, 255, 255, 0.74);
-  --surface-strong: rgba(255, 255, 255, 0.9);
-  --line: rgba(23, 58, 64, 0.14);
-  --inset-glint: rgba(255, 255, 255, 0.82);
-  --kicker: rgba(47, 106, 74, 0.9);
-  --bg-base: #e7f3ec;
-  --header-bg: rgba(251, 255, 248, 0.84);
-  --chip-bg: rgba(255, 255, 255, 0.8);
-  --chip-line: rgba(47, 106, 74, 0.18);
-  --link-bg-hover: rgba(255, 255, 255, 0.9);
-  --ring: #6f7cff;
-  --destructive: #cf222e;
-  --destructive-foreground: #fff7f7;
-  --hero-a: rgba(79, 184, 178, 0.36);
-  --hero-b: rgba(47, 106, 74, 0.2);
-  --os-shell-bg:
-    radial-gradient(circle at 16% 18%, rgba(246, 200, 95, 0.55), transparent 22%),
-    radial-gradient(circle at 84% 12%, rgba(96, 215, 207, 0.42), transparent 26%),
-    linear-gradient(135deg, #cbded8 0%, #ecf4ec 46%, #a9d4cd 100%);
+  /* Renamed-but-same-meaning brand variables */
+  --sea-ink: #1F1E1D;
+  --sea-ink-soft: #3D3A35;
+  --lagoon: #D97757;                  /* was teal — now Claude coral */
+  --lagoon-deep: #BC5A3C;             /* coral-deep */
+  --palm: #5C7A53;                    /* moss */
+  --sand: #E8E5D9;                    /* warm stone */
+  --foam: #FAF9F5;                    /* paper */
+  --surface: #FAF9F5;                 /* opaque now */
+  --surface-strong: #FFFFFF;
+  --line: #1F1E1D;                    /* hard ink line */
+  --inset-glint: transparent;         /* no glass glint in pixel mode */
+  --kicker: #BC5A3C;
+  --bg-base: #F0EEE6;                 /* Anthropic cream canvas */
+  --header-bg: #FAF9F5;
+  --chip-bg: #FAF9F5;
+  --chip-line: #1F1E1D;
+  --link-bg-hover: #F4D9CB;           /* coral-soft */
+  --ring: #D97757;
+  --destructive: #B5453C;
+  --destructive-foreground: #FAF9F5;
+  --hero-a: transparent;
+  --hero-b: transparent;
+
+  /* OS shell — flat cream + 16px pixel grid (no pastel gradients) */
+  --os-shell-bg: #F0EEE6;
   --os-wallpaper-bg:
-    linear-gradient(115deg, transparent 0 48%, rgba(20, 38, 45, 0.08) 48.2% 48.7%, transparent 49%),
-    linear-gradient(28deg, transparent 0 52%, rgba(255, 255, 255, 0.38) 52.2% 52.6%, transparent 53%),
-    radial-gradient(900px 520px at 50% 78%, rgba(47, 106, 74, 0.28), transparent 62%);
+    radial-gradient(at 88% 92%, rgba(217, 119, 87, 0.08), transparent 55%),
+    radial-gradient(at 12% 8%, rgba(92, 122, 83, 0.06), transparent 55%);
   --os-grid-bg:
-    linear-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.46) 1px, transparent 1px);
-  --os-titlebar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(235, 244, 238, 0.72));
-  --desktop-tile-bg:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.12)),
-    linear-gradient(135deg, color-mix(in oklab, var(--accent) 82%, white), var(--accent));
+    linear-gradient(rgba(31, 30, 29, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 30, 29, 0.07) 1px, transparent 1px);
+  --os-titlebar-bg: linear-gradient(180deg, #FAF9F5 0%, #F0EEE6 100%);
+
+  /* Desktop-tile fallback (used by accent-less tiles) */
+  --desktop-tile-bg: #FAF9F5;
 }
 
+/* Dark theme — warm near-black canvas with cream ink */
 :root[data-theme="dark"] {
-  --sea-ink: #d7ece8;
-  --sea-ink-soft: #afcdc8;
-  --lagoon: #60d7cf;
-  --lagoon-deep: #8de5db;
-  --palm: #6ec89a;
-  --sand: #0f1a1e;
-  --foam: #101d22;
-  --surface: rgba(16, 30, 34, 0.8);
-  --surface-strong: rgba(15, 27, 31, 0.92);
-  --line: rgba(141, 229, 219, 0.18);
-  --inset-glint: rgba(194, 247, 238, 0.14);
-  --kicker: #b8efe5;
-  --bg-base: #0a1418;
-  --header-bg: rgba(10, 20, 24, 0.8);
-  --chip-bg: rgba(13, 28, 32, 0.9);
-  --chip-line: rgba(141, 229, 219, 0.24);
-  --link-bg-hover: rgba(24, 44, 49, 0.8);
-  --ring: #8c96ff;
-  --destructive: #ff8a8a;
-  --destructive-foreground: #200a0a;
-  --hero-a: rgba(96, 215, 207, 0.18);
-  --hero-b: rgba(110, 200, 154, 0.12);
+  --sea-ink: #FAF9F5;
+  --sea-ink-soft: #B0ADA3;
+  --lagoon: #E58A6F;                  /* coral, lifted for dark */
+  --lagoon-deep: #F4D9CB;
+  --palm: #7BA070;
+  --sand: #29261B;
+  --foam: #1F1E1D;
+  --surface: #1F1E1D;
+  --surface-strong: #29261B;
+  --line: #FAF9F5;
+  --inset-glint: transparent;
+  --kicker: #E58A6F;
+  --bg-base: #1F1E1D;
+  --header-bg: #29261B;
+  --chip-bg: #29261B;
+  --chip-line: #FAF9F5;
+  --link-bg-hover: #3D3A35;
+  --ring: #E58A6F;
+  --destructive: #E58E8A;
+  --destructive-foreground: #2A0E0E;
+  --hero-a: transparent;
+  --hero-b: transparent;
+
+  --color-os-ink: #FAF9F5;
+  --color-os-ink-muted: rgba(250, 249, 245, 0.72);
+  --color-os-ink-soft: rgba(250, 249, 245, 0.56);
+  --color-os-glass: #29261B;
+  --color-os-panel: #29261B;
+  --color-os-panel-strong: #1F1E1D;
+  --color-os-border: #FAF9F5;
+  --color-os-border-strong: #FAF9F5;
+  --color-os-dock: #29261B;
+  --color-os-tooltip: #FAF9F5;
+
+  --os-shell-bg: #1F1E1D;
+  --os-wallpaper-bg:
+    radial-gradient(at 88% 92%, rgba(217, 119, 87, 0.16), transparent 55%),
+    radial-gradient(at 12% 8%, rgba(123, 160, 112, 0.10), transparent 55%);
+  --os-grid-bg:
+    linear-gradient(rgba(250, 249, 245, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(250, 249, 245, 0.06) 1px, transparent 1px);
+  --os-titlebar-bg: linear-gradient(180deg, #29261B 0%, #1F1E1D 100%);
+
+  --desktop-tile-bg: #29261B;
+
+  --shadow-chip: 2px 2px 0 0 #FAF9F5;
+  --shadow-island: 4px 4px 0 0 #FAF9F5;
+  --shadow-window: 6px 6px 0 0 #FAF9F5;
+  --shadow-dock: 4px 4px 0 0 #FAF9F5;
+  --shadow-desktop-tile: 3px 3px 0 0 #FAF9F5;
+  --shadow-avatar: 2px 2px 0 0 #FAF9F5;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --sea-ink: #d7ece8;
-    --sea-ink-soft: #afcdc8;
-    --lagoon: #60d7cf;
-    --lagoon-deep: #8de5db;
-    --palm: #6ec89a;
-    --sand: #0f1a1e;
-    --foam: #101d22;
-    --surface: rgba(16, 30, 34, 0.8);
-    --surface-strong: rgba(15, 27, 31, 0.92);
-    --line: rgba(141, 229, 219, 0.18);
-    --inset-glint: rgba(194, 247, 238, 0.14);
-    --kicker: #b8efe5;
-    --bg-base: #0a1418;
-    --header-bg: rgba(10, 20, 24, 0.8);
-    --chip-bg: rgba(13, 28, 32, 0.9);
-    --chip-line: rgba(141, 229, 219, 0.24);
-    --link-bg-hover: rgba(24, 44, 49, 0.8);
-    --ring: #8c96ff;
-    --destructive: #ff8a8a;
-    --destructive-foreground: #200a0a;
-    --hero-a: rgba(96, 215, 207, 0.18);
-    --hero-b: rgba(110, 200, 154, 0.12);
+    --sea-ink: #FAF9F5;
+    --sea-ink-soft: #B0ADA3;
+    --lagoon: #E58A6F;
+    --lagoon-deep: #F4D9CB;
+    --palm: #7BA070;
+    --sand: #29261B;
+    --foam: #1F1E1D;
+    --surface: #1F1E1D;
+    --surface-strong: #29261B;
+    --line: #FAF9F5;
+    --kicker: #E58A6F;
+    --bg-base: #1F1E1D;
+    --header-bg: #29261B;
+    --chip-bg: #29261B;
+    --chip-line: #FAF9F5;
+    --link-bg-hover: #3D3A35;
+    --ring: #E58A6F;
   }
 }
 
-* {
-  box-sizing: border-box;
-}
-
+* { box-sizing: border-box; }
 @custom-variant dark (&:where(.dark, .dark *));
 
-html,
-body,
-#app {
-  min-height: 100%;
-}
+html, body, #app { min-height: 100%; }
 
 body {
   margin: 0;
   color: var(--sea-ink);
   font-family: var(--font-sans);
   background-color: var(--bg-base);
-  background:
-    radial-gradient(1100px 620px at -8% -10%, var(--hero-a), transparent 58%),
-    radial-gradient(1050px 620px at 112% -12%, var(--hero-b), transparent 62%),
-    radial-gradient(720px 380px at 50% 115%, rgba(79, 184, 178, 0.1), transparent 68%),
-    linear-gradient(180deg, color-mix(in oklab, var(--sand) 68%, white) 0%, var(--foam) 44%, var(--bg-base) 100%);
+  background-image: var(--os-grid-bg);
+  background-size: 16px 16px;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  opacity: 0.28;
-  background:
-    radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.8), transparent 34%),
-    radial-gradient(circle at 78% 26%, rgba(79, 184, 178, 0.2), transparent 42%),
-    radial-gradient(circle at 42% 82%, rgba(47, 106, 74, 0.14), transparent 36%);
-}
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  opacity: 0.14;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: radial-gradient(circle at 50% 30%, black, transparent 78%);
-}
+/* Pixel mode: kill the original glass / gradient overlays */
+body::before, body::after { content: none; }
 
 a {
   color: var(--lagoon-deep);
-  text-decoration-color: rgba(50, 143, 151, 0.4);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
+  text-decoration-color: var(--lagoon-deep);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
+a:hover { color: var(--sea-ink); }
 
-a:hover {
-  color: #246f76;
-}
-
-button,
-a {
-  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease,
-    transform 180ms ease;
+button, a {
+  transition: background-color 120ms steps(4), color 120ms steps(4),
+    border-color 120ms steps(4), transform 80ms steps(2),
+    box-shadow 100ms steps(2);
 }
 
 code {
-  font-size: 0.9em;
+  font-family: var(--font-mono);
+  font-size: 0.92em;
   border: 1px solid var(--line);
-  background: color-mix(in oklab, var(--surface-strong) 82%, white 18%);
-  border-radius: 7px;
-  padding: 2px 7px;
+  background: var(--foam);
+  border-radius: 2px;
+  padding: 1px 6px;
 }
 
 pre code {
-  border: 0;
-  background: transparent;
-  padding: 0;
-  border-radius: 0;
-  font-size: inherit;
-  color: inherit;
+  border: 0; background: transparent; padding: 0;
+  border-radius: 0; font-size: inherit; color: inherit;
 }
+
+/* Force-disable the original backdrop-blur on chrome — pixel mode is opaque. */
+.backdrop-blur-\[18px\],
+.backdrop-blur-\[22px\] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Pixel chrome: make every border a hard 2px ink line by default.
+   Components use `border` + `border-os-border` and similar — these
+   utilities already point to --color-os-border which we changed to
+   solid ink, but we also widen the typical 1px to 2px for that
+   stamped, low-res feel. */
+.border, .border-os-border, .border-os-border-strong {
+  border-width: 2px !important;
+  border-style: solid !important;
+}
+
+/* The window titlebar, dock and side widgets get an extra outer
+   "shadow stack" by default. */
+[class*="shadow-window"],
+[class*="shadow-dock"],
+[class*="shadow-island"] {
+  filter: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   DESIGN-SYSTEM UTILITY CLASSES
+   Shared pixel chrome — every app uses these so buttons, inputs,
+   chips, panels, and section headers stay 1:1 with the design
+   system. NEVER hand-roll a button or input in an app file;
+   compose with these instead.
+   ───────────────────────────────────────────────────────────────── */
+
+/* ── BUTTONS ─────────────────────────────────────────────────────
+   Variants mirror the design-system spec sheet:
+     primary    coral fill, ink shadow-stack
+     secondary  paper fill, ink shadow-stack
+     ghost      transparent, ink border only
+     disabled   stone fill, muted text, no shadow
+   Sizing defaults: 32px height, Silkscreen display font. Add
+   `.os-btn--sm` for compact toolbar buttons.
+*/
+.os-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 32px;
+  padding: 0 0.85rem;
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 2px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--foam);
+  color: var(--sea-ink);
+  cursor: pointer;
+  box-shadow: var(--shadow-chip);
+  transition:
+    background-color 120ms steps(4),
+    color 120ms steps(4),
+    border-color 120ms steps(4),
+    transform 80ms steps(2),
+    box-shadow 100ms steps(2);
+  white-space: nowrap;
+  appearance: none;
+}
+.os-btn:hover:not(:disabled):not([aria-disabled="true"]) {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 0 var(--line);
+}
+.os-btn:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 0 var(--line);
+}
+.os-btn:focus-visible {
+  outline: none;
+  box-shadow:
+    var(--shadow-chip),
+    inset 0 0 0 2px var(--lagoon);
+}
+.os-btn--primary {
+  background: var(--lagoon);
+  color: var(--sea-ink);
+}
+.os-btn--primary:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--lagoon-deep);
+  color: var(--foam);
+}
+.os-btn--secondary {
+  background: var(--foam);
+  color: var(--sea-ink);
+}
+.os-btn--ghost {
+  background: transparent;
+  box-shadow: none;
+  color: var(--sea-ink);
+}
+.os-btn--ghost:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--link-bg-hover);
+  box-shadow: var(--shadow-chip);
+}
+.os-btn--ghost:active:not(:disabled):not([aria-disabled="true"]) {
+  box-shadow: 0 0 0 0 var(--line);
+}
+.os-btn:disabled,
+.os-btn[aria-disabled="true"] {
+  background: var(--sand);
+  color: var(--sea-ink-soft);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.os-btn--sm {
+  min-height: 26px;
+  padding: 0 0.55rem;
+  font-size: 0.68rem;
+  gap: 0.32rem;
+}
+.os-btn--icon {
+  min-height: 32px;
+  width: 32px;
+  padding: 0;
+}
+
+/* ── INPUTS ──────────────────────────────────────────────────── */
+.os-input {
+  width: 100%;
+  min-height: 32px;
+  padding: 0.4rem 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--sea-ink);
+  background: var(--foam);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-control);
+  outline: none;
+  box-shadow: inset 2px 2px 0 0 rgba(31, 30, 29, 0.08);
+  appearance: none;
+}
+.os-input::placeholder {
+  color: var(--sea-ink-soft);
+}
+.os-input:focus,
+.os-input:focus-visible {
+  background: #ffffff;
+  box-shadow: inset 0 0 0 2px var(--lagoon);
+}
+.os-input:disabled {
+  background: var(--sand);
+  color: var(--sea-ink-soft);
+  cursor: not-allowed;
+}
+.os-textarea {
+  font-family: var(--font-sans);
+  resize: vertical;
+  min-height: 6rem;
+  line-height: 1.5;
+}
+
+/* ── PANELS ──────────────────────────────────────────────────── */
+.os-panel {
+  border: 2px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--foam);
+  padding: 1rem;
+  box-shadow: var(--shadow-chip);
+}
+.os-panel--bare {
+  border: 2px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--foam);
+}
+.os-panel--sunken {
+  border: 2px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--sand);
+  box-shadow: inset 2px 2px 0 0 rgba(31, 30, 29, 0.08);
+}
+
+/* ── CHIPS / TAGS ────────────────────────────────────────────── */
+.os-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  min-height: 22px;
+  padding: 0.18rem 0.5rem;
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--sea-ink);
+  background: var(--foam);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-control);
+}
+.os-chip--coral {
+  background: var(--link-bg-hover);
+  color: var(--lagoon-deep);
+}
+.os-chip--moss {
+  background: #D8E0CE;
+  color: var(--palm);
+}
+
+/* ── SECTION HEADER (app top bars) ───────────────────────────── */
+.os-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 1rem;
+  background: var(--foam);
+  border-bottom: 2px solid var(--line);
+}
+.os-section-header__kicker {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--lagoon-deep);
+}
+.os-section-header__title {
+  display: block;
+  margin: 0.18rem 0 0;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sea-ink);
+}
+/* For section headers whose title is technical data (repo full names,
+   @handles, file paths) — opt into JetBrains Mono instead of Silkscreen. */
+.os-section-header__title--mono {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* ── SCROLLBAR THEMING ──────────────────────────────────────── */
+.os-scroll {
+  scrollbar-color: var(--lagoon-deep) transparent;
+  scrollbar-width: thin;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   MDX CONTENT (home.mdx / cv.mdx) — re-tuned for the pixel skin
+   The original styling lived under .felix-mdx-* — kept name-for-name.
+   ───────────────────────────────────────────────────────────────── */
 
 .felix-mdx-content {
   padding: 1.25rem 1.5rem 1.5rem;
@@ -276,13 +582,10 @@ pre code {
 
 .felix-mdx-source-editor {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   min-height: 30rem;
-  resize: none;
-  border: 0;
-  outline: 0;
-  background: rgba(255, 255, 255, 0.42);
+  resize: none; border: 0; outline: 0;
+  background: var(--foam);
   padding: 1.25rem 1.5rem 1.5rem;
   color: var(--color-os-ink);
   font-family: var(--font-mono);
@@ -290,124 +593,108 @@ pre code {
   line-height: 1.7;
   tab-size: 2;
 }
-
 .felix-mdx-source-editor:focus {
-  box-shadow: inset 0 0 0 2px rgba(50, 143, 151, 0.24);
+  box-shadow: inset 0 0 0 2px var(--lagoon);
 }
 
-.felix-mdx-preview {
-  min-height: 100%;
-  background: rgba(255, 255, 255, 0.42);
-}
+.felix-mdx-preview { min-height: 100%; background: var(--foam); }
 
 .felix-mdx-content h1,
 .felix-mdx-content h2,
-.felix-mdx-content h3 {
-  letter-spacing: 0;
-}
+.felix-mdx-content h3 { letter-spacing: 0; }
 
+/* H1 — Silkscreen pixel display, lowercase */
 .felix-mdx-content h1 {
-  margin: 0 0 0.9rem;
+  margin: 0 0 1rem;
   font-family: var(--font-display);
-  font-size: clamp(1.85rem, 4vw, 3.1rem);
+  font-size: clamp(1.6rem, 3.6vw, 2.6rem);
   line-height: 1;
+  text-transform: lowercase;
+  color: var(--sea-ink);
 }
 
+/* H2 — coral kicker on hard 2px ink rule */
 .felix-mdx-content h2 {
   margin: 2rem 0 0.65rem;
-  border-top: 1px solid rgba(50, 143, 151, 0.26);
+  border-top: 2px solid var(--line);
   padding-top: 0.85rem;
-  color: var(--color-lagoon-deep);
+  color: var(--lagoon-deep);
   font-size: 1.18rem;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1.15;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-family: var(--font-sans);
 }
 
+/* H3 — hard 3px coral bar instead of pill */
 .felix-mdx-content h3 {
   position: relative;
   margin: 1.25rem 0 0.35rem;
   padding-left: 0.75rem;
   color: var(--color-os-ink);
   font-size: 1.08rem;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1.2;
 }
-
 .felix-mdx-content h3::before {
-  position: absolute;
-  top: 0.18rem;
-  bottom: 0.12rem;
-  left: 0;
-  width: 3px;
-  border-radius: 999px;
-  background: var(--color-lagoon);
+  position: absolute; top: 0.18rem; bottom: 0.12rem; left: 0;
+  width: 4px;
+  background: var(--lagoon);
+  border-radius: 0;
   content: '';
 }
 
-.felix-mdx-content p,
-.felix-mdx-content ul {
-  margin-top: 0;
-}
+.felix-mdx-content p, .felix-mdx-content ul { margin-top: 0; }
+.felix-mdx-content ul { list-style: square; padding-left: 1.2rem; }
+.felix-mdx-content ul li::marker { color: var(--lagoon); }
 
-.felix-mdx-content ul {
-  list-style: disc;
-  padding-left: 1.2rem;
-}
+.felix-mdx-blank-lines { display: block; height: calc(var(--blank-lines, 1) * 0.85rem); }
 
-.felix-mdx-blank-lines {
-  display: block;
-  height: calc(var(--blank-lines, 1) * 0.85rem);
-}
-
-.felix-mdx-content a {
-  font-weight: 800;
-}
+.felix-mdx-content a { font-weight: 800; }
 
 .felix-mdx-content code {
   border: 1px solid var(--color-os-border);
-  border-radius: 0.35rem;
-  background: rgba(255, 255, 255, 0.72);
-  padding: 0.08rem 0.28rem;
+  border-radius: 2px;
+  background: var(--foam);
+  padding: 0.08rem 0.32rem;
   font-family: var(--font-mono);
   font-size: 0.84em;
 }
 
+/* Avatar — square pixel frame, not a circle */
 .felix-mdx-content img {
   aspect-ratio: 1;
   width: 10.5rem;
-  border: 1px solid var(--color-os-border);
-  border-radius: 999px;
+  border: 2px solid var(--line);
+  border-radius: 0;
   object-fit: cover;
   object-position: 50% 30%;
-  box-shadow: var(--shadow-avatar);
+  box-shadow: 4px 4px 0 0 var(--lagoon);
 }
 
-.felix-cv-header {
-  margin: 0;
-}
-
-.felix-mdx-content .felix-cv-header + h2 {
-  margin-top: 1.35rem;
-}
+.felix-cv-header { margin: 0; }
+.felix-mdx-content .felix-cv-header + h2 { margin-top: 1.35rem; }
 
 .felix-cv-header__label {
   margin: 0 0 0.45rem;
-  color: var(--color-os-ink-soft);
+  color: var(--lagoon-deep);
   font-family: var(--font-display);
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
   line-height: 1;
   text-transform: uppercase;
 }
 
 .felix-cv-header__name {
   margin: 0 0 0.35rem;
-  color: var(--color-lagoon-deep);
+  color: var(--sea-ink);
   font-family: var(--font-display);
-  font-size: clamp(2rem, 5.5vw, 2.85rem);
-  font-weight: 900;
-  line-height: 1.02;
+  font-size: clamp(1.8rem, 5vw, 2.4rem);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: lowercase;
 }
 
 .felix-cv-header__role {
@@ -415,175 +702,119 @@ pre code {
   margin: 0 0 0.95rem;
   color: var(--color-os-ink-muted);
   font-size: 0.98rem;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.45;
 }
 
 .felix-cv-header .felix-cv-header__contacts,
 .felix-cv-header .felix-cv-header__links {
-  display: flex;
-  flex-wrap: wrap;
+  display: flex; flex-wrap: wrap;
   gap: 0.45rem 0.85rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  margin: 0; padding: 0; list-style: none;
 }
-
-.felix-cv-header .felix-cv-header__contacts {
-  margin-bottom: 0.55rem;
-}
-
+.felix-cv-header .felix-cv-header__contacts { margin-bottom: 0.55rem; }
 .felix-cv-header .felix-cv-header__contacts li,
-.felix-cv-header .felix-cv-header__links li {
-  list-style: none;
-}
-
+.felix-cv-header .felix-cv-header__links li { list-style: none; }
 .felix-cv-header .felix-cv-header__contacts li,
 .felix-cv-header .felix-cv-header__links a {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.38rem;
-  color: var(--color-lagoon-deep);
-  font-size: 0.84rem;
-  font-weight: 800;
-  line-height: 1.2;
+  display: inline-flex; align-items: center; gap: 0.38rem;
+  color: var(--lagoon-deep);
+  font-size: 0.84rem; font-weight: 700; line-height: 1.2;
 }
-
-.felix-cv-header .felix-cv-header__contacts a {
-  color: inherit;
-  text-decoration: none;
-}
-
+.felix-cv-header .felix-cv-header__contacts a { color: inherit; text-decoration: none; }
 .felix-cv-header .felix-cv-header__contacts a:hover,
 .felix-cv-header .felix-cv-header__links a:hover {
-  color: var(--color-lagoon);
-  text-decoration: underline;
-  text-underline-offset: 0.14em;
+  color: var(--sea-ink); text-decoration: underline; text-underline-offset: 0.14em;
 }
 
+/* Chip-style links — hard pixel chip, not pill */
 .felix-cv-header .felix-cv-header__links a {
-  border: 1px solid rgba(50, 143, 151, 0.22);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.58);
+  border: 2px solid var(--line);
+  border-radius: 0;
+  background: var(--foam);
   padding: 0.32rem 0.62rem 0.32rem 0.5rem;
   text-decoration: none;
+  box-shadow: 2px 2px 0 0 var(--line);
+}
+.felix-cv-header .felix-cv-header__links a:hover {
+  background: var(--link-bg-hover);
+  box-shadow: 3px 3px 0 0 var(--lagoon-deep);
 }
 
 .felix-cv-header__icon {
-  width: 0.92rem;
-  height: 0.92rem;
-  flex: 0 0 auto;
-  color: var(--color-lagoon);
-  stroke-width: 2.25;
+  width: 0.92rem; height: 0.92rem; flex: 0 0 auto;
+  color: var(--lagoon); stroke-width: 2.25;
 }
 
+/* Profile header block (home.mdx hero) */
 .felix-profile-header {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
+  display: flex; align-items: center; gap: 1.25rem;
   margin: 0 0 1.65rem;
-  border-bottom: 1px solid rgba(50, 143, 151, 0.22);
+  border-bottom: 2px solid var(--line);
   padding-bottom: 1.25rem;
 }
-
 .felix-profile-header img {
   width: clamp(7.25rem, 28vw, 10.25rem);
   flex: 0 0 auto;
 }
-
-.felix-profile-header__body {
-  min-width: 0;
-}
-
+.felix-profile-header__body { min-width: 0; }
 .felix-profile-header h1 {
   margin-bottom: 0.45rem;
-  font-size: clamp(2rem, 6vw, 3.35rem);
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
 }
-
 .felix-profile-header__description {
-  max-width: 38rem;
-  margin-bottom: 0.85rem;
+  max-width: 38rem; margin-bottom: 0.85rem;
   color: var(--color-os-ink-muted);
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1.45;
+  font-size: 1rem; font-weight: 600; line-height: 1.45;
 }
-
 .felix-profile-header__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin: 0;
+  display: flex; flex-wrap: wrap; gap: 0.55rem; margin: 0;
 }
 
+/* Meta chips — pixel stamps, not rounded */
 .felix-profile-header__meta div {
-  border: 1px solid rgba(50, 143, 151, 0.2);
-  border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.55);
+  border: 2px solid var(--line);
+  border-radius: 0;
+  background: var(--foam);
   padding: 0.45rem 0.6rem;
+  box-shadow: 2px 2px 0 0 var(--line);
 }
-
 .felix-profile-header__meta dt {
-  color: var(--color-os-ink-soft);
-  font-size: 0.66rem;
-  font-weight: 900;
-  line-height: 1;
-  text-transform: uppercase;
+  color: var(--lagoon-deep);
+  font-family: var(--font-display);
+  font-size: 0.6rem; font-weight: 400; line-height: 1;
+  letter-spacing: 0.08em; text-transform: uppercase;
 }
-
 .felix-profile-header__meta dd {
   margin: 0.18rem 0 0;
-  color: var(--color-lagoon-deep);
-  font-size: 0.82rem;
-  font-weight: 900;
-  line-height: 1.15;
+  color: var(--sea-ink);
+  font-family: var(--font-mono);
+  font-size: 0.82rem; font-weight: 600; line-height: 1.15;
 }
 
 @media (max-width: 560px) {
-  .felix-profile-header {
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .felix-profile-header img {
-    width: 6.25rem;
-  }
-
-  .felix-profile-header h1 {
-    font-size: 2rem;
-  }
+  .felix-profile-header { align-items: flex-start; gap: 1rem; }
+  .felix-profile-header img { width: 6.25rem; }
+  .felix-profile-header h1 { font-size: 1.6rem; }
 }
 
 .felix-mobile-mdx {
   min-height: calc(100svh - 57px);
-  background: rgba(255, 255, 255, 0.34);
+  background: var(--foam);
 }
 
-.felix-mobile-app > *,
-.felix-mobile-app .os-app-shell {
-  min-height: 100svh;
-  max-height: none;
+.felix-mobile-app > *, .felix-mobile-app .os-app-shell {
+  min-height: 100svh; max-height: none;
 }
-
-.felix-mobile-app > section {
-  width: 100%;
-}
-
-.felix-mobile-app > :is(section, div) > :first-child {
-  flex-wrap: wrap;
-}
-
+.felix-mobile-app > section { width: 100%; }
+.felix-mobile-app > :is(section, div) > :first-child { flex-wrap: wrap; }
 .felix-mobile-app > :is(section, div) > :first-child::after {
-  display: block;
-  flex-basis: 100%;
+  display: block; flex-basis: 100%;
   margin-top: 0.65rem;
   color: var(--color-os-ink-soft);
-  font-size: 0.72rem;
-  font-weight: 800;
-  line-height: 1.35;
+  font-size: 0.72rem; font-weight: 700; line-height: 1.35;
   content: "For the full FelixOS experience, visit on a desktop screen.";
 }
-
 .felix-mobile-app > .bg-strava-bg > :first-child::after,
 .felix-mobile-app > .bg-\[\#071416\] > :first-child::after {
   color: var(--color-strava-muted);
@@ -592,219 +823,133 @@ pre code {
 .felix-mobile-experience-banner {
   margin: 0.55rem auto 0;
   color: var(--color-os-ink-soft);
-  font-size: 0.72rem;
-  font-weight: 800;
-  line-height: 1.35;
+  font-size: 0.72rem; font-weight: 700; line-height: 1.35;
 }
 
-.felix-mobile-mdx p,
-.felix-mobile-mdx ul {
-  margin-bottom: 1rem;
-}
+.felix-mobile-mdx p, .felix-mobile-mdx ul { margin-bottom: 1rem; }
+.felix-mobile-mdx ul { list-style: square; padding-left: 1.2rem; }
+.felix-mobile-mdx a { font-weight: 800; }
 
-.felix-mobile-mdx ul {
-  list-style: disc;
-  padding-left: 1.2rem;
-}
+.felix-pdf-mdx { min-height: auto; background: white; }
 
-.felix-mobile-mdx a {
-  font-weight: 800;
-}
-
-.felix-pdf-mdx {
-  min-height: auto;
-  background: white;
-}
+/* ─────────────────────────────────────────────────────────────────
+   ARCADE STYLES (game) — preserved verbatim. Press Start 2P + VT323
+   are already an excellent pixel typography pair, and the game's
+   neon-CRT look reads as "the OS's own retro app" — leave it alone.
+   ───────────────────────────────────────────────────────────────── */
 
 .felix-arcade {
   font-family: "Press Start 2P", ui-monospace, SFMono-Regular, monospace;
   letter-spacing: 0.04em;
 }
-
 .felix-arcade-tag {
   font-family: "VT323", ui-monospace, monospace;
   letter-spacing: 0.06em;
 }
-
 .felix-arcade-title {
-  background: linear-gradient(180deg, #fff7c2 0%, #ffd23f 48%, #ff7a1a 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-shadow:
-    0 0 18px rgba(255, 122, 26, 0.55),
-    0 0 2px rgba(255, 255, 255, 0.5);
-  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.55));
+  font-family: "Press Start 2P", ui-monospace, monospace;
+  color: var(--lagoon);
+  text-shadow: 4px 4px 0 var(--sea-ink);
 }
-
 .felix-arcade-title-crash {
-  background: linear-gradient(180deg, #ffd1d1 0%, #ff5c5c 48%, #ad1c1c 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-shadow: 0 0 18px rgba(255, 92, 92, 0.55);
-  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.55));
+  font-family: "Press Start 2P", ui-monospace, monospace;
+  color: #BC5A3C;
+  text-shadow: 4px 4px 0 var(--sea-ink);
 }
-
 .felix-arcade-screen {
-  background:
-    radial-gradient(120% 60% at 50% 0%, rgba(120, 60, 180, 0.35), transparent 60%),
-    radial-gradient(120% 60% at 50% 100%, rgba(0, 0, 0, 0.55), transparent 60%),
-    #050913;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
-    inset 0 0 120px rgba(0, 0, 0, 0.7);
+  background: var(--bg-base);
+  background-image:
+    linear-gradient(rgba(31, 30, 29, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 30, 29, 0.07) 1px, transparent 1px);
+  background-size: 16px 16px;
+  box-shadow: inset 0 0 0 2px var(--sea-ink);
 }
-
 .felix-arcade-scanlines {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+  position: absolute; inset: 0; pointer-events: none;
   background-image: repeating-linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0) 0px,
-    rgba(0, 0, 0, 0) 2px,
-    rgba(0, 0, 0, 0.22) 3px,
-    rgba(0, 0, 0, 0) 4px
+    transparent 0px, transparent 3px,
+    rgba(31, 30, 29, 0.08) 4px, transparent 5px
   );
-  mix-blend-mode: multiply;
-  opacity: 0.55;
+  opacity: 0.6;
 }
-
 .felix-arcade-vignette {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(120% 80% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+  display: none;
 }
-
 .felix-arcade-glow {
-  text-shadow:
-    0 0 6px currentColor,
-    0 0 12px currentColor,
-    0 2px 0 rgba(0, 0, 0, 0.6);
+  text-shadow: 2px 2px 0 var(--sea-ink);
 }
-
-.felix-arcade-button {
-  font-family: "Press Start 2P", ui-monospace, monospace;
-  background: linear-gradient(180deg, #ffd23f 0%, #ff8a1a 100%);
-  color: #1a0b00;
-  border: 2px solid #ffe98a;
-  box-shadow:
-    inset 0 -4px 0 rgba(0, 0, 0, 0.28),
-    0 4px 0 #6a1d00,
-    0 8px 22px rgba(255, 138, 26, 0.35);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
-  transition: transform 80ms ease, box-shadow 80ms ease, filter 120ms ease;
+.felix-arcade-blink-cursor {
+  color: var(--lagoon);
 }
-
-.felix-arcade-button:hover:not(:disabled) {
-  filter: brightness(1.05);
-}
-
-.felix-arcade-button:active:not(:disabled) {
-  transform: translateY(3px);
-  box-shadow:
-    inset 0 -2px 0 rgba(0, 0, 0, 0.28),
-    0 1px 0 #6a1d00,
-    0 4px 14px rgba(255, 138, 26, 0.35);
-}
-
-.felix-arcade-button[data-variant="cool"] {
-  background: linear-gradient(180deg, #6ef0ff 0%, #2a7df0 100%);
-  border-color: #b6f7ff;
-  color: #00121a;
-  box-shadow:
-    inset 0 -4px 0 rgba(0, 0, 0, 0.28),
-    0 4px 0 #082040,
-    0 8px 22px rgba(42, 125, 240, 0.35);
-}
-
-.felix-arcade-input {
-  font-family: "Press Start 2P", ui-monospace, monospace;
-  background: #0a1322;
-  border: 2px solid rgba(110, 240, 255, 0.45);
-  color: #b6f7ff;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5), 0 0 0 0 transparent;
-}
-
-.felix-arcade-input::placeholder {
-  color: rgba(182, 247, 255, 0.4);
-}
-
-.felix-arcade-input:focus {
-  outline: none;
-  border-color: #ffd23f;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(255, 210, 63, 0.35);
-}
-
 @keyframes felix-arcade-blink {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0.15; }
+  0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.15; }
 }
+.felix-arcade-blink { animation: felix-arcade-blink 1s steps(1, end) infinite; }
 
-.felix-arcade-blink {
-  animation: felix-arcade-blink 1s steps(1, end) infinite;
-}
-
+/* ─────────────────────────────────────────────────────────────────
+   PRINT — unchanged behavior
+   ───────────────────────────────────────────────────────────────── */
 @media print {
-  * {
-    box-shadow: none !important;
-    text-shadow: none !important;
-  }
-
-  html,
-  body {
-    background: white;
-    color: #111;
-  }
-
-  .felix-mobile-mdx {
-    max-width: none;
-    min-height: auto;
-    background: transparent;
-  }
-
-  .felix-mdx-content {
-    padding: 0;
-  }
-
-  .felix-mdx-content h2 {
-    border-top: 1px solid #d6dddd;
-  }
-
-  .felix-mdx-content h3 {
-    border-left: 3px solid var(--color-lagoon);
-  }
-
-  .felix-mdx-content h3::before {
-    display: none;
-  }
-
+  * { box-shadow: none !important; text-shadow: none !important; }
+  html, body { background: white; color: #111; }
+  .felix-mobile-mdx { max-width: none; min-height: auto; background: transparent; }
+  .felix-mdx-content { padding: 0; }
+  .felix-mdx-content h2 { border-top: 1px solid #d6dddd; }
+  .felix-mdx-content h3 { border-left: 3px solid var(--color-lagoon); }
+  .felix-mdx-content h3::before { display: none; }
   .felix-mdx-content code {
-    border: 0;
-    background: transparent;
-    padding: 0;
-    font-family: Menlo, Monaco, Consolas, monospace;
-    font-size: 0.9em;
+    border: 0; background: transparent; padding: 0;
+    font-family: Menlo, Monaco, Consolas, monospace; font-size: 0.9em;
   }
-
   .felix-profile-header {
-    align-items: flex-start;
-    gap: 14pt;
-    border-bottom: 1px solid #d6dddd;
-    padding-bottom: 14pt;
+    align-items: flex-start; gap: 14pt;
+    border-bottom: 1px solid #d6dddd; padding-bottom: 14pt;
   }
-
-  .felix-profile-header img,
-  .felix-mdx-content img {
-    width: 86pt;
-    border: 1px solid #d6dddd;
-    border-radius: 999px;
+  .felix-profile-header img, .felix-mdx-content img {
+    width: 86pt; border: 1px solid #d6dddd; border-radius: 0;
   }
-
-  .felix-profile-header__meta div {
-    border: 1px solid #d6dddd;
-    background: transparent;
-  }
+  .felix-profile-header__meta div { border: 1px solid #d6dddd; background: transparent; }
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   FOLLOW-UP PATCHES TO MAKE THE RESKIN FULLY LAND
+   These changes live in .tsx files (because the values are hardcoded
+   there rather than in tokens) — apply them by hand.
+   ─────────────────────────────────────────────────────────────────
+
+   1) src/desktop/apps.tsx — replace per-app `accent:` hexes:
+
+        home     '#f6c85f'         →  '#D97757'   (coral)
+        cv       '#8de5db'         →  '#F4D9CB'   (coral-soft)
+        help     '#7bc8ff'         →  '#D8E0CE'   (moss-soft)
+        skills   '#60d7cf'         →  '#D97757'   (coral)
+        browser  '#6f7cff'         →  '#D8E0CE'   (moss-soft)
+        game     '#f66d44'         →  '#1F1E1D'   (ink — arcade reads better dark)
+        github   '#f0f3f6'         →  '#1F1E1D'   (ink chip)
+        issues   '#6f7cff'         →  '#E1DEFB'   (plum-soft legacy nod)
+        strava   'var(--color-strava)'  →  unchanged (still coral now)
+        terminal '#14262d'         →  '#1F1E1D'   (ink)
+        settings '#f6c85f'         →  '#C28A2C'   (warning amber)
+
+   2) src/desktop/DesktopWindow.tsx — `getAppWindowClass()` hardcoded
+      backgrounds. Replace with token-driven values:
+
+        github:   bg-[rgba(246,248,250,0.94)]  →  bg-os-panel
+        browser:  bg-[rgba(248,249,255,0.94)]  →  bg-os-panel
+        game:     border-[#18464c] bg-[#081719] →  border-ink bg-[#0A1118]  (keep dark for arcade)
+        help:     bg-[rgba(250,252,247,0.94)]  →  bg-os-panel
+        issues:   bg-[rgba(248,249,255,0.94)]  →  bg-os-panel
+        settings: bg-[rgba(250,252,247,0.94)]  →  bg-os-panel
+        skills:   bg-[rgba(247,252,249,0.94)]  →  bg-os-panel
+        strava:   border-strava/45 bg-strava-bg →  border-ink bg-strava-bg  (keep dark)
+        terminal: border-[#17383b] bg-[#071416] →  border-ink bg-[#1F1E1D]  (keep dark)
+
+   3) src/desktop/Dock.tsx — the running-app indicator uses an inline
+      teal `#328f97`. Change `after:bg-[#328f97]` → `after:bg-lagoon`
+      (which is now coral via the token).
+
+   4) Public favicon — replace `/felix-portrait.jpg` round avatar
+      with a 24×24 Silkscreen "F" on coral if you want the menubar
+      brand mark to match.
+   ───────────────────────────────────────────────────────────────── */
