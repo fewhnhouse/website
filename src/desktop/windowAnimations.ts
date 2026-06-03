@@ -16,7 +16,6 @@ export function windowAnimationFor(window: WindowState) {
         width:
           window.app === 'browser' ||
           window.app === 'github' ||
-          window.app === 'skills' ||
           window.app === 'strava'
             ? 'min(920px, calc(100vw - 1.5rem))'
             : window.app === 'help' || window.app === 'settings'

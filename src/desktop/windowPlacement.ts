@@ -7,13 +7,13 @@ const dockOffset = 116
 
 export const appSizes = {
   browser: { width: 980, height: 680 },
+  contact: { width: 720, height: 600 },
   game: { width: 900, height: 880 },
   github: { width: 920, height: 640 },
   help: { width: 680, height: 560 },
   issues: { width: 980, height: 680 },
   notes: { width: 720, height: 620 },
   settings: { width: 720, height: 620 },
-  skills: { width: 920, height: 640 },
   strava: { width: 920, height: 640 },
   terminal: { width: 760, height: 480 },
 } satisfies Record<AppId, { width: number; height: number }>

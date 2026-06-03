@@ -2,11 +2,11 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { desktopSearchValidator } from '@/desktop/routeState'
 
-export const Route = createFileRoute('/skills')({
+export const Route = createFileRoute('/contact')({
   validateSearch: desktopSearchValidator,
-  component: SkillsRoute,
+  component: ContactRoute,
 })
 
-function SkillsRoute() {
+function ContactRoute() {
   return null
 }

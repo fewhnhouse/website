@@ -3,10 +3,10 @@ import {
   CircleDot,
   CircleHelp,
   FileText,
-  Gauge,
   Gamepad2,
   Github,
   Globe2,
+  Mail,
   MonitorCog,
   Terminal,
 } from '@/components/PixelIcon'
@@ -14,6 +14,7 @@ import { motion } from 'motion/react'
 import type { PointerEvent, RefObject } from 'react'
 
 import { BrowserApp } from '@/apps/browser/BrowserApp'
+import { ContactApp } from '@/apps/contact/ContactApp'
 import { RunnerGameApp } from '@/apps/game/RunnerGameApp'
 import { GithubApp } from '@/apps/github/GithubApp'
 import type { GithubData } from '@/apps/github/types'
@@ -23,7 +24,6 @@ import type { IssuesBoardData, ProjectIssue } from '@/apps/issues/types'
 import type { NotesMarkdownByDocument } from '@/apps/notes/notesMarkdown'
 import { NotesApp } from '@/apps/notes/NotesApp'
 import { SettingsApp } from '@/apps/settings/SettingsApp'
-import { SkillsApp } from '@/apps/skills/SkillsApp'
 import { StravaApp } from '@/apps/strava/StravaApp'
 import type { StravaDataResult } from '@/apps/strava/stravaData'
 import { TerminalApp } from '@/apps/terminal/TerminalApp'
@@ -178,6 +178,7 @@ export function DesktopWindow({
       </div>
 
       {window.app === 'browser' ? <BrowserApp initialUrl={window.url} /> : null}
+      {window.app === 'contact' ? <ContactApp /> : null}
       {window.app === 'game' ? <RunnerGameApp /> : null}
       {window.app === 'notes' ? (
         <NotesApp
@@ -188,7 +189,6 @@ export function DesktopWindow({
           onResetDocument={onResetNotesDocument}
         />
       ) : null}
-      {window.app === 'skills' ? <SkillsApp /> : null}
       {window.app === 'github' ? (
         <GithubApp
           data={githubData}
@@ -254,12 +254,12 @@ function TrafficButton({
 
 function getAppWindowTitle(app: AppId) {
   if (app === 'browser') return 'browser.app'
+  if (app === 'contact') return 'contact.app'
   if (app === 'game') return 'runner.app'
   if (app === 'github') return 'github.app'
   if (app === 'help') return 'help.app'
   if (app === 'issues') return 'issues.app'
   if (app === 'settings') return 'settings.app'
-  if (app === 'skills') return 'skills.app'
   if (app === 'strava') return 'strava.app'
   if (app === 'terminal') return 'terminal.app'
 
@@ -268,12 +268,12 @@ function getAppWindowTitle(app: AppId) {
 
 function getAppWindowIcon(app: AppId) {
   if (app === 'browser') return Globe2
+  if (app === 'contact') return Mail
   if (app === 'game') return Gamepad2
   if (app === 'github') return Github
   if (app === 'help') return CircleHelp
   if (app === 'issues') return CircleDot
   if (app === 'settings') return MonitorCog
-  if (app === 'skills') return Gauge
   if (app === 'strava') return Activity
   if (app === 'terminal') return Terminal
 
@@ -288,7 +288,6 @@ const appSizeClasses: Partial<Record<AppId, string>> = {
   game: '!w-[min(900px,calc(100vw_-_1.5rem))] !max-h-[min(880px,calc(100svh_-_4.5rem))]',
   github: '!w-[min(920px,calc(100vw_-_1.5rem))]',
   issues: '!w-[min(980px,calc(100vw_-_1.5rem))] !max-h-[min(680px,calc(100svh_-_4.5rem))]',
-  skills: '!w-[min(920px,calc(100vw_-_1.5rem))]',
   strava: '!w-[min(920px,calc(100vw_-_1.5rem))]',
   terminal: '!w-[min(760px,calc(100vw_-_1.5rem))]',
 }
@@ -302,11 +301,11 @@ function getAppWindowClass(app: AppId) {
   const prefix = sizeClass ? `${sizeClass} ` : ''
   if (app === 'github') return `${prefix}bg-os-panel`
   if (app === 'browser') return `${prefix}bg-os-panel`
+  if (app === 'contact') return `${prefix}bg-os-panel`
   if (app === 'game') return `${prefix}border-ink bg-[#0A1118]`
   if (app === 'help') return `${prefix}bg-os-panel`
   if (app === 'issues') return `${prefix}bg-os-panel`
   if (app === 'settings') return `${prefix}bg-os-panel`
-  if (app === 'skills') return `${prefix}bg-os-panel`
   if (app === 'strava') return `${prefix}border-ink bg-strava-bg`
   if (app === 'terminal') return `${prefix}border-ink bg-[#1F1E1D]`
 

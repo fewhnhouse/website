@@ -163,13 +163,13 @@ export function useDesktopWindows(routeApp: RouteApp) {
   const routeForWindow = (window: WindowState | undefined) => {
     if (!window) return '/'
     if (window.app === 'browser') return '/browser'
+    if (window.app === 'contact') return '/contact'
     if (window.app === 'game') return '/game'
     if (window.app === 'notes') return window.document === 'cv' ? '/cv' : '/home'
     if (window.app === 'github') return '/github'
     if (window.app === 'help') return '/help'
     if (window.app === 'issues') return '/issues'
     if (window.app === 'settings') return '/settings'
-    if (window.app === 'skills') return '/skills'
     if (window.app === 'strava') return '/strava'
     if (window.app === 'terminal') return '/terminal'
 

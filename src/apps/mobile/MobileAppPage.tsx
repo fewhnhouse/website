@@ -2,6 +2,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { BrowserApp } from '@/apps/browser/BrowserApp'
+import { ContactApp } from '@/apps/contact/ContactApp'
 import { RunnerGameApp } from '@/apps/game/RunnerGameApp'
 import { GithubApp } from '@/apps/github/GithubApp'
 import { getGithubData } from '@/apps/github/githubData'
@@ -11,11 +12,10 @@ import { IssuesApp } from '@/apps/issues/IssuesApp'
 import { getIssuesBoardData } from '@/apps/issues/issuesData'
 import type { IssuesBoardData, ProjectIssue } from '@/apps/issues/types'
 import { SettingsApp } from '@/apps/settings/SettingsApp'
-import { SkillsApp } from '@/apps/skills/SkillsApp'
 import { StravaApp } from '@/apps/strava/StravaApp'
 import { getStravaData, type StravaDataResult } from '@/apps/strava/stravaData'
 import { TerminalApp } from '@/apps/terminal/TerminalApp'
-import { defaultDesktopSettings, wallpaperOptions } from '@/desktop/desktopSettings'
+import { defaultDesktopSettings, isWallpaperId, wallpaperOptions } from '@/desktop/desktopSettings'
 import type { AppId, NotesDocumentId, RouteApp } from '@/desktop/types'
 
 type MobileAppPageProps = {
@@ -143,6 +143,7 @@ export function MobileAppPage({ initialGithubData = null, routeApp }: MobileAppP
   return (
     <main className="felix-mobile-app min-h-[100svh] bg-foam text-os-ink">
       {routeApp.app === 'browser' ? <BrowserApp initialUrl={routeApp.url} /> : null}
+      {routeApp.app === 'contact' ? <ContactApp /> : null}
       {routeApp.app === 'game' ? <RunnerGameApp /> : null}
       {routeApp.app === 'github' ? (
         <GithubApp
@@ -169,10 +170,11 @@ export function MobileAppPage({ initialGithubData = null, routeApp }: MobileAppP
           wallpaperOptions={wallpaperOptions}
           onPreviewScreensaver={() => undefined}
           onScreensaverMinutesChange={setScreensaverMinutes}
-          onWallpaperChange={setWallpaper}
+          onWallpaperChange={(value) => {
+            if (isWallpaperId(value)) setWallpaper(value)
+          }}
         />
       ) : null}
-      {routeApp.app === 'skills' ? <SkillsApp /> : null}
       {routeApp.app === 'strava' ? (
         <StravaApp
           error={stravaError}
@@ -195,13 +197,13 @@ const defaultMobileSearch = {
 
 function routeForApp(app: AppId, document?: NotesDocumentId) {
   if (app === 'browser') return '/browser'
+  if (app === 'contact') return '/contact'
   if (app === 'game') return '/game'
   if (app === 'notes') return document === 'cv' ? '/cv' : '/home'
   if (app === 'github') return '/github'
   if (app === 'help') return '/help'
   if (app === 'issues') return '/issues'
   if (app === 'settings') return '/settings'
-  if (app === 'skills') return '/skills'
   if (app === 'strava') return '/strava'
   if (app === 'terminal') return '/terminal'
 

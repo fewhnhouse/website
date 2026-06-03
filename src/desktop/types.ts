@@ -10,13 +10,13 @@ export type NotesDocumentId = 'home' | 'cv'
 
 export type AppId =
   | 'browser'
+  | 'contact'
   | 'game'
   | 'github'
   | 'help'
   | 'issues'
   | 'notes'
   | 'settings'
-  | 'skills'
   | 'strava'
   | 'terminal'
 
