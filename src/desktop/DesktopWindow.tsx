@@ -6,6 +6,7 @@ import {
   Gamepad2,
   Github,
   Globe2,
+  Mail,
   MonitorCog,
   Terminal,
 } from '@/components/PixelIcon'
@@ -13,6 +14,7 @@ import { motion } from 'motion/react'
 import type { PointerEvent, RefObject } from 'react'
 
 import { BrowserApp } from '@/apps/browser/BrowserApp'
+import { ContactApp } from '@/apps/contact/ContactApp'
 import { RunnerGameApp } from '@/apps/game/RunnerGameApp'
 import { GithubApp } from '@/apps/github/GithubApp'
 import type { GithubData } from '@/apps/github/types'
@@ -176,6 +178,7 @@ export function DesktopWindow({
       </div>
 
       {window.app === 'browser' ? <BrowserApp initialUrl={window.url} /> : null}
+      {window.app === 'contact' ? <ContactApp /> : null}
       {window.app === 'game' ? <RunnerGameApp /> : null}
       {window.app === 'notes' ? (
         <NotesApp
@@ -251,6 +254,7 @@ function TrafficButton({
 
 function getAppWindowTitle(app: AppId) {
   if (app === 'browser') return 'browser.app'
+  if (app === 'contact') return 'contact.app'
   if (app === 'game') return 'runner.app'
   if (app === 'github') return 'github.app'
   if (app === 'help') return 'help.app'
@@ -264,6 +268,7 @@ function getAppWindowTitle(app: AppId) {
 
 function getAppWindowIcon(app: AppId) {
   if (app === 'browser') return Globe2
+  if (app === 'contact') return Mail
   if (app === 'game') return Gamepad2
   if (app === 'github') return Github
   if (app === 'help') return CircleHelp
@@ -296,6 +301,7 @@ function getAppWindowClass(app: AppId) {
   const prefix = sizeClass ? `${sizeClass} ` : ''
   if (app === 'github') return `${prefix}bg-os-panel`
   if (app === 'browser') return `${prefix}bg-os-panel`
+  if (app === 'contact') return `${prefix}bg-os-panel`
   if (app === 'game') return `${prefix}border-ink bg-[#0A1118]`
   if (app === 'help') return `${prefix}bg-os-panel`
   if (app === 'issues') return `${prefix}bg-os-panel`

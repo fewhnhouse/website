@@ -18,6 +18,7 @@ import { Route as HelpRouteImport } from './routes/help'
 import { Route as GithubRouteImport } from './routes/github'
 import { Route as GameRouteImport } from './routes/game'
 import { Route as CvRouteImport } from './routes/cv'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BrowserRouteImport } from './routes/browser'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -73,6 +74,11 @@ const GameRoute = GameRouteImport.update({
 const CvRoute = CvRouteImport.update({
   id: '/cv',
   path: '/cv',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BrowserRoute = BrowserRouteImport.update({
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/browser': typeof BrowserRoute
+  '/contact': typeof ContactRoute
   '/cv': typeof CvRoute
   '/game': typeof GameRoute
   '/github': typeof GithubRoute
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/browser': typeof BrowserRoute
+  '/contact': typeof ContactRoute
   '/cv': typeof CvRoute
   '/game': typeof GameRoute
   '/github': typeof GithubRoute
@@ -180,6 +188,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/browser': typeof BrowserRoute
+  '/contact': typeof ContactRoute
   '/cv': typeof CvRoute
   '/game': typeof GameRoute
   '/github': typeof GithubRoute
@@ -204,6 +213,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/browser'
+    | '/contact'
     | '/cv'
     | '/game'
     | '/github'
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/browser'
+    | '/contact'
     | '/cv'
     | '/game'
     | '/github'
@@ -248,6 +259,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/browser'
+    | '/contact'
     | '/cv'
     | '/game'
     | '/github'
@@ -271,6 +283,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   BrowserRoute: typeof BrowserRoute
+  ContactRoute: typeof ContactRoute
   CvRoute: typeof CvRoute
   GameRoute: typeof GameRoute
   GithubRoute: typeof GithubRoute
@@ -353,6 +366,13 @@ declare module '@tanstack/react-router' {
       path: '/cv'
       fullPath: '/cv'
       preLoaderRoute: typeof CvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/browser': {
@@ -439,6 +459,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   BrowserRoute: BrowserRoute,
+  ContactRoute: ContactRoute,
   CvRoute: CvRoute,
   GameRoute: GameRoute,
   GithubRoute: GithubRoute,

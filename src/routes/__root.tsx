@@ -98,6 +98,7 @@ function RootApp() {
 function routeAppFromPathname(pathname: string, search: Record<string, unknown>): RouteApp | null {
   if (pathname === '/') return 'none'
   if (pathname === '/browser') return { app: 'browser', url: browserUrlFromSearch(search) }
+  if (pathname === '/contact') return { app: 'contact' }
   if (pathname === '/game') return { app: 'game' }
   if (pathname === '/home') return { app: 'notes', document: 'home' }
   if (pathname === '/cv') return { app: 'notes', document: 'cv' }

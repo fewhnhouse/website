@@ -50,6 +50,7 @@ import { Plus as PaPlus } from 'pixelarticons/react/Plus'
 import { Pointer } from 'pixelarticons/react/Pointer'
 import { Reload } from 'pixelarticons/react/Reload'
 import { Search as PaSearch } from 'pixelarticons/react/Search'
+import { Send as PaSend } from 'pixelarticons/react/Send'
 import { SpeedFast } from 'pixelarticons/react/SpeedFast'
 import { SpeedMedium } from 'pixelarticons/react/SpeedMedium'
 import { Star as PaStar } from 'pixelarticons/react/Star'
@@ -167,6 +168,7 @@ export const Plus = wrap(PaPlus, 'Plus')
 export const RefreshCw = wrap(Reload, 'RefreshCw')
 export const RotateCw = wrap(Reload, 'RotateCw')
 export const Search = wrap(PaSearch, 'Search')
+export const Send = wrap(PaSend, 'Send')
 export const Star = wrap(PaStar, 'Star')
 export const Terminal = wrap(PaTerminal, 'Terminal')
 export const TerminalSquare = wrap(PaTerminal, 'TerminalSquare')
