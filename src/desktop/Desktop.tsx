@@ -229,10 +229,6 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
     openApp('settings')
   }
 
-  const openSkills = () => {
-    openApp('skills')
-  }
-
   const openStrava = () => {
     openApp('strava')
   }
@@ -399,7 +395,6 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
         openGithub={openGithub}
         openHome={openHome}
         openIssues={openIssues}
-        openSkills={openSkills}
         openStrava={openStrava}
         openTerminal={openTerminal}
         windows={windows}

@@ -4,7 +4,6 @@ import {
   CircleDot,
   CircleHelp,
   FileText,
-  Gauge,
   Gamepad2,
   Github,
   Globe2,
@@ -83,12 +82,6 @@ const appDocs: AppDoc[] = [
     icon: Terminal,
     what: 'Restricted shell: help, ls, open <name>, pwd, whoami, clear. Up/Down recall history, Tab autocompletes apps.',
     open: 'Dock · desktop tile · File ▸ New terminal',
-  },
-  {
-    name: 'skills.app',
-    icon: Gauge,
-    what: 'Compact matrix of the languages, frameworks, infra and cloud services I reach for most.',
-    open: 'Dock · desktop tile',
   },
   {
     name: 'github.app',

@@ -10,7 +10,6 @@ type DockProps = {
   openGithub: () => void
   openHome: () => void
   openIssues: () => void
-  openSkills: () => void
   openStrava: () => void
   openTerminal: () => void
   windows: WindowState[]
@@ -22,7 +21,6 @@ export function Dock({
   openGithub,
   openHome,
   openIssues,
-  openSkills,
   openStrava,
   openTerminal,
   windows,
@@ -40,7 +38,6 @@ export function Dock({
         const isNotes = app.id === 'notes'
         const isGithub = app.id === 'github'
         const isIssues = app.id === 'issues'
-        const isSkills = app.id === 'skills'
         const isStrava = app.id === 'strava'
         const isTerminal = app.id === 'terminal'
         const isRunning = windows.some((window) => window.app === app.id)
@@ -65,13 +62,11 @@ export function Dock({
                     ? openGame
                     : isIssues
                       ? openIssues
-                      : isSkills
-                        ? openSkills
-                        : isStrava
-                          ? openStrava
-                          : isTerminal
-                            ? openTerminal
-                            : undefined
+                      : isStrava
+                        ? openStrava
+                        : isTerminal
+                          ? openTerminal
+                          : undefined
             }
             aria-label={
               isNotes
@@ -84,13 +79,11 @@ export function Dock({
                     ? 'Open Runner'
                     : isIssues
                       ? 'Open Issues'
-                      : isSkills
-                        ? 'Open Skills'
-                        : isStrava
-                          ? 'Open Strava'
-                          : isTerminal
-                            ? 'Open Terminal'
-                            : 'Open app'
+                      : isStrava
+                        ? 'Open Strava'
+                        : isTerminal
+                          ? 'Open Terminal'
+                          : 'Open app'
             }
           >
             <Icon aria-hidden="true" size={24} />

@@ -16,7 +16,6 @@ export type AppId =
   | 'issues'
   | 'notes'
   | 'settings'
-  | 'skills'
   | 'strava'
   | 'terminal'
 

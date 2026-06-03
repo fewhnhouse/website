@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TerminalRouteImport } from './routes/terminal'
 import { Route as StravaRouteImport } from './routes/strava'
-import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as IssuesRouteImport } from './routes/issues'
 import { Route as HomeRouteImport } from './routes/home'
@@ -39,11 +38,6 @@ const TerminalRoute = TerminalRouteImport.update({
 const StravaRoute = StravaRouteImport.update({
   id: '/strava',
   path: '/strava',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SkillsRoute = SkillsRouteImport.update({
-  id: '/skills',
-  path: '/skills',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -148,7 +142,6 @@ export interface FileRoutesByFullPath {
   '/home': typeof HomeRoute
   '/issues': typeof IssuesRoute
   '/settings': typeof SettingsRoute
-  '/skills': typeof SkillsRoute
   '/strava': typeof StravaRoute
   '/terminal': typeof TerminalRoute
   '/api/github/callback': typeof ApiGithubCallbackRoute
@@ -171,7 +164,6 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/issues': typeof IssuesRoute
   '/settings': typeof SettingsRoute
-  '/skills': typeof SkillsRoute
   '/strava': typeof StravaRoute
   '/terminal': typeof TerminalRoute
   '/api/github/callback': typeof ApiGithubCallbackRoute
@@ -195,7 +187,6 @@ export interface FileRoutesById {
   '/home': typeof HomeRoute
   '/issues': typeof IssuesRoute
   '/settings': typeof SettingsRoute
-  '/skills': typeof SkillsRoute
   '/strava': typeof StravaRoute
   '/terminal': typeof TerminalRoute
   '/api/github/callback': typeof ApiGithubCallbackRoute
@@ -220,7 +211,6 @@ export interface FileRouteTypes {
     | '/home'
     | '/issues'
     | '/settings'
-    | '/skills'
     | '/strava'
     | '/terminal'
     | '/api/github/callback'
@@ -243,7 +233,6 @@ export interface FileRouteTypes {
     | '/home'
     | '/issues'
     | '/settings'
-    | '/skills'
     | '/strava'
     | '/terminal'
     | '/api/github/callback'
@@ -266,7 +255,6 @@ export interface FileRouteTypes {
     | '/home'
     | '/issues'
     | '/settings'
-    | '/skills'
     | '/strava'
     | '/terminal'
     | '/api/github/callback'
@@ -290,7 +278,6 @@ export interface RootRouteChildren {
   HomeRoute: typeof HomeRoute
   IssuesRoute: typeof IssuesRoute
   SettingsRoute: typeof SettingsRoute
-  SkillsRoute: typeof SkillsRoute
   StravaRoute: typeof StravaRoute
   TerminalRoute: typeof TerminalRoute
   ApiGithubCallbackRoute: typeof ApiGithubCallbackRoute
@@ -317,13 +304,6 @@ declare module '@tanstack/react-router' {
       path: '/strava'
       fullPath: '/strava'
       preLoaderRoute: typeof StravaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/skills': {
-      id: '/skills'
-      path: '/skills'
-      fullPath: '/skills'
-      preLoaderRoute: typeof SkillsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -466,7 +446,6 @@ const rootRouteChildren: RootRouteChildren = {
   HomeRoute: HomeRoute,
   IssuesRoute: IssuesRoute,
   SettingsRoute: SettingsRoute,
-  SkillsRoute: SkillsRoute,
   StravaRoute: StravaRoute,
   TerminalRoute: TerminalRoute,
   ApiGithubCallbackRoute: ApiGithubCallbackRoute,

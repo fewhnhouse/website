@@ -11,7 +11,6 @@ import { IssuesApp } from '@/apps/issues/IssuesApp'
 import { getIssuesBoardData } from '@/apps/issues/issuesData'
 import type { IssuesBoardData, ProjectIssue } from '@/apps/issues/types'
 import { SettingsApp } from '@/apps/settings/SettingsApp'
-import { SkillsApp } from '@/apps/skills/SkillsApp'
 import { StravaApp } from '@/apps/strava/StravaApp'
 import { getStravaData, type StravaDataResult } from '@/apps/strava/stravaData'
 import { TerminalApp } from '@/apps/terminal/TerminalApp'
@@ -172,7 +171,6 @@ export function MobileAppPage({ initialGithubData = null, routeApp }: MobileAppP
           onWallpaperChange={setWallpaper}
         />
       ) : null}
-      {routeApp.app === 'skills' ? <SkillsApp /> : null}
       {routeApp.app === 'strava' ? (
         <StravaApp
           error={stravaError}
@@ -201,7 +199,6 @@ function routeForApp(app: AppId, document?: NotesDocumentId) {
   if (app === 'help') return '/help'
   if (app === 'issues') return '/issues'
   if (app === 'settings') return '/settings'
-  if (app === 'skills') return '/skills'
   if (app === 'strava') return '/strava'
   if (app === 'terminal') return '/terminal'
 

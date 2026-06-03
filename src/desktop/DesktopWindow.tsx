@@ -3,7 +3,6 @@ import {
   CircleDot,
   CircleHelp,
   FileText,
-  Gauge,
   Gamepad2,
   Github,
   Globe2,
@@ -23,7 +22,6 @@ import type { IssuesBoardData, ProjectIssue } from '@/apps/issues/types'
 import type { NotesMarkdownByDocument } from '@/apps/notes/notesMarkdown'
 import { NotesApp } from '@/apps/notes/NotesApp'
 import { SettingsApp } from '@/apps/settings/SettingsApp'
-import { SkillsApp } from '@/apps/skills/SkillsApp'
 import { StravaApp } from '@/apps/strava/StravaApp'
 import type { StravaDataResult } from '@/apps/strava/stravaData'
 import { TerminalApp } from '@/apps/terminal/TerminalApp'
@@ -188,7 +186,6 @@ export function DesktopWindow({
           onResetDocument={onResetNotesDocument}
         />
       ) : null}
-      {window.app === 'skills' ? <SkillsApp /> : null}
       {window.app === 'github' ? (
         <GithubApp
           data={githubData}
@@ -259,7 +256,6 @@ function getAppWindowTitle(app: AppId) {
   if (app === 'help') return 'help.app'
   if (app === 'issues') return 'issues.app'
   if (app === 'settings') return 'settings.app'
-  if (app === 'skills') return 'skills.app'
   if (app === 'strava') return 'strava.app'
   if (app === 'terminal') return 'terminal.app'
 
@@ -273,7 +269,6 @@ function getAppWindowIcon(app: AppId) {
   if (app === 'help') return CircleHelp
   if (app === 'issues') return CircleDot
   if (app === 'settings') return MonitorCog
-  if (app === 'skills') return Gauge
   if (app === 'strava') return Activity
   if (app === 'terminal') return Terminal
 
@@ -288,7 +283,6 @@ const appSizeClasses: Partial<Record<AppId, string>> = {
   game: '!w-[min(900px,calc(100vw_-_1.5rem))] !max-h-[min(880px,calc(100svh_-_4.5rem))]',
   github: '!w-[min(920px,calc(100vw_-_1.5rem))]',
   issues: '!w-[min(980px,calc(100vw_-_1.5rem))] !max-h-[min(680px,calc(100svh_-_4.5rem))]',
-  skills: '!w-[min(920px,calc(100vw_-_1.5rem))]',
   strava: '!w-[min(920px,calc(100vw_-_1.5rem))]',
   terminal: '!w-[min(760px,calc(100vw_-_1.5rem))]',
 }
@@ -306,7 +300,6 @@ function getAppWindowClass(app: AppId) {
   if (app === 'help') return `${prefix}bg-os-panel`
   if (app === 'issues') return `${prefix}bg-os-panel`
   if (app === 'settings') return `${prefix}bg-os-panel`
-  if (app === 'skills') return `${prefix}bg-os-panel`
   if (app === 'strava') return `${prefix}border-ink bg-strava-bg`
   if (app === 'terminal') return `${prefix}border-ink bg-[#1F1E1D]`
 

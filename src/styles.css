@@ -923,7 +923,6 @@ pre code {
         home     '#f6c85f'         →  '#D97757'   (coral)
         cv       '#8de5db'         →  '#F4D9CB'   (coral-soft)
         help     '#7bc8ff'         →  '#D8E0CE'   (moss-soft)
-        skills   '#60d7cf'         →  '#D97757'   (coral)
         browser  '#6f7cff'         →  '#D8E0CE'   (moss-soft)
         game     '#f66d44'         →  '#1F1E1D'   (ink — arcade reads better dark)
         github   '#f0f3f6'         →  '#1F1E1D'   (ink chip)
@@ -941,7 +940,6 @@ pre code {
         help:     bg-[rgba(250,252,247,0.94)]  →  bg-os-panel
         issues:   bg-[rgba(248,249,255,0.94)]  →  bg-os-panel
         settings: bg-[rgba(250,252,247,0.94)]  →  bg-os-panel
-        skills:   bg-[rgba(247,252,249,0.94)]  →  bg-os-panel
         strava:   border-strava/45 bg-strava-bg →  border-ink bg-strava-bg  (keep dark)
         terminal: border-[#17383b] bg-[#071416] →  border-ink bg-[#1F1E1D]  (keep dark)
 
