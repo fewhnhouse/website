@@ -103,6 +103,7 @@ function routeAppFromPathname(pathname: string, search: Record<string, unknown>)
   if (pathname === '/home') return { app: 'notes', document: 'home' }
   if (pathname === '/cv') return { app: 'notes', document: 'cv' }
   if (pathname === '/github') return { app: 'github' }
+  if (pathname === '/guestbook') return { app: 'guestbook' }
   if (pathname === '/help') return { app: 'help' }
   if (pathname === '/issues') return { app: 'issues' }
   if (pathname === '/settings') return { app: 'settings' }

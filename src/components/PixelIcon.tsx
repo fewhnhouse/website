@@ -45,6 +45,7 @@ import { Lock as PaLock } from 'pixelarticons/react/Lock'
 import { Mail as PaMail } from 'pixelarticons/react/Mail'
 import { MapPin as PaMapPin } from 'pixelarticons/react/MapPin'
 import { Monitor } from 'pixelarticons/react/Monitor'
+import { Notebook as PaNotebook } from 'pixelarticons/react/Notebook'
 import { Play as PaPlay } from 'pixelarticons/react/Play'
 import { Plus as PaPlus } from 'pixelarticons/react/Plus'
 import { Pointer } from 'pixelarticons/react/Pointer'
@@ -162,6 +163,7 @@ export const Mail = wrap(PaMail, 'Mail')
 export const MapPin = wrap(PaMapPin, 'MapPin')
 export const MapPinned = wrap(PaMapPin, 'MapPinned')
 export const MonitorCog = wrap(Monitor, 'MonitorCog')
+export const Notebook = wrap(PaNotebook, 'Notebook')
 export const MousePointer2 = wrap(Pointer, 'MousePointer2')
 export const Play = wrap(PaPlay, 'Play')
 export const Plus = wrap(PaPlus, 'Plus')

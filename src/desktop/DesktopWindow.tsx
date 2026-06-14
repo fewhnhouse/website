@@ -8,6 +8,7 @@ import {
   Globe2,
   Mail,
   MonitorCog,
+  Notebook,
   Terminal,
 } from '@/components/PixelIcon'
 import { motion } from 'motion/react'
@@ -18,6 +19,7 @@ import { ContactApp } from '@/apps/contact/ContactApp'
 import { RunnerGameApp } from '@/apps/game/RunnerGameApp'
 import { GithubApp } from '@/apps/github/GithubApp'
 import type { GithubData } from '@/apps/github/types'
+import { GuestbookApp } from '@/apps/guestbook/GuestbookApp'
 import { HelpApp } from '@/apps/help/HelpApp'
 import { IssuesApp } from '@/apps/issues/IssuesApp'
 import type { IssuesBoardData, ProjectIssue } from '@/apps/issues/types'
@@ -197,6 +199,7 @@ export function DesktopWindow({
           onRefresh={onGithubRefresh}
         />
       ) : null}
+      {window.app === 'guestbook' ? <GuestbookApp /> : null}
       {window.app === 'help' ? <HelpApp /> : null}
       {window.app === 'settings' ? (
         <SettingsApp
@@ -257,6 +260,7 @@ function getAppWindowTitle(app: AppId) {
   if (app === 'contact') return 'contact.app'
   if (app === 'game') return 'runner.app'
   if (app === 'github') return 'github.app'
+  if (app === 'guestbook') return 'guestbook.app'
   if (app === 'help') return 'help.app'
   if (app === 'issues') return 'issues.app'
   if (app === 'settings') return 'settings.app'
@@ -271,6 +275,7 @@ function getAppWindowIcon(app: AppId) {
   if (app === 'contact') return Mail
   if (app === 'game') return Gamepad2
   if (app === 'github') return Github
+  if (app === 'guestbook') return Notebook
   if (app === 'help') return CircleHelp
   if (app === 'issues') return CircleDot
   if (app === 'settings') return MonitorCog
@@ -303,6 +308,7 @@ function getAppWindowClass(app: AppId) {
   if (app === 'browser') return `${prefix}bg-os-panel`
   if (app === 'contact') return `${prefix}bg-os-panel`
   if (app === 'game') return `${prefix}border-ink bg-[#0A1118]`
+  if (app === 'guestbook') return `${prefix}bg-os-panel`
   if (app === 'help') return `${prefix}bg-os-panel`
   if (app === 'issues') return `${prefix}bg-os-panel`
   if (app === 'settings') return `${prefix}bg-os-panel`

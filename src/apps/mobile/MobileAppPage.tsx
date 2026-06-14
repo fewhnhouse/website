@@ -7,6 +7,7 @@ import { RunnerGameApp } from '@/apps/game/RunnerGameApp'
 import { GithubApp } from '@/apps/github/GithubApp'
 import { getGithubData } from '@/apps/github/githubData'
 import type { GithubData } from '@/apps/github/types'
+import { GuestbookApp } from '@/apps/guestbook/GuestbookApp'
 import { HelpApp } from '@/apps/help/HelpApp'
 import { IssuesApp } from '@/apps/issues/IssuesApp'
 import { getIssuesBoardData } from '@/apps/issues/issuesData'
@@ -153,6 +154,7 @@ export function MobileAppPage({ initialGithubData = null, routeApp }: MobileAppP
           onRefresh={refreshGithub}
         />
       ) : null}
+      {routeApp.app === 'guestbook' ? <GuestbookApp /> : null}
       {routeApp.app === 'help' ? <HelpApp /> : null}
       {routeApp.app === 'issues' ? (
         <IssuesApp
@@ -201,6 +203,7 @@ function routeForApp(app: AppId, document?: NotesDocumentId) {
   if (app === 'game') return '/game'
   if (app === 'notes') return document === 'cv' ? '/cv' : '/home'
   if (app === 'github') return '/github'
+  if (app === 'guestbook') return '/guestbook'
   if (app === 'help') return '/help'
   if (app === 'issues') return '/issues'
   if (app === 'settings') return '/settings'

@@ -167,6 +167,7 @@ export function useDesktopWindows(routeApp: RouteApp) {
     if (window.app === 'game') return '/game'
     if (window.app === 'notes') return window.document === 'cv' ? '/cv' : '/home'
     if (window.app === 'github') return '/github'
+    if (window.app === 'guestbook') return '/guestbook'
     if (window.app === 'help') return '/help'
     if (window.app === 'issues') return '/issues'
     if (window.app === 'settings') return '/settings'

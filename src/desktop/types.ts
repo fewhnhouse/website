@@ -13,6 +13,7 @@ export type AppId =
   | 'contact'
   | 'game'
   | 'github'
+  | 'guestbook'
   | 'help'
   | 'issues'
   | 'notes'

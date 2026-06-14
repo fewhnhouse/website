@@ -8,6 +8,7 @@ import {
   Globe2,
   Mail,
   MonitorCog,
+  Notebook,
   Terminal,
   type PixelIconComponent,
 } from '@/components/PixelIcon'
@@ -119,6 +120,16 @@ export const appCatalog: readonly AppCatalogItem[] = [
     target: { app: 'contact' },
     terminalName: 'contact.app',
     terminalAliases: ['email', 'mail', 'message'],
+  },
+  {
+    id: 'guestbook',
+    title: 'Guestbook',
+    subtitle: 'Leave a note',
+    icon: Notebook,
+    accent: '#5C7A53',
+    target: { app: 'guestbook' },
+    terminalName: 'guestbook.app',
+    terminalAliases: ['guest', 'sign', 'visitors'],
   },
   {
     id: 'strava',
