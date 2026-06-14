@@ -3,8 +3,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { bootStorageKey } from './BootScreen'
 
 type BootSequence = {
-  /** True once the client has mounted — gate rendering on this to avoid SSR hydration mismatches. */
-  ready: boolean
   /** Whether the boot screen should currently be shown. */
   showBoot: boolean
   /** Mark the boot sequence finished and remember it for return visits. */
@@ -14,11 +12,13 @@ type BootSequence = {
 }
 
 export function useBootSequence(): BootSequence {
-  const [ready, setReady] = useState(false)
-  const [showBoot, setShowBoot] = useState(false)
+  // Default to `true` so the overlay is part of the server-rendered HTML and
+  // covers the desktop from the very first paint (no flash of the desktop).
+  // For return visitors a pre-paint inline script (see RootDocument) hides the
+  // overlay before paint via the `data-boot-done` attribute, and the effect
+  // below unmounts it right after hydration.
+  const [showBoot, setShowBoot] = useState(true)
 
-  // Decide whether to boot only on the client, so server and first client
-  // render agree (both render no overlay) and hydration stays clean.
   useEffect(() => {
     let alreadyBooted = false
     try {
@@ -26,8 +26,7 @@ export function useBootSequence(): BootSequence {
     } catch {
       alreadyBooted = false
     }
-    setShowBoot(!alreadyBooted)
-    setReady(true)
+    if (alreadyBooted) setShowBoot(false)
   }, [])
 
   const completeBoot = useCallback(() => {
@@ -45,8 +44,14 @@ export function useBootSequence(): BootSequence {
     } catch {
       // Ignore storage failures.
     }
+    try {
+      // Drop the pre-paint guard so the replayed sequence is actually visible.
+      document.documentElement.removeAttribute('data-boot-done')
+    } catch {
+      // Ignore — attribute may not be present.
+    }
     setShowBoot(true)
   }, [])
 
-  return { ready, showBoot, completeBoot, replayBoot }
+  return { showBoot, completeBoot, replayBoot }
 }

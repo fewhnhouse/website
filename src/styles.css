@@ -267,6 +267,11 @@
 
 html, body, #app { min-height: 100%; }
 
+/* Hide the server-rendered boot overlay before first paint for return
+   visitors. A pre-paint inline script sets data-boot-done from localStorage
+   (see RootDocument); React then unmounts the overlay after hydration. */
+html[data-boot-done="1"] #felixos-boot { display: none !important; }
+
 body {
   margin: 0;
   color: var(--sea-ink);

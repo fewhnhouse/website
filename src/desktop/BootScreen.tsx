@@ -3,19 +3,19 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 export const bootStorageKey = 'felixos.boot.completed'
 
-// BIOS-style log lines that print one after another during boot. Kept short
-// so the whole sequence lands in ~2.5s before fading into the desktop.
+// BIOS-style log lines that print one after another during boot.
 const bootLines = [
   'FelixOS BIOS v2.6 — POST',
   'CPU ........ Wohnhaas Core @ 3.0 GHz',
   'MEM ........ 64K OK',
+  'Detecting peripherals .. ok',
   'Mounting /apps ......... ok',
   'Loading desktop shell .. ok',
   'Starting window manager  ok',
 ] as const
 
-const LINE_INTERVAL_MS = 240
-const PROGRESS_DURATION_MS = bootLines.length * LINE_INTERVAL_MS + 360
+const LINE_INTERVAL_MS = 420
+const PROGRESS_DURATION_MS = bootLines.length * LINE_INTERVAL_MS + 600
 
 type BootScreenProps = {
   onComplete: () => void
@@ -45,7 +45,7 @@ export function BootScreen({ onComplete }: BootScreenProps) {
       window.setTimeout(() => setVisibleLines(index + 1), index * LINE_INTERVAL_MS),
     )
     const progressTimer = window.setTimeout(() => setProgress(100), 60)
-    const finishTimer = window.setTimeout(finish, PROGRESS_DURATION_MS + 200)
+    const finishTimer = window.setTimeout(finish, PROGRESS_DURATION_MS + 500)
 
     return () => {
       lineTimers.forEach(window.clearTimeout)
@@ -69,11 +69,14 @@ export function BootScreen({ onComplete }: BootScreenProps) {
     <AnimatePresence onExitComplete={onComplete}>
       {!finishing ? (
         <motion.div
+          id="felixos-boot"
           className="fixed inset-0 z-[2147483647] flex flex-col items-center justify-center overflow-hidden bg-[#1F1E1D] px-6 text-foam"
-          initial={reduceMotion ? false : { opacity: 0 }}
+          // Start fully opaque (no fade-in) so the desktop is never briefly
+          // visible behind the overlay. Only the exit fades out.
+          initial={false}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.32 }}
+          transition={{ duration: 0.4 }}
           role="dialog"
           aria-label="FelixOS boot sequence"
         >
@@ -93,7 +96,7 @@ export function BootScreen({ onComplete }: BootScreenProps) {
               </p>
             </div>
 
-            <div className="min-h-[7.5rem] font-mono text-caption leading-relaxed text-foam/80 sm:text-meta">
+            <div className="min-h-[8.75rem] font-mono text-caption leading-relaxed text-foam/80 sm:text-meta">
               {bootLines.slice(0, visibleLines).map((line) => (
                 <div key={line} className="flex gap-2">
                   <span className="text-lagoon">{'>'}</span>

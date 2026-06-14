@@ -76,7 +76,7 @@ function RootApp() {
   })
   const routeApp = routeAppFromPathname(pathname, search)
   const isMobileNoteRoute = pathname === '/home' || pathname === '/cv'
-  const { ready, showBoot, completeBoot } = useBootSequence()
+  const { showBoot, completeBoot } = useBootSequence()
 
   if (!routeApp) return <Outlet />
 
@@ -94,7 +94,7 @@ function RootApp() {
           <MobileAppPage initialGithubData={githubData ?? null} routeApp={routeApp} />
         )}
       </div>
-      {ready && showBoot ? <BootScreen onComplete={completeBoot} /> : null}
+      {showBoot ? <BootScreen onComplete={completeBoot} /> : null}
     </>
   )
 }
@@ -128,9 +128,26 @@ function mobileDocumentFromPathname(pathname: string): NotesDocumentId {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="light" data-theme="light" style={{ colorScheme: 'light' }}>
+    <html
+      lang="en"
+      className="light"
+      data-theme="light"
+      style={{ colorScheme: 'light' }}
+      // The pre-paint boot script (in <head>) may set data-boot-done before
+      // hydration; that attribute is intentionally absent from the SSR HTML.
+      suppressHydrationWarning
+    >
       <head>
         <HeadContent />
+        {/* Runs before first paint: hide the SSR'd boot overlay for return
+            visitors so they never see it flash, while new visitors get it
+            immediately (no flash of the desktop). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(localStorage.getItem('felixos.boot.completed')==='1'){document.documentElement.setAttribute('data-boot-done','1')}}catch(e){}",
+          }}
+        />
       </head>
       <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)]">
         {children}
