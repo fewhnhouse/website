@@ -4,9 +4,11 @@ import { lazy, Suspense } from 'react'
 import type { GithubData } from '@/apps/github/types'
 import { MobileAppPage } from '@/apps/mobile/MobileAppPage'
 import { MobileNotesPage } from '@/apps/notes/MobileNotesPage'
+import { BootScreen } from '@/desktop/BootScreen'
 import { Desktop } from '@/desktop/Desktop'
 import type { NotesDocumentId } from '@/desktop/types'
 import type { RouteApp } from '@/desktop/types'
+import { useBootSequence } from '@/desktop/useBootSequence'
 
 import appCss from '../styles.css?url'
 
@@ -74,6 +76,7 @@ function RootApp() {
   })
   const routeApp = routeAppFromPathname(pathname, search)
   const isMobileNoteRoute = pathname === '/home' || pathname === '/cv'
+  const { ready, showBoot, completeBoot } = useBootSequence()
 
   if (!routeApp) return <Outlet />
 
@@ -91,6 +94,7 @@ function RootApp() {
           <MobileAppPage initialGithubData={githubData ?? null} routeApp={routeApp} />
         )}
       </div>
+      {ready && showBoot ? <BootScreen onComplete={completeBoot} /> : null}
     </>
   )
 }
