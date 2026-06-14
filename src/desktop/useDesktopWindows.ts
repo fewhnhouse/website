@@ -5,6 +5,7 @@ import type { PointerEvent } from 'react'
 import { defaultWindow } from './routeState'
 import { windowKey, type AppId, type DesktopSearch, type NotesDocumentId, type RouteApp, type WindowState } from './types'
 import { defaultPlacementForApp, ensureWindowInViewport } from './windowPlacement'
+import { rectForZone, snapZoneFromPointer, type SnapZone } from './windowSnapping'
 
 let rememberedWindows: WindowState[] | null = null
 let rememberedFocusedWindow: string | null = null
@@ -81,9 +82,11 @@ export function useDesktopWindows(routeApp: RouteApp) {
     getRememberedFocusedWindow() ?? (search.minimized ? null : routeWindowKey),
   )
   const [windowExit, setWindowExit] = useState<'close' | 'minimize'>('close')
+  const [snapPreview, setSnapPreview] = useState<SnapZone | null>(null)
   const dragOffset = useRef({ x: 0, y: 0 })
   const dragging = useRef(false)
   const draggingWindow = useRef<string | null>(null)
+  const snapPreviewRef = useRef<SnapZone | null>(null)
   const windowsRef = useRef(windows)
   const focusedWindowRef = useRef(focusedWindow)
   const zCounter = useRef(
@@ -190,6 +193,9 @@ export function useDesktopWindows(routeApp: RouteApp) {
         ...(window.app === 'browser' && window.url ? { url: window.url } : {}),
         x: Math.round(window.x),
         y: Math.round(window.y),
+        ...(window.w !== undefined && window.h !== undefined
+          ? { w: Math.round(window.w), h: Math.round(window.h) }
+          : {}),
       },
     })
   }
@@ -277,32 +283,117 @@ export function useDesktopWindows(routeApp: RouteApp) {
     })
     const targetKey = draggingWindow.current
 
+    // Dragging a tiled window restores it to its default size as it leaves the
+    // snapped region (macOS-style "tear off"). The snap preview decides where
+    // it lands on release.
     const current = windowsRef.current
     const nextWindows = current.map((window) =>
       windowKey(window) === targetKey
         ? {
             ...window,
             ...nextPlacement,
+            w: undefined,
+            h: undefined,
           }
         : window,
     )
 
     commitWindows(nextWindows)
+
+    const nextZone = snapZoneFromPointer(
+      event.clientX,
+      event.clientY,
+      window.innerWidth,
+      window.innerHeight,
+    )
+
+    if (nextZone !== snapPreviewRef.current) {
+      snapPreviewRef.current = nextZone
+      setSnapPreview(nextZone)
+    }
   }
 
   const stopDrag = (event: PointerEvent<HTMLDivElement>) => {
     if (!dragging.current || !draggingWindow.current) return
 
     const targetKey = draggingWindow.current
+    const zone = snapPreviewRef.current
     dragging.current = false
     draggingWindow.current = null
+    snapPreviewRef.current = null
+    setSnapPreview(null)
     event.currentTarget.releasePointerCapture(event.pointerId)
+
+    if (zone) {
+      applySnapZone(targetKey, zone)
+      return
+    }
 
     const movedWindow = windowsRef.current.find((window) => windowKey(window) === targetKey)
 
     if (movedWindow && focusedWindowRef.current === targetKey) {
       persistFocusedWindow(movedWindow)
     }
+  }
+
+  const applySnapZone = (targetKey: string, zone: SnapZone) => {
+    const current = windowsRef.current
+    const existing = current.find((window) => windowKey(window) === targetKey)
+
+    if (!existing || typeof window === 'undefined') return
+
+    const nextZ = zCounter.current++
+    const snapped: WindowState =
+      zone === 'maximize'
+        ? {
+            ...existing,
+            maximized: true,
+            minimized: false,
+            w: undefined,
+            h: undefined,
+            z: nextZ,
+          }
+        : (() => {
+            const rect = rectForZone(zone, window.innerWidth, window.innerHeight)
+            return {
+              ...existing,
+              maximized: false,
+              minimized: false,
+              x: rect.x,
+              y: rect.y,
+              w: rect.w,
+              h: rect.h,
+              z: nextZ,
+            }
+          })()
+
+    commitWindows(current.map((win) => (windowKey(win) === targetKey ? snapped : win)))
+    setFocusedWindow(snapped)
+  }
+
+  const snapFocusedWindow = (zone: SnapZone | 'restore') => {
+    const targetKey = focusedWindowRef.current
+    if (!targetKey) return
+
+    const current = windowsRef.current
+    const existing = current.find((window) => windowKey(window) === targetKey)
+    if (!existing) return
+
+    if (zone === 'restore') {
+      const nextZ = zCounter.current++
+      const restored: WindowState = {
+        ...existing,
+        maximized: false,
+        w: undefined,
+        h: undefined,
+        z: nextZ,
+      }
+      commitWindows(current.map((win) => (windowKey(win) === targetKey ? restored : win)))
+      setFocusedWindow(restored)
+      return
+    }
+
+    applySnapZone(targetKey, zone)
   }
 
   const closeWindow = (target: WindowState) => {
@@ -368,6 +459,8 @@ export function useDesktopWindows(routeApp: RouteApp) {
     minimizeWindow,
     moveWindow,
     openApp,
+    snapFocusedWindow,
+    snapPreview,
     startDrag,
     stopDrag,
     toggleMaximizeWindow,

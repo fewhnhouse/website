@@ -1,34 +1,47 @@
 import type { WindowState } from './types'
 
 export function windowAnimationFor(window: WindowState) {
-  return window.maximized
-    ? {
-        x: 0,
-        y: 42,
-        width: '100vw',
-        height: 'calc(100svh - 130px)',
-        scale: 1,
-        opacity: 1,
-      }
-    : {
-        x: window.x,
-        y: window.y,
-        width:
-          window.app === 'browser' ||
-          window.app === 'github' ||
-          window.app === 'strava'
-            ? 'min(920px, calc(100vw - 1.5rem))'
-            : window.app === 'help' || window.app === 'settings'
-              ? 'min(680px, calc(100vw - 1.5rem))'
-              : window.app === 'issues'
-                ? 'min(980px, calc(100vw - 1.5rem))'
-                : window.app === 'terminal'
-                  ? 'min(760px, calc(100vw - 1.5rem))'
-                  : 'min(720px, calc(100vw - 1.5rem))',
-        height: 'auto',
-        scale: 1,
-        opacity: 1,
-      }
+  if (window.maximized) {
+    return {
+      x: 0,
+      y: 42,
+      width: '100vw',
+      height: 'calc(100svh - 130px)',
+      scale: 1,
+      opacity: 1,
+    }
+  }
+
+  // A snap-tiled window carries an explicit pixel size; render at that exact
+  // rect instead of the app's default width/auto height.
+  if (window.w !== undefined && window.h !== undefined) {
+    return {
+      x: window.x,
+      y: window.y,
+      width: window.w,
+      height: window.h,
+      scale: 1,
+      opacity: 1,
+    }
+  }
+
+  return {
+    x: window.x,
+    y: window.y,
+    width:
+      window.app === 'browser' || window.app === 'github' || window.app === 'strava'
+        ? 'min(920px, calc(100vw - 1.5rem))'
+        : window.app === 'help' || window.app === 'settings'
+          ? 'min(680px, calc(100vw - 1.5rem))'
+          : window.app === 'issues'
+            ? 'min(980px, calc(100vw - 1.5rem))'
+            : window.app === 'terminal'
+              ? 'min(760px, calc(100vw - 1.5rem))'
+              : 'min(720px, calc(100vw - 1.5rem))',
+    height: 'auto',
+    scale: 1,
+    opacity: 1,
+  }
 }
 
 export function windowExitAnimation(window: WindowState, windowExit: 'close' | 'minimize') {

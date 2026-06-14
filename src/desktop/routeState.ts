@@ -8,11 +8,16 @@ export const defaultWindow = {
 } satisfies DesktopSearch
 
 export function desktopSearchValidator(search: Record<string, unknown>): DesktopSearch {
+  const w = parseSize(search.w)
+  const h = parseSize(search.h)
+
   return {
     minimized: search.minimized === true || search.minimized === 'true',
     maximized: search.maximized === true || search.maximized === 'true',
     x: parseCoordinate(search.x, defaultWindow.x),
     y: parseCoordinate(search.y, defaultWindow.y),
+    ...(w !== undefined ? { w } : {}),
+    ...(h !== undefined ? { h } : {}),
   }
 }
 
@@ -32,6 +37,16 @@ function parseCoordinate(value: unknown, fallback: number) {
   const parsed = Number(value)
 
   if (!Number.isFinite(parsed)) return fallback
+
+  return parsed
+}
+
+function parseSize(value: unknown) {
+  if (value === undefined || value === null || value === '') return undefined
+
+  const parsed = Number(value)
+
+  if (!Number.isFinite(parsed) || parsed <= 0) return undefined
 
   return parsed
 }
