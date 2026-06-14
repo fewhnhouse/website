@@ -5,6 +5,7 @@ const dockButtonClass =
   'group relative grid size-dock-icon cursor-pointer appearance-none place-items-center rounded-[14px] border border-os-border bg-white/60 font-[inherit] text-ink transition hover:-translate-y-1 hover:outline-none focus-visible:-translate-y-1 focus-visible:outline-none max-[720px]:size-12'
 
 type DockProps = {
+  openAsk: () => void
   openBrowser: () => void
   openGame: () => void
   openGithub: () => void
@@ -16,6 +17,7 @@ type DockProps = {
 }
 
 export function Dock({
+  openAsk,
   openBrowser,
   openGame,
   openGithub,
@@ -33,6 +35,7 @@ export function Dock({
     >
       {dockApps.map((app) => {
         const Icon = app.icon
+        const isAsk = app.id === 'ask'
         const isBrowser = app.id === 'browser'
         const isGame = app.id === 'game'
         const isNotes = app.id === 'notes'
@@ -54,36 +57,40 @@ export function Dock({
             onClick={
               isNotes
                 ? openHome
-                : isBrowser
-                  ? openBrowser
-                : isGithub
-                  ? openGithub
-                  : isGame
-                    ? openGame
-                    : isIssues
-                      ? openIssues
-                      : isStrava
-                        ? openStrava
-                        : isTerminal
-                          ? openTerminal
-                          : undefined
+                : isAsk
+                  ? openAsk
+                  : isBrowser
+                    ? openBrowser
+                    : isGithub
+                      ? openGithub
+                      : isGame
+                        ? openGame
+                        : isIssues
+                          ? openIssues
+                          : isStrava
+                            ? openStrava
+                            : isTerminal
+                              ? openTerminal
+                              : undefined
             }
             aria-label={
               isNotes
                 ? 'Open notes'
-                : isBrowser
-                  ? 'Open Browser'
-                : isGithub
-                  ? 'Open GitHub'
-                  : isGame
-                    ? 'Open Runner'
-                    : isIssues
-                      ? 'Open Issues'
-                      : isStrava
-                        ? 'Open Strava'
-                        : isTerminal
-                          ? 'Open Terminal'
-                          : 'Open app'
+                : isAsk
+                  ? 'Open Ask Felix'
+                  : isBrowser
+                    ? 'Open Browser'
+                    : isGithub
+                      ? 'Open GitHub'
+                      : isGame
+                        ? 'Open Runner'
+                        : isIssues
+                          ? 'Open Issues'
+                          : isStrava
+                            ? 'Open Strava'
+                            : isTerminal
+                              ? 'Open Terminal'
+                              : 'Open app'
             }
           >
             <Icon aria-hidden="true" size={24} />

@@ -20,8 +20,10 @@ import { Route as GameRouteImport } from './routes/game'
 import { Route as CvRouteImport } from './routes/cv'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BrowserRouteImport } from './routes/browser'
+import { Route as AskRouteImport } from './routes/ask'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiAskRouteImport } from './routes/api.ask'
 import { Route as NotesDocumentPrintRouteImport } from './routes/notes.$document.print'
 import { Route as ApiStravaCallbackRouteImport } from './routes/api.strava.callback'
 import { Route as ApiStravaAuthRouteImport } from './routes/api.strava.auth'
@@ -86,6 +88,11 @@ const BrowserRoute = BrowserRouteImport.update({
   path: '/browser',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AskRoute = AskRouteImport.update({
+  id: '/ask',
+  path: '/ask',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -94,6 +101,11 @@ const AboutRoute = AboutRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAskRoute = ApiAskRouteImport.update({
+  id: '/api/ask',
+  path: '/api/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NotesDocumentPrintRoute = NotesDocumentPrintRouteImport.update({
@@ -140,6 +152,7 @@ const ApiNotesDocumentPdfRoute = ApiNotesDocumentPdfRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/ask': typeof AskRoute
   '/browser': typeof BrowserRoute
   '/contact': typeof ContactRoute
   '/cv': typeof CvRoute
@@ -151,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/strava': typeof StravaRoute
   '/terminal': typeof TerminalRoute
+  '/api/ask': typeof ApiAskRoute
   '/api/github/callback': typeof ApiGithubCallbackRoute
   '/api/github/login': typeof ApiGithubLoginRoute
   '/api/github/logout': typeof ApiGithubLogoutRoute
@@ -163,6 +177,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/ask': typeof AskRoute
   '/browser': typeof BrowserRoute
   '/contact': typeof ContactRoute
   '/cv': typeof CvRoute
@@ -174,6 +189,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/strava': typeof StravaRoute
   '/terminal': typeof TerminalRoute
+  '/api/ask': typeof ApiAskRoute
   '/api/github/callback': typeof ApiGithubCallbackRoute
   '/api/github/login': typeof ApiGithubLoginRoute
   '/api/github/logout': typeof ApiGithubLogoutRoute
@@ -187,6 +203,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/ask': typeof AskRoute
   '/browser': typeof BrowserRoute
   '/contact': typeof ContactRoute
   '/cv': typeof CvRoute
@@ -198,6 +215,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/strava': typeof StravaRoute
   '/terminal': typeof TerminalRoute
+  '/api/ask': typeof ApiAskRoute
   '/api/github/callback': typeof ApiGithubCallbackRoute
   '/api/github/login': typeof ApiGithubLoginRoute
   '/api/github/logout': typeof ApiGithubLogoutRoute
@@ -212,6 +230,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/ask'
     | '/browser'
     | '/contact'
     | '/cv'
@@ -223,6 +242,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/strava'
     | '/terminal'
+    | '/api/ask'
     | '/api/github/callback'
     | '/api/github/login'
     | '/api/github/logout'
@@ -235,6 +255,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/ask'
     | '/browser'
     | '/contact'
     | '/cv'
@@ -246,6 +267,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/strava'
     | '/terminal'
+    | '/api/ask'
     | '/api/github/callback'
     | '/api/github/login'
     | '/api/github/logout'
@@ -258,6 +280,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/ask'
     | '/browser'
     | '/contact'
     | '/cv'
@@ -269,6 +292,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/strava'
     | '/terminal'
+    | '/api/ask'
     | '/api/github/callback'
     | '/api/github/login'
     | '/api/github/logout'
@@ -282,6 +306,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AskRoute: typeof AskRoute
   BrowserRoute: typeof BrowserRoute
   ContactRoute: typeof ContactRoute
   CvRoute: typeof CvRoute
@@ -293,6 +318,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   StravaRoute: typeof StravaRoute
   TerminalRoute: typeof TerminalRoute
+  ApiAskRoute: typeof ApiAskRoute
   ApiGithubCallbackRoute: typeof ApiGithubCallbackRoute
   ApiGithubLoginRoute: typeof ApiGithubLoginRoute
   ApiGithubLogoutRoute: typeof ApiGithubLogoutRoute
@@ -382,6 +408,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrowserRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ask': {
+      id: '/ask'
+      path: '/ask'
+      fullPath: '/ask'
+      preLoaderRoute: typeof AskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -394,6 +427,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ask': {
+      id: '/api/ask'
+      path: '/api/ask'
+      fullPath: '/api/ask'
+      preLoaderRoute: typeof ApiAskRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notes/$document/print': {
@@ -458,6 +498,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AskRoute: AskRoute,
   BrowserRoute: BrowserRoute,
   ContactRoute: ContactRoute,
   CvRoute: CvRoute,
@@ -469,6 +510,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   StravaRoute: StravaRoute,
   TerminalRoute: TerminalRoute,
+  ApiAskRoute: ApiAskRoute,
   ApiGithubCallbackRoute: ApiGithubCallbackRoute,
   ApiGithubLoginRoute: ApiGithubLoginRoute,
   ApiGithubLogoutRoute: ApiGithubLogoutRoute,

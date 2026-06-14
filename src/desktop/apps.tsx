@@ -7,6 +7,7 @@ import {
   Github,
   Globe2,
   Mail,
+  MessageSquare,
   MonitorCog,
   Terminal,
   type PixelIconComponent,
@@ -69,6 +70,16 @@ export const appCatalog: readonly AppCatalogItem[] = [
     terminalName: 'help.app',
     terminalAliases: ['help', 'manual'],
     desktop: false,
+  },
+  {
+    id: 'ask',
+    title: 'Ask Felix',
+    subtitle: 'AI assistant',
+    icon: MessageSquare,
+    accent: '#D97757',
+    target: { app: 'ask' },
+    terminalName: 'ask.app',
+    terminalAliases: ['ask', 'assistant', 'ai', 'chat'],
   },
   {
     id: 'browser',
@@ -168,6 +179,7 @@ export const openableDesktopEntries: OpenableDesktopEntry[] = appCatalog.map((ap
 
 export const dockApps = [
   { id: 'notes', label: 'Notes', icon: FileText },
+  { id: 'ask', label: 'Ask Felix', icon: MessageSquare },
   { id: 'browser', label: 'Browser', icon: Globe2 },
   { id: 'game', label: 'Runner', icon: Gamepad2 },
   { id: 'terminal', label: 'Terminal', icon: Terminal },

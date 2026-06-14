@@ -7,12 +7,14 @@ import {
   Github,
   Globe2,
   Mail,
+  MessageSquare,
   MonitorCog,
   Terminal,
 } from '@/components/PixelIcon'
 import { motion } from 'motion/react'
 import type { PointerEvent, RefObject } from 'react'
 
+import { AskApp } from '@/apps/ask/AskApp'
 import { BrowserApp } from '@/apps/browser/BrowserApp'
 import { ContactApp } from '@/apps/contact/ContactApp'
 import { RunnerGameApp } from '@/apps/game/RunnerGameApp'
@@ -177,6 +179,7 @@ export function DesktopWindow({
         <span aria-hidden="true" className="justify-self-end" />
       </div>
 
+      {window.app === 'ask' ? <AskApp onOpenApp={onOpenApp} /> : null}
       {window.app === 'browser' ? <BrowserApp initialUrl={window.url} /> : null}
       {window.app === 'contact' ? <ContactApp /> : null}
       {window.app === 'game' ? <RunnerGameApp /> : null}
@@ -253,6 +256,7 @@ function TrafficButton({
 }
 
 function getAppWindowTitle(app: AppId) {
+  if (app === 'ask') return 'ask.app'
   if (app === 'browser') return 'browser.app'
   if (app === 'contact') return 'contact.app'
   if (app === 'game') return 'runner.app'
@@ -267,6 +271,7 @@ function getAppWindowTitle(app: AppId) {
 }
 
 function getAppWindowIcon(app: AppId) {
+  if (app === 'ask') return MessageSquare
   if (app === 'browser') return Globe2
   if (app === 'contact') return Mail
   if (app === 'game') return Gamepad2
@@ -299,6 +304,7 @@ function getAppWindowSizeClass(app: AppId) {
 function getAppWindowClass(app: AppId) {
   const sizeClass = getAppWindowSizeClass(app)
   const prefix = sizeClass ? `${sizeClass} ` : ''
+  if (app === 'ask') return `${prefix}bg-os-panel`
   if (app === 'github') return `${prefix}bg-os-panel`
   if (app === 'browser') return `${prefix}bg-os-panel`
   if (app === 'contact') return `${prefix}bg-os-panel`
