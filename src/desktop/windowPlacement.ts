@@ -10,6 +10,7 @@ export const appSizes = {
   contact: { width: 720, height: 600 },
   game: { width: 900, height: 880 },
   github: { width: 920, height: 640 },
+  guestbook: { width: 720, height: 700 },
   help: { width: 680, height: 560 },
   issues: { width: 980, height: 680 },
   notes: { width: 720, height: 620 },

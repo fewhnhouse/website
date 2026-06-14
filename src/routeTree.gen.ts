@@ -15,6 +15,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as IssuesRouteImport } from './routes/issues'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as HelpRouteImport } from './routes/help'
+import { Route as GuestbookRouteImport } from './routes/guestbook'
 import { Route as GithubRouteImport } from './routes/github'
 import { Route as GameRouteImport } from './routes/game'
 import { Route as CvRouteImport } from './routes/cv'
@@ -26,6 +27,7 @@ import { Route as NotesDocumentPrintRouteImport } from './routes/notes.$document
 import { Route as ApiStravaCallbackRouteImport } from './routes/api.strava.callback'
 import { Route as ApiStravaAuthRouteImport } from './routes/api.strava.auth'
 import { Route as ApiRunnerScoresRouteImport } from './routes/api.runner.scores'
+import { Route as ApiGuestbookEntriesRouteImport } from './routes/api.guestbook.entries'
 import { Route as ApiGithubLogoutRouteImport } from './routes/api.github.logout'
 import { Route as ApiGithubLoginRouteImport } from './routes/api.github.login'
 import { Route as ApiGithubCallbackRouteImport } from './routes/api.github.callback'
@@ -59,6 +61,11 @@ const HomeRoute = HomeRouteImport.update({
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuestbookRoute = GuestbookRouteImport.update({
+  id: '/guestbook',
+  path: '/guestbook',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GithubRoute = GithubRouteImport.update({
@@ -116,6 +123,11 @@ const ApiRunnerScoresRoute = ApiRunnerScoresRouteImport.update({
   path: '/api/runner/scores',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGuestbookEntriesRoute = ApiGuestbookEntriesRouteImport.update({
+  id: '/api/guestbook/entries',
+  path: '/api/guestbook/entries',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGithubLogoutRoute = ApiGithubLogoutRouteImport.update({
   id: '/api/github/logout',
   path: '/api/github/logout',
@@ -145,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/cv': typeof CvRoute
   '/game': typeof GameRoute
   '/github': typeof GithubRoute
+  '/guestbook': typeof GuestbookRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/issues': typeof IssuesRoute
@@ -154,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/api/github/callback': typeof ApiGithubCallbackRoute
   '/api/github/login': typeof ApiGithubLoginRoute
   '/api/github/logout': typeof ApiGithubLogoutRoute
+  '/api/guestbook/entries': typeof ApiGuestbookEntriesRoute
   '/api/runner/scores': typeof ApiRunnerScoresRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
@@ -168,6 +182,7 @@ export interface FileRoutesByTo {
   '/cv': typeof CvRoute
   '/game': typeof GameRoute
   '/github': typeof GithubRoute
+  '/guestbook': typeof GuestbookRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/issues': typeof IssuesRoute
@@ -177,6 +192,7 @@ export interface FileRoutesByTo {
   '/api/github/callback': typeof ApiGithubCallbackRoute
   '/api/github/login': typeof ApiGithubLoginRoute
   '/api/github/logout': typeof ApiGithubLogoutRoute
+  '/api/guestbook/entries': typeof ApiGuestbookEntriesRoute
   '/api/runner/scores': typeof ApiRunnerScoresRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
@@ -192,6 +208,7 @@ export interface FileRoutesById {
   '/cv': typeof CvRoute
   '/game': typeof GameRoute
   '/github': typeof GithubRoute
+  '/guestbook': typeof GuestbookRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/issues': typeof IssuesRoute
@@ -201,6 +218,7 @@ export interface FileRoutesById {
   '/api/github/callback': typeof ApiGithubCallbackRoute
   '/api/github/login': typeof ApiGithubLoginRoute
   '/api/github/logout': typeof ApiGithubLogoutRoute
+  '/api/guestbook/entries': typeof ApiGuestbookEntriesRoute
   '/api/runner/scores': typeof ApiRunnerScoresRoute
   '/api/strava/auth': typeof ApiStravaAuthRoute
   '/api/strava/callback': typeof ApiStravaCallbackRoute
@@ -217,6 +235,7 @@ export interface FileRouteTypes {
     | '/cv'
     | '/game'
     | '/github'
+    | '/guestbook'
     | '/help'
     | '/home'
     | '/issues'
@@ -226,6 +245,7 @@ export interface FileRouteTypes {
     | '/api/github/callback'
     | '/api/github/login'
     | '/api/github/logout'
+    | '/api/guestbook/entries'
     | '/api/runner/scores'
     | '/api/strava/auth'
     | '/api/strava/callback'
@@ -240,6 +260,7 @@ export interface FileRouteTypes {
     | '/cv'
     | '/game'
     | '/github'
+    | '/guestbook'
     | '/help'
     | '/home'
     | '/issues'
@@ -249,6 +270,7 @@ export interface FileRouteTypes {
     | '/api/github/callback'
     | '/api/github/login'
     | '/api/github/logout'
+    | '/api/guestbook/entries'
     | '/api/runner/scores'
     | '/api/strava/auth'
     | '/api/strava/callback'
@@ -263,6 +285,7 @@ export interface FileRouteTypes {
     | '/cv'
     | '/game'
     | '/github'
+    | '/guestbook'
     | '/help'
     | '/home'
     | '/issues'
@@ -272,6 +295,7 @@ export interface FileRouteTypes {
     | '/api/github/callback'
     | '/api/github/login'
     | '/api/github/logout'
+    | '/api/guestbook/entries'
     | '/api/runner/scores'
     | '/api/strava/auth'
     | '/api/strava/callback'
@@ -287,6 +311,7 @@ export interface RootRouteChildren {
   CvRoute: typeof CvRoute
   GameRoute: typeof GameRoute
   GithubRoute: typeof GithubRoute
+  GuestbookRoute: typeof GuestbookRoute
   HelpRoute: typeof HelpRoute
   HomeRoute: typeof HomeRoute
   IssuesRoute: typeof IssuesRoute
@@ -296,6 +321,7 @@ export interface RootRouteChildren {
   ApiGithubCallbackRoute: typeof ApiGithubCallbackRoute
   ApiGithubLoginRoute: typeof ApiGithubLoginRoute
   ApiGithubLogoutRoute: typeof ApiGithubLogoutRoute
+  ApiGuestbookEntriesRoute: typeof ApiGuestbookEntriesRoute
   ApiRunnerScoresRoute: typeof ApiRunnerScoresRoute
   ApiStravaAuthRoute: typeof ApiStravaAuthRoute
   ApiStravaCallbackRoute: typeof ApiStravaCallbackRoute
@@ -345,6 +371,13 @@ declare module '@tanstack/react-router' {
       path: '/help'
       fullPath: '/help'
       preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guestbook': {
+      id: '/guestbook'
+      path: '/guestbook'
+      fullPath: '/guestbook'
+      preLoaderRoute: typeof GuestbookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/github': {
@@ -424,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRunnerScoresRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/guestbook/entries': {
+      id: '/api/guestbook/entries'
+      path: '/api/guestbook/entries'
+      fullPath: '/api/guestbook/entries'
+      preLoaderRoute: typeof ApiGuestbookEntriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/github/logout': {
       id: '/api/github/logout'
       path: '/api/github/logout'
@@ -463,6 +503,7 @@ const rootRouteChildren: RootRouteChildren = {
   CvRoute: CvRoute,
   GameRoute: GameRoute,
   GithubRoute: GithubRoute,
+  GuestbookRoute: GuestbookRoute,
   HelpRoute: HelpRoute,
   HomeRoute: HomeRoute,
   IssuesRoute: IssuesRoute,
@@ -472,6 +513,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGithubCallbackRoute: ApiGithubCallbackRoute,
   ApiGithubLoginRoute: ApiGithubLoginRoute,
   ApiGithubLogoutRoute: ApiGithubLogoutRoute,
+  ApiGuestbookEntriesRoute: ApiGuestbookEntriesRoute,
   ApiRunnerScoresRoute: ApiRunnerScoresRoute,
   ApiStravaAuthRoute: ApiStravaAuthRoute,
   ApiStravaCallbackRoute: ApiStravaCallbackRoute,
