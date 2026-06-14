@@ -33,6 +33,9 @@ import { Dock } from './Dock'
 import { ScreensaverOverlay } from './ScreensaverOverlay'
 import { windowKey, type AppId, type NotesDocumentId, type RouteApp } from './types'
 import { useDesktopWindows } from './useDesktopWindows'
+import { SnapPreviewOverlay } from './SnapPreviewOverlay'
+import { snapZoneFromArrow } from './windowSnapping'
+import { DesktopWidgets } from './widgets/DesktopWidgets'
 
 type DesktopProps = {
   initialGithubData?: GithubData | null
@@ -47,6 +50,8 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
     minimizeWindow,
     moveWindow,
     openApp,
+    snapFocusedWindow,
+    snapPreview,
     startDrag,
     stopDrag,
     toggleMaximizeWindow,
@@ -110,6 +115,22 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
     window.addEventListener('keydown', toggleCommand)
     return () => window.removeEventListener('keydown', toggleCommand)
   }, [])
+
+  useEffect(() => {
+    const handleSnap = (event: globalThis.KeyboardEvent) => {
+      if ((!event.metaKey && !event.ctrlKey) || !event.key.startsWith('Arrow')) return
+      if (!focusedWindow) return
+
+      const zone = snapZoneFromArrow(event.key, event.shiftKey)
+      if (!zone) return
+
+      event.preventDefault()
+      snapFocusedWindow(zone)
+    }
+
+    window.addEventListener('keydown', handleSnap)
+    return () => window.removeEventListener('keydown', handleSnap)
+  }, [focusedWindow, snapFocusedWindow])
 
   useEffect(() => {
     setDesktopSettings(parseDesktopSettings(window.localStorage.getItem(desktopStorageKey)))
@@ -363,6 +384,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
           backgroundSize: '16px 16px',
         }}
       />
+      <DesktopWidgets />
       <DesktopTopBar
         commandOpen={commandOpen}
         onOpenBrowser={openBrowser}
@@ -378,6 +400,10 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
       <DesktopShortcuts
         onOpenTarget={openCommandTarget}
       />
+
+      <AnimatePresence>
+        {snapPreview ? <SnapPreviewOverlay zone={snapPreview} /> : null}
+      </AnimatePresence>
 
       <AnimatePresence>
         {commandOpen ? (

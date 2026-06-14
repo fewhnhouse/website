@@ -3,6 +3,10 @@ export type DesktopSearch = {
   maximized: boolean
   x: number
   y: number
+  // Pixel size of a snap-tiled window. Absent when the window uses its
+  // default app-driven size (the common case).
+  w?: number
+  h?: number
   url?: string
 }
 

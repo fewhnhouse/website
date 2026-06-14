@@ -118,7 +118,7 @@ export function DesktopWindow({
   return (
     <motion.section
       layout
-      className={`${windowBaseClass} ${window.maximized ? 'os-window--maximized' : ''} ${getAppWindowClass(window.app)} ${
+      className={`${windowBaseClass} ${window.maximized ? 'os-window--maximized' : ''} ${getAppWindowClass(window.app, window.w !== undefined && window.h !== undefined)} ${
         window.maximized ? maximizedWindowClass : ''
       }`}
       style={{ zIndex: window.z }}
@@ -301,9 +301,12 @@ function getAppWindowSizeClass(app: AppId) {
   return appSizeClasses[app] ?? ''
 }
 
-function getAppWindowClass(app: AppId) {
-  const sizeClass = getAppWindowSizeClass(app)
-  const prefix = sizeClass ? `${sizeClass} ` : ''
+// `tiled` windows carry an explicit pixel size that motion applies inline.
+// The per-app `!w-[...]` overrides use `!important` and would win over that
+// inline width, so we drop them while a window is snap-tiled.
+function getAppWindowClass(app: AppId, tiled: boolean) {
+  const sizeClass = tiled ? '' : getAppWindowSizeClass(app)
+  const prefix = `${tiled ? 'max-h-none ' : ''}${sizeClass ? `${sizeClass} ` : ''}`
   if (app === 'github') return `${prefix}bg-os-panel`
   if (app === 'browser') return `${prefix}bg-os-panel`
   if (app === 'contact') return `${prefix}bg-os-panel`
