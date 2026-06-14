@@ -163,6 +163,31 @@ export function useDesktopWindows(routeApp: RouteApp) {
     search.y,
   ])
 
+  // On a fresh desktop load at the root (no window in the URL, nothing
+  // remembered this session), open home.mdx by default — mirroring the mobile
+  // view, which shows home at "/". Mount-only so it never re-fires when the
+  // user later returns to "/" by closing their last window (which would make
+  // the home window impossible to close). Client-only via the isomorphic
+  // layout effect, so SSR renders an empty desktop and hydration matches; the
+  // URL is intentionally left as "/".
+  const didOpenDefaultHome = useRef(false)
+  useIsomorphicLayoutEffect(() => {
+    if (didOpenDefaultHome.current) return
+    didOpenDefaultHome.current = true
+    if (routeApp !== 'none' || windowsRef.current.length > 0) return
+
+    const homeWindow: WindowState = {
+      ...defaultWindow,
+      ...defaultPlacementForApp('notes'),
+      app: 'notes',
+      document: 'home',
+      z: zCounter.current++,
+    }
+    commitWindows([homeWindow])
+    commitFocusedWindow(windowKey({ app: 'notes', document: 'home' }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const routeForWindow = (window: WindowState | undefined) => {
     if (!window) return '/'
     if (window.app === 'ask') return '/ask'
