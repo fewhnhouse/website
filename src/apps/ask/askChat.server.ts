@@ -1,6 +1,6 @@
-import { anthropic } from '@ai-sdk/anthropic'
 import {
   convertToModelMessages,
+  gateway,
   stepCountIs,
   streamText,
   tool,
@@ -13,14 +13,17 @@ import homeMarkdown from '@/apps/notes/home.mdx?raw'
 
 import { ASK_LIMITS, isOpenableAppId, OPENABLE_APP_IDS } from './askConfig'
 
-const MODEL_ID = 'claude-haiku-4-5-20251001'
+// Routed through the Vercel AI Gateway (slug format: "creator/model").
+const MODEL_ID = 'anthropic/claude-haiku-4.5'
 
 export function isAskEnabled(): boolean {
   return process.env.ASK_FELIX_ENABLED !== 'false'
 }
 
-export function hasApiKey(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY)
+export function isAskConfigured(): boolean {
+  // The AI Gateway authenticates with AI_GATEWAY_API_KEY, or automatically
+  // via OIDC when the app is deployed on Vercel.
+  return Boolean(process.env.AI_GATEWAY_API_KEY || process.env.VERCEL)
 }
 
 function buildSystemPrompt(): string {
@@ -69,7 +72,7 @@ export async function streamAskResponse(messages: UIMessage[]): Promise<Response
   const recent = messages.slice(-ASK_LIMITS.maxHistoryMessages)
 
   const result = streamText({
-    model: anthropic(MODEL_ID),
+    model: gateway(MODEL_ID),
     system: buildSystemPrompt(),
     messages: await convertToModelMessages(recent),
     maxOutputTokens: ASK_LIMITS.maxOutputTokens,

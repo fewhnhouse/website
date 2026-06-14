@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import type { UIMessage } from 'ai'
 
 import { ASK_LIMITS } from '@/apps/ask/askConfig'
-import { hasApiKey, isAskEnabled, streamAskResponse } from '@/apps/ask/askChat.server'
+import { isAskConfigured, isAskEnabled, streamAskResponse } from '@/apps/ask/askChat.server'
 import { checkRateLimit, clientIpFromHeaders } from '@/apps/ask/rateLimit.server'
 
 function jsonError(message: string, status: number, extraHeaders?: HeadersInit) {
@@ -28,7 +28,7 @@ export const Route = createFileRoute('/api/ask')({
           )
         }
 
-        if (!hasApiKey()) {
+        if (!isAskConfigured()) {
           return jsonError(
             "The assistant isn't configured yet. Try the desktop apps, or reach Felix via the Contact app.",
             503,
