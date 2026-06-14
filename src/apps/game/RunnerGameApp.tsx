@@ -37,16 +37,9 @@ type GameModel = {
   velocityY: number
 }
 
-type SpriteKey = 'otter'
+type SpriteKey = 'idle' | 'run1' | 'run2' | 'run3' | 'run4' | 'jump' | 'duck'
 
 type SpriteAssets = Partial<Record<SpriteKey, HTMLImageElement>>
-
-type SpriteFrame = {
-  height: number
-  width: number
-  x: number
-  y: number
-}
 
 const canvasWidth = 900
 const canvasHeight = 360
@@ -60,8 +53,16 @@ const jumpVelocity = -860
 const scoresEndpoint = '/api/runner/scores'
 const initialGroundY = 300
 const spriteSources = {
-  otter: '/spritesheet.webp',
+  idle: '/game/pet-idle.png',
+  run1: '/game/pet-run-1.png',
+  run2: '/game/pet-run-2.png',
+  run3: '/game/pet-run-3.png',
+  run4: '/game/pet-run-4.png',
+  jump: '/game/pet-jump.png',
+  duck: '/game/pet-duck.png',
 } satisfies Record<SpriteKey, string>
+
+const runCycle: SpriteKey[] = ['run1', 'run2', 'run3', 'run4']
 
 // Canvas palette — mirrors the design-system tokens in src/styles.css (canvas
 // can't read CSS vars per-frame cheaply, so keep these in sync by value).
@@ -77,32 +78,73 @@ const palette = {
   gold: '#C68A1E',
   danger: '#B5453C',
 } as const
-// The otter spritesheet is a clean 8 columns × 9 rows grid of 192 × 208 cells.
-const spriteCellWidth = 192
-const spriteCellHeight = 208
-const spriteCell = (col: number, row: number): SpriteFrame => ({
-  x: col * spriteCellWidth,
-  y: row * spriteCellHeight,
-  width: spriteCellWidth,
-  height: spriteCellHeight,
-})
+// Player sprite ("Byte" pet): individual transparent frames. Each is drawn
+// anchored by its content's feet to the ground and scaled by one shared factor,
+// so uneven padding in the source art never makes the bot jitter or float, and
+// the duck frame stays naturally short.
+const PLAYER_STANDING_PX = 92 // on-screen height of the standing bot
 
-const otterIdleFrames: SpriteFrame[] = [spriteCell(0, 0), spriteCell(1, 0)]
-const otterRunFrames: SpriteFrame[] = [
-  spriteCell(0, 1),
-  spriteCell(1, 1),
-  spriteCell(2, 1),
-  spriteCell(3, 1),
-  spriteCell(4, 1),
-  spriteCell(5, 1),
-  spriteCell(6, 1),
-  spriteCell(7, 1),
-]
-// Row 3 has the "arms raised" otters — sells the jump pose much better.
-const otterJumpFrame = spriteCell(0, 3)
-// No real crouch art exists in the sheet, so we reuse the calm sitting otter
-// and squash it on the draw call to get a low/ducking silhouette.
-const otterCrouchFrame = spriteCell(0, 0)
+type ContentBox = { x: number; y: number; width: number; height: number }
+const contentBoxCache = new WeakMap<HTMLImageElement, ContentBox>()
+let playerScaleCache: number | null = null
+
+// Tight bounding box of the non-transparent pixels (trims padding). Computed
+// once per image via an offscreen canvas, then cached.
+function getContentBox(image: HTMLImageElement): ContentBox {
+  const cached = contentBoxCache.get(image)
+  if (cached) return cached
+
+  const full: ContentBox = { x: 0, y: 0, width: image.naturalWidth, height: image.naturalHeight }
+  const canvas = document.createElement('canvas')
+  canvas.width = image.naturalWidth
+  canvas.height = image.naturalHeight
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  if (!ctx) return full
+
+  ctx.drawImage(image, 0, 0)
+  let pixels: Uint8ClampedArray
+  try {
+    pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data
+  } catch {
+    return full
+  }
+
+  let minX = canvas.width
+  let minY = canvas.height
+  let maxX = -1
+  let maxY = -1
+  for (let y = 0; y < canvas.height; y += 1) {
+    for (let x = 0; x < canvas.width; x += 1) {
+      if (pixels[(y * canvas.width + x) * 4 + 3] > 16) {
+        if (x < minX) minX = x
+        if (x > maxX) maxX = x
+        if (y < minY) minY = y
+        if (y > maxY) maxY = y
+      }
+    }
+  }
+
+  if (maxX < minX || maxY < minY) return full
+  const box: ContentBox = { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 }
+  contentBoxCache.set(image, box)
+  return box
+}
+
+// One shared scale derived from the idle frame, so every pose renders at a
+// consistent size (duck/jump keep their relative proportions).
+function getPlayerScale(sprites: SpriteAssets): number {
+  if (playerScaleCache != null) return playerScaleCache
+  const reference = sprites.idle
+  if (reference?.complete && reference.naturalWidth > 0) {
+    const box = getContentBox(reference)
+    if (box.height > 0) {
+      playerScaleCache = PLAYER_STANDING_PX / box.height
+      return playerScaleCache
+    }
+  }
+  return PLAYER_STANDING_PX / 230 // fallback until the idle frame loads
+}
+
 const jumpAirTime = Math.abs((2 * jumpVelocity) / gravity)
 
 function createGame(): GameModel {
@@ -1027,30 +1069,37 @@ function drawPlayer(
   const bob =
     runnerState === 'running' && model.velocityY === 0 ? Math.sin(model.distance / 24) * 2 : 0
   const y = model.playerY + bob
-  const otter = sprites.otter
+  const image = sprites[getPlayerFrameKey(model, runnerState)]
 
-  if (otter?.complete && otter.naturalWidth > 0) {
-    const frame = getOtterFrame(model, runnerState)
-    const crouching = isPlayerCrouching(model, runnerState)
-
-    // Draw size: anchor the sprite by its feet to the bottom of the hit box.
-    // Standing keeps the source aspect ratio so the otter never compresses
-    // (the previous code stretched a 192×208 frame into a 100×104 box).
-    // Crouch is an intentional horizontal squash so the silhouette clearly
-    // sits below incoming birds.
-    const aspect = frame.width / frame.height
-    const drawHeight = crouching ? 44 : 96
-    const drawWidth = crouching ? 68 : drawHeight * aspect
+  if (image?.complete && image.naturalWidth > 0) {
+    // Anchor the frame's trimmed content by its feet to the hit-box bottom and
+    // scale by one shared factor. Padding differences and the short duck frame
+    // are handled automatically — no per-pose squashing needed.
+    const box = getContentBox(image)
+    const scale = getPlayerScale(sprites)
+    const drawWidth = box.width * scale
+    const drawHeight = box.height * scale
     const playerCenterX = player.x + player.width / 2
     const playerFeetY = y + player.height
     const drawX = playerCenterX - drawWidth / 2
     const drawY = playerFeetY - drawHeight
 
-    context.imageSmoothingEnabled = false
-    context.drawImage(otter, frame.x, frame.y, frame.width, frame.height, drawX, drawY, drawWidth, drawHeight)
+    context.imageSmoothingEnabled = true
+    context.drawImage(
+      image,
+      box.x,
+      box.y,
+      box.width,
+      box.height,
+      drawX,
+      drawY,
+      drawWidth,
+      drawHeight,
+    )
     return
   }
 
+  // Fallback while the frames are still loading.
   context.fillStyle = palette.violetSoft
   context.fillRect(player.x, y, player.width, player.height)
   context.fillStyle = palette.ink
@@ -1060,18 +1109,14 @@ function drawPlayer(
   context.fillRect(player.x + 22, y + player.height - 8, 9, 8)
 }
 
-function getOtterFrame(model: GameModel, runnerState: RunnerState) {
+function getPlayerFrameKey(model: GameModel, runnerState: RunnerState): SpriteKey {
   const onGround = model.playerY >= model.groundY - player.height - 0.5
 
-  if (isPlayerCrouching(model, runnerState)) return otterCrouchFrame
+  if (isPlayerCrouching(model, runnerState)) return 'duck'
+  if (!onGround) return 'jump'
+  if (runnerState !== 'running') return 'idle'
 
-  if (!onGround) return otterJumpFrame
-
-  if (runnerState !== 'running') {
-    return otterIdleFrames[Math.floor(Date.now() / 260) % otterIdleFrames.length]
-  }
-
-  return otterRunFrames[Math.floor(model.distance / 42) % otterRunFrames.length]
+  return runCycle[Math.floor(model.distance / 42) % runCycle.length]
 }
 
 function isPlayerCrouching(model: GameModel, runnerState: RunnerState) {
