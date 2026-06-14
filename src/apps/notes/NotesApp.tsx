@@ -31,7 +31,7 @@ const documentClass =
 const fallbackClass =
   `m-0 h-full overflow-auto whitespace-pre-wrap px-6 pt-5 pb-6 font-mono text-[0.84rem] leading-relaxed text-os-ink ${osScrollClass} max-[720px]:p-4`
 const notesPathChipClass =
-  'box-border inline-flex h-8 min-w-0 items-center border-2 border-ink bg-foam px-2.5 py-0 font-mono text-[0.72rem] font-black leading-none text-ink shadow-[inset_2px_2px_0_0_rgba(31,30,29,0.08)]'
+  'box-border inline-flex h-8 min-w-0 items-center border-2 border-ink bg-foam px-2.5 py-0 font-mono text-[0.72rem] font-black leading-none text-ink shadow-inset'
 
 export function NotesApp({
   document,

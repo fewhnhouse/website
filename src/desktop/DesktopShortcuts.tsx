@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 
+import { accentForeground } from './accent'
 import { desktopApps } from './apps'
 import type { AppId, NotesDocumentId } from './types'
 
@@ -48,7 +49,7 @@ export function DesktopShortcuts({ onOpenTarget }: DesktopShortcutsProps) {
               style={
                 {
                   backgroundColor: app.accent,
-                  color: isDarkAccent(app.accent) ? '#FAF9F5' : '#1F1E1D',
+                  color: accentForeground(app.accent),
                 } as CSSProperties
               }
             >
@@ -63,10 +64,4 @@ export function DesktopShortcuts({ onOpenTarget }: DesktopShortcutsProps) {
       })}
     </section>
   )
-}
-
-// Tiles use a per-app accent fill; flip the icon to cream on dark accents
-// (ink / terminal) so the silhouette stays readable.
-function isDarkAccent(accent: string) {
-  return accent.toLowerCase() === '#1f1e1d' || accent.toLowerCase() === '#14262d'
 }

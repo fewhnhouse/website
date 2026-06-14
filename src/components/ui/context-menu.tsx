@@ -24,7 +24,7 @@ function ContextMenuContent({
       <ContextMenuPrimitive.Content
         data-slot="context-menu-content"
         className={cn(
-          'z-[2147483647] min-w-52 overflow-hidden rounded-card border border-os-border-strong bg-[rgba(250,252,247,0.96)] p-1.5 text-window text-os-ink shadow-window backdrop-blur-[22px]',
+          'z-[2147483647] min-w-52 overflow-hidden rounded-card border border-os-border-strong bg-os-panel p-1.5 text-window text-os-ink shadow-window',
           'data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[side=bottom]:slide-in-from-top-1 data-[side=left]:slide-in-from-right-1 data-[side=right]:slide-in-from-left-1 data-[side=top]:slide-in-from-bottom-1',
           className,
         )}

@@ -147,7 +147,7 @@ export const appCatalog: readonly AppCatalogItem[] = [
     title: 'Strava',
     subtitle: 'Live efforts',
     icon: Activity,
-    accent: 'var(--color-strava)',
+    accent: '#4B37D6',
     target: { app: 'strava' },
     terminalName: 'strava.app',
     terminalAliases: ['rides'],

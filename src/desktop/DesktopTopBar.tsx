@@ -125,7 +125,7 @@ export function DesktopTopBar({
       </div>
       <button
         type="button"
-        className="flex min-h-8 w-full min-w-0 cursor-pointer appearance-none items-center justify-center gap-2 justify-self-center border-2 border-ink bg-foam px-3 font-mono text-[0.78rem] font-bold text-ink-soft transition-colors hover:bg-link-hover-bg [box-shadow:inset_2px_2px_0_0_rgba(31,30,29,0.08)] focus-visible:outline-none focus-visible:[box-shadow:inset_0_0_0_2px_var(--lagoon)] max-[640px]:hidden"
+        className="flex min-h-8 w-full min-w-0 cursor-pointer appearance-none items-center justify-center gap-2 justify-self-center border-2 border-ink bg-foam px-3 font-mono text-[0.78rem] font-bold text-ink-soft transition-colors hover:bg-link-hover-bg shadow-inset focus-visible:outline-none focus-visible:[box-shadow:inset_0_0_0_2px_var(--lagoon)] max-[640px]:hidden"
         onClick={onOpenCommand}
         aria-label="Search Felix's computer"
         aria-haspopup="dialog"

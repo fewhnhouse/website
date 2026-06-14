@@ -14,12 +14,9 @@ import {
   CommandShortcut,
 } from '@/components/ui/command'
 
+import { accentForeground } from './accent'
 import { fuzzyMatch } from './fuzzy'
 import { buildPaletteItems, type PaletteAction, type PaletteCategory, type PaletteItem } from './paletteItems'
-
-function isDarkAccent(accent: string) {
-  return accent.toLowerCase() === '#1f1e1d' || accent.toLowerCase() === '#14262d'
-}
 
 const categoryOrder: PaletteCategory[] = ['app', 'section', 'repo']
 const categoryHeading: Record<PaletteCategory, string> = {
@@ -163,7 +160,7 @@ export function CommandPalette({
                         style={
                           {
                             backgroundColor: item.accent,
-                            color: isDarkAccent(item.accent) ? '#FAF9F5' : '#1F1E1D',
+                            color: accentForeground(item.accent),
                           } as CSSProperties
                         }
                       >

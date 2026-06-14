@@ -1,7 +1,7 @@
 export const desktopStorageKey = 'felixos.desktop.settings'
 export const desktopSettingsVersion = 1
 
-// Pixel-mode wallpapers — flat cream canvas + 16px pixel grid. Each option
+// Pixel-mode wallpapers — flat bone canvas + 16px pixel grid. Each option
 // just tints the grid line color and (optionally) the canvas, keeping the
 // stamped graph-paper look from the design handoff. No more glass gradients.
 const PIXEL_GRID_16 = (color: string) =>
@@ -11,41 +11,41 @@ export const wallpaperOptions = [
   {
     id: 'paper',
     name: 'Paper',
-    shell: '#F0EEE6',
+    shell: '#ECE9DD',
     wallpaper: PIXEL_GRID_16('rgba(31, 30, 29, 0.13)'),
     desktopIcon: '#1F1E1D',
     desktopIconSoft: 'rgba(31, 30, 29, 0.56)',
     desktopTileIcon: '#1F1E1D',
-    desktopTile: '#FAF9F5',
+    desktopTile: '#F6F4EC',
   },
   {
-    id: 'coral-tint',
-    name: 'Coral Tint',
-    shell: '#F4E8DF',
-    wallpaper: PIXEL_GRID_16('rgba(188, 90, 60, 0.18)'),
+    id: 'violet',
+    name: 'Violet',
+    shell: '#EBE7F4',
+    wallpaper: PIXEL_GRID_16('rgba(75, 55, 214, 0.16)'),
     desktopIcon: '#1F1E1D',
     desktopIconSoft: 'rgba(31, 30, 29, 0.56)',
     desktopTileIcon: '#1F1E1D',
-    desktopTile: '#FAF9F5',
+    desktopTile: '#F6F4EC',
   },
   {
-    id: 'moss',
-    name: 'Moss',
-    shell: '#E8EBE0',
-    wallpaper: PIXEL_GRID_16('rgba(92, 122, 83, 0.2)'),
+    id: 'gold',
+    name: 'Gold',
+    shell: '#EFEADD',
+    wallpaper: PIXEL_GRID_16('rgba(198, 138, 30, 0.2)'),
     desktopIcon: '#1F1E1D',
     desktopIconSoft: 'rgba(31, 30, 29, 0.56)',
     desktopTileIcon: '#1F1E1D',
-    desktopTile: '#FAF9F5',
+    desktopTile: '#F6F4EC',
   },
   {
     id: 'ink',
     name: 'Ink',
     shell: '#1F1E1D',
-    wallpaper: PIXEL_GRID_16('rgba(250, 249, 245, 0.12)'),
-    desktopIcon: '#FAF9F5',
-    desktopIconSoft: 'rgba(250, 249, 245, 0.56)',
-    desktopTileIcon: '#FAF9F5',
+    wallpaper: PIXEL_GRID_16('rgba(246, 244, 236, 0.12)'),
+    desktopIcon: '#F6F4EC',
+    desktopIconSoft: 'rgba(246, 244, 236, 0.56)',
+    desktopTileIcon: '#F6F4EC',
     desktopTile: '#29261B',
   },
 ] as const

@@ -24,7 +24,7 @@ const initialTranscript: TranscriptLine[] = [
 ]
 
 const terminalShellClass =
-  'flex min-h-[17rem] flex-1 flex-col bg-[#1F1E1D] text-[#FAF9F5] [max-height:calc(min(640px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:max-h-none'
+  'flex min-h-[17rem] flex-1 flex-col bg-[#1F1E1D] text-[#F6F4EC] [max-height:calc(min(640px,calc(100svh_-_7.25rem))_-_42px)] [.os-window--maximized_&]:max-h-none'
 const terminalBodyClass =
   'os-scroll min-h-[12rem] flex-1 overflow-y-auto px-4 py-3 font-mono text-[0.84rem] leading-relaxed max-[720px]:min-h-[10rem] max-[720px]:px-3 max-[720px]:text-[0.78rem]'
 const promptClass = 'text-lagoon'

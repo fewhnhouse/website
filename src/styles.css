@@ -99,6 +99,12 @@
   --color-github-panel: #F6F4EC;
   --color-github-danger: #B5453C;
 
+  /* Contribution-graph intensity ramp (violet brand ramp, light→deep) */
+  --color-contrib-1: #DAD3F7;
+  --color-contrib-2: #9B82E8;
+  --color-contrib-3: #4B37D6;
+  --color-contrib-4: #3826B0;
+
   --color-strava: #4B37D6;                  /* re-claim Strava accent as our violet */
   --color-strava-bg: #1F1E1D;
   --color-strava-panel: #29261B;
@@ -141,6 +147,7 @@
   --shadow-desktop-tile: 3px 3px 0 0 #1F1E1D;
   --shadow-avatar: 2px 2px 0 0 #1F1E1D;
   --shadow-os-logo: 0 0 0 1px #1F1E1D;
+  --shadow-inset: inset 2px 2px 0 0 rgba(31, 30, 29, 0.08);
 }
 
 /* ─────────────────────────────────────────────────────────────────
