@@ -165,6 +165,7 @@ export function useDesktopWindows(routeApp: RouteApp) {
 
   const routeForWindow = (window: WindowState | undefined) => {
     if (!window) return '/'
+    if (window.app === 'ask') return '/ask'
     if (window.app === 'browser') return '/browser'
     if (window.app === 'contact') return '/contact'
     if (window.app === 'game') return '/game'

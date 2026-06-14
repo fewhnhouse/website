@@ -235,6 +235,10 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
     openApp('notes', 'home')
   }
 
+  const openAsk = () => {
+    openApp('ask')
+  }
+
   const openGithub = () => {
     openApp('github')
   }
@@ -465,6 +469,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
       </AnimatePresence>
 
       <Dock
+        openAsk={openAsk}
         openBrowser={openBrowser}
         openGame={openGame}
         openGithub={openGithub}

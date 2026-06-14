@@ -13,6 +13,7 @@ export type DesktopSearch = {
 export type NotesDocumentId = 'home' | 'cv'
 
 export type AppId =
+  | 'ask'
   | 'browser'
   | 'contact'
   | 'game'

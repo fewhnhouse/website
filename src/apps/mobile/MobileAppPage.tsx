@@ -1,6 +1,7 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { AskApp } from '@/apps/ask/AskApp'
 import { BrowserApp } from '@/apps/browser/BrowserApp'
 import { ContactApp } from '@/apps/contact/ContactApp'
 import { RunnerGameApp } from '@/apps/game/RunnerGameApp'
@@ -143,6 +144,7 @@ export function MobileAppPage({ initialGithubData = null, routeApp }: MobileAppP
 
   return (
     <main className="felix-mobile-app min-h-[100svh] bg-foam text-os-ink">
+      {routeApp.app === 'ask' ? <AskApp onOpenApp={openApp} /> : null}
       {routeApp.app === 'browser' ? <BrowserApp initialUrl={routeApp.url} /> : null}
       {routeApp.app === 'contact' ? <ContactApp /> : null}
       {routeApp.app === 'game' ? <RunnerGameApp /> : null}
@@ -198,6 +200,7 @@ const defaultMobileSearch = {
 }
 
 function routeForApp(app: AppId, document?: NotesDocumentId) {
+  if (app === 'ask') return '/ask'
   if (app === 'browser') return '/browser'
   if (app === 'contact') return '/contact'
   if (app === 'game') return '/game'

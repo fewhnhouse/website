@@ -57,8 +57,10 @@ import { SpeedMedium } from 'pixelarticons/react/SpeedMedium'
 import { Star as PaStar } from 'pixelarticons/react/Star'
 import { Terminal as PaTerminal } from 'pixelarticons/react/Terminal'
 import { Trophy as PaTrophy } from 'pixelarticons/react/Trophy'
+import { MessageText } from 'pixelarticons/react/MessageText'
 import { WarningDiamond } from 'pixelarticons/react/WarningDiamond'
 import { Wifi as PaWifi } from 'pixelarticons/react/Wifi'
+import { Zap } from 'pixelarticons/react/Zap'
 
 type PixelIconProps = Omit<SVGProps<SVGSVGElement>, 'name'> & {
   size?: number | string
@@ -162,6 +164,7 @@ export const Lock = wrap(PaLock, 'Lock')
 export const Mail = wrap(PaMail, 'Mail')
 export const MapPin = wrap(PaMapPin, 'MapPin')
 export const MapPinned = wrap(PaMapPin, 'MapPinned')
+export const MessageSquare = wrap(MessageText, 'MessageSquare')
 export const MonitorCog = wrap(Monitor, 'MonitorCog')
 export const Notebook = wrap(PaNotebook, 'Notebook')
 export const MousePointer2 = wrap(Pointer, 'MousePointer2')
@@ -171,6 +174,7 @@ export const RefreshCw = wrap(Reload, 'RefreshCw')
 export const RotateCw = wrap(Reload, 'RotateCw')
 export const Search = wrap(PaSearch, 'Search')
 export const Send = wrap(PaSend, 'Send')
+export const Sparkles = wrap(Zap, 'Sparkles')
 export const Star = wrap(PaStar, 'Star')
 export const Terminal = wrap(PaTerminal, 'Terminal')
 export const TerminalSquare = wrap(PaTerminal, 'TerminalSquare')

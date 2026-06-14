@@ -6,6 +6,7 @@ const titlebarOffset = 54
 const dockOffset = 116
 
 export const appSizes = {
+  ask: { width: 560, height: 640 },
   browser: { width: 980, height: 680 },
   contact: { width: 720, height: 600 },
   game: { width: 900, height: 880 },
