@@ -36,13 +36,13 @@
      bottom of this file).
    ───────────────────────────────────────────────────────────────── */
 
-@import url("https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&family=VT323&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&family=VT323&display=swap");
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
 @theme inline {
   /* ── FONT FAMILIES ─────────────────────────────────────────── */
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Silkscreen", "VT323", "Courier New", monospace;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
@@ -82,33 +82,33 @@
   --color-os-ink: #1F1E1D;
   --color-os-ink-muted: rgba(31, 30, 29, 0.72);
   --color-os-ink-soft: rgba(31, 30, 29, 0.56);
-  --color-os-glass: #FAF9F5;                /* was translucent — now opaque */
-  --color-os-panel: #FAF9F5;
+  --color-os-glass: #F6F4EC;                /* was translucent — now opaque */
+  --color-os-panel: #F6F4EC;
   --color-os-panel-strong: #FFFFFF;
   --color-os-border: #1F1E1D;               /* hard ink line */
   --color-os-border-strong: #1F1E1D;
-  --color-os-dock: #FAF9F5;
+  --color-os-dock: #F6F4EC;
   --color-os-tooltip: #1F1E1D;
 
   /* Per-app surface tints (kept but warmed) */
   --color-github-ink: #1F1E1D;
   --color-github-muted: #6E6A60;
   --color-github-border: #D9D5C5;
-  --color-github-link: #BC5A3C;             /* coral-deep instead of GH blue */
-  --color-github-surface: #F0EEE6;
-  --color-github-panel: #FAF9F5;
+  --color-github-link: #3826B0;             /* violet-deep instead of GH blue */
+  --color-github-surface: #ECE9DD;
+  --color-github-panel: #F6F4EC;
   --color-github-danger: #B5453C;
 
-  --color-strava: #D97757;                  /* re-claim Strava orange as our coral */
+  --color-strava: #4B37D6;                  /* re-claim Strava accent as our violet */
   --color-strava-bg: #1F1E1D;
   --color-strava-panel: #29261B;
-  --color-strava-text: #FAF9F5;
+  --color-strava-text: #F6F4EC;
   --color-strava-muted: rgba(250, 249, 245, 0.62);
 
-  --color-focus: #D97757;                   /* coral focus ring */
-  --color-traffic-close: #D97757;           /* coral close */
+  --color-focus: #4B37D6;                   /* violet focus ring */
+  --color-traffic-close: #4B37D6;           /* violet close */
   --color-traffic-minimize: #C28A2C;        /* warm amber */
-  --color-traffic-maximize: #5C7A53;        /* moss */
+  --color-traffic-maximize: #C68A1E;        /* warm gold (secondary) */
 
   /* ── TYPE SCALE — unchanged names, slightly tightened ─────── */
   --text-caption: 0.68rem;
@@ -150,81 +150,81 @@
   /* Renamed-but-same-meaning brand variables */
   --sea-ink: #1F1E1D;
   --sea-ink-soft: #3D3A35;
-  --lagoon: #D97757;                  /* was teal — now Claude coral */
-  --lagoon-deep: #BC5A3C;             /* coral-deep */
-  --palm: #5C7A53;                    /* moss */
-  --sand: #E8E5D9;                    /* warm stone */
-  --foam: #FAF9F5;                    /* paper */
-  --surface: #FAF9F5;                 /* opaque now */
+  --lagoon: #4B37D6;                  /* primary — electric violet */
+  --lagoon-deep: #3826B0;             /* violet-deep (hover/pressed) */
+  --palm: #C68A1E;                    /* secondary — warm gold */
+  --sand: #E0DCCB;                    /* warm stone */
+  --foam: #F6F4EC;                    /* paper */
+  --surface: #F6F4EC;                 /* opaque now */
   --surface-strong: #FFFFFF;
   --line: #1F1E1D;                    /* hard ink line */
   --inset-glint: transparent;         /* no glass glint in pixel mode */
-  --kicker: #BC5A3C;
-  --bg-base: #F0EEE6;                 /* Anthropic cream canvas */
-  --header-bg: #FAF9F5;
-  --chip-bg: #FAF9F5;
+  --kicker: #3826B0;
+  --bg-base: #ECE9DD;                 /* Anthropic cream canvas */
+  --header-bg: #F6F4EC;
+  --chip-bg: #F6F4EC;
   --chip-line: #1F1E1D;
-  --link-bg-hover: #F4D9CB;           /* coral-soft */
-  --ring: #D97757;
+  --link-bg-hover: #DAD3F7;           /* violet-soft */
+  --ring: #4B37D6;
   --destructive: #B5453C;
-  --destructive-foreground: #FAF9F5;
+  --destructive-foreground: #F6F4EC;
   --hero-a: transparent;
   --hero-b: transparent;
 
   /* OS shell — flat cream + 16px pixel grid (no pastel gradients) */
-  --os-shell-bg: #F0EEE6;
+  --os-shell-bg: #ECE9DD;
   --os-wallpaper-bg:
-    radial-gradient(at 88% 92%, rgba(217, 119, 87, 0.08), transparent 55%),
-    radial-gradient(at 12% 8%, rgba(92, 122, 83, 0.06), transparent 55%);
+    radial-gradient(at 88% 92%, rgba(75, 55, 214, 0.08), transparent 55%),
+    radial-gradient(at 12% 8%, rgba(198, 138, 30, 0.06), transparent 55%);
   --os-grid-bg:
     linear-gradient(rgba(31, 30, 29, 0.07) 1px, transparent 1px),
     linear-gradient(90deg, rgba(31, 30, 29, 0.07) 1px, transparent 1px);
-  --os-titlebar-bg: linear-gradient(180deg, #FAF9F5 0%, #F0EEE6 100%);
+  --os-titlebar-bg: linear-gradient(180deg, #F6F4EC 0%, #ECE9DD 100%);
 
   /* Desktop-tile fallback (used by accent-less tiles) */
-  --desktop-tile-bg: #FAF9F5;
+  --desktop-tile-bg: #F6F4EC;
 }
 
 /* Dark theme — warm near-black canvas with cream ink */
 :root[data-theme="dark"] {
-  --sea-ink: #FAF9F5;
+  --sea-ink: #F6F4EC;
   --sea-ink-soft: #B0ADA3;
-  --lagoon: #E58A6F;                  /* coral, lifted for dark */
-  --lagoon-deep: #F4D9CB;
-  --palm: #7BA070;
+  --lagoon: #7C6BE8;                  /* violet, lifted for dark */
+  --lagoon-deep: #DAD3F7;
+  --palm: #DDB257;
   --sand: #29261B;
   --foam: #1F1E1D;
   --surface: #1F1E1D;
   --surface-strong: #29261B;
-  --line: #FAF9F5;
+  --line: #F6F4EC;
   --inset-glint: transparent;
-  --kicker: #E58A6F;
+  --kicker: #7C6BE8;
   --bg-base: #1F1E1D;
   --header-bg: #29261B;
   --chip-bg: #29261B;
-  --chip-line: #FAF9F5;
+  --chip-line: #F6F4EC;
   --link-bg-hover: #3D3A35;
-  --ring: #E58A6F;
+  --ring: #7C6BE8;
   --destructive: #E58E8A;
   --destructive-foreground: #2A0E0E;
   --hero-a: transparent;
   --hero-b: transparent;
 
-  --color-os-ink: #FAF9F5;
+  --color-os-ink: #F6F4EC;
   --color-os-ink-muted: rgba(250, 249, 245, 0.72);
   --color-os-ink-soft: rgba(250, 249, 245, 0.56);
   --color-os-glass: #29261B;
   --color-os-panel: #29261B;
   --color-os-panel-strong: #1F1E1D;
-  --color-os-border: #FAF9F5;
-  --color-os-border-strong: #FAF9F5;
+  --color-os-border: #F6F4EC;
+  --color-os-border-strong: #F6F4EC;
   --color-os-dock: #29261B;
-  --color-os-tooltip: #FAF9F5;
+  --color-os-tooltip: #F6F4EC;
 
   --os-shell-bg: #1F1E1D;
   --os-wallpaper-bg:
-    radial-gradient(at 88% 92%, rgba(217, 119, 87, 0.16), transparent 55%),
-    radial-gradient(at 12% 8%, rgba(123, 160, 112, 0.10), transparent 55%);
+    radial-gradient(at 88% 92%, rgba(75, 55, 214, 0.16), transparent 55%),
+    radial-gradient(at 12% 8%, rgba(198, 138, 30, 0.10), transparent 55%);
   --os-grid-bg:
     linear-gradient(rgba(250, 249, 245, 0.06) 1px, transparent 1px),
     linear-gradient(90deg, rgba(250, 249, 245, 0.06) 1px, transparent 1px);
@@ -232,33 +232,33 @@
 
   --desktop-tile-bg: #29261B;
 
-  --shadow-chip: 2px 2px 0 0 #FAF9F5;
-  --shadow-island: 4px 4px 0 0 #FAF9F5;
-  --shadow-window: 6px 6px 0 0 #FAF9F5;
-  --shadow-dock: 4px 4px 0 0 #FAF9F5;
-  --shadow-desktop-tile: 3px 3px 0 0 #FAF9F5;
-  --shadow-avatar: 2px 2px 0 0 #FAF9F5;
+  --shadow-chip: 2px 2px 0 0 #F6F4EC;
+  --shadow-island: 4px 4px 0 0 #F6F4EC;
+  --shadow-window: 6px 6px 0 0 #F6F4EC;
+  --shadow-dock: 4px 4px 0 0 #F6F4EC;
+  --shadow-desktop-tile: 3px 3px 0 0 #F6F4EC;
+  --shadow-avatar: 2px 2px 0 0 #F6F4EC;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --sea-ink: #FAF9F5;
+    --sea-ink: #F6F4EC;
     --sea-ink-soft: #B0ADA3;
-    --lagoon: #E58A6F;
-    --lagoon-deep: #F4D9CB;
-    --palm: #7BA070;
+    --lagoon: #7C6BE8;
+    --lagoon-deep: #DAD3F7;
+    --palm: #DDB257;
     --sand: #29261B;
     --foam: #1F1E1D;
     --surface: #1F1E1D;
     --surface-strong: #29261B;
-    --line: #FAF9F5;
-    --kicker: #E58A6F;
+    --line: #F6F4EC;
+    --kicker: #7C6BE8;
     --bg-base: #1F1E1D;
     --header-bg: #29261B;
     --chip-bg: #29261B;
-    --chip-line: #FAF9F5;
+    --chip-line: #F6F4EC;
     --link-bg-hover: #3D3A35;
-    --ring: #E58A6F;
+    --ring: #7C6BE8;
   }
 }
 

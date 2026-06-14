@@ -24,7 +24,7 @@ export type PaletteItem = {
   action: PaletteAction
 }
 
-const sectionAccent = '#F4D9CB'
+const sectionAccent = '#DAD3F7'
 const repoAccent = '#1F1E1D'
 
 // Slugify a heading the same way RenderedMarkdown assigns heading ids, so the

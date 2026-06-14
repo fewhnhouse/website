@@ -35,12 +35,12 @@ const contributionCellClass = (level: number | 'empty') => {
     level === 0
       ? 'bg-sand'
       : level === 1
-        ? 'bg-[#F4D9CB]'
+        ? 'bg-[#DAD3F7]'
         : level === 2
-          ? 'bg-[#E5A68A]'
+          ? 'bg-[#9B82E8]'
           : level === 3
-            ? 'bg-[#D97757]'
-            : 'bg-[#BC5A3C]'
+            ? 'bg-[#4B37D6]'
+            : 'bg-[#3826B0]'
   }`
 }
 
