@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { Github, Globe, Linkedin, Mail, MapPin } from '@/components/PixelIcon'
+import { slugifyHeading } from '@/desktop/paletteItems'
 import type { CSSProperties } from 'react'
 import type { ReactNode } from 'react'
 
@@ -260,20 +261,21 @@ function ProfileHeader({
 
 function renderHeading(key: number, level: number, text: string) {
   const children = renderInlineMarkdown(text)
+  const id = slugifyHeading(text) || undefined
 
   switch (level) {
     case 1:
-      return <h1 key={key}>{children}</h1>
+      return <h1 key={key} id={id}>{children}</h1>
     case 2:
-      return <h2 key={key}>{children}</h2>
+      return <h2 key={key} id={id}>{children}</h2>
     case 3:
-      return <h3 key={key}>{children}</h3>
+      return <h3 key={key} id={id}>{children}</h3>
     case 4:
-      return <h4 key={key}>{children}</h4>
+      return <h4 key={key} id={id}>{children}</h4>
     case 5:
-      return <h5 key={key}>{children}</h5>
+      return <h5 key={key} id={id}>{children}</h5>
     default:
-      return <h6 key={key}>{children}</h6>
+      return <h6 key={key} id={id}>{children}</h6>
   }
 }
 

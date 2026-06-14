@@ -92,6 +92,15 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
 
   useEffect(() => {
     const toggleCommand = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setCommandOpen((current) => {
+          if (!current) return current
+          event.preventDefault()
+          return false
+        })
+        return
+      }
+
       if (event.key.toLowerCase() !== 'k' || (!event.metaKey && !event.ctrlKey)) return
 
       event.preventDefault()
@@ -242,6 +251,43 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
     setCommandOpen(false)
   }
 
+  const scrollToNotesSection = useCallback((sectionId: string) => {
+    let attempts = 0
+
+    const tryScroll = () => {
+      const container = editorDocumentRef.current
+      const heading =
+        (container?.querySelector(`#${CSS.escape(sectionId)}`) as HTMLElement | null) ??
+        document.getElementById(sectionId)
+
+      if (heading) {
+        heading.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        return
+      }
+
+      if (attempts < 30) {
+        attempts += 1
+        window.requestAnimationFrame(tryScroll)
+      }
+    }
+
+    window.requestAnimationFrame(tryScroll)
+  }, [])
+
+  const openCommandSection = (action: {
+    document: NotesDocumentId
+    sectionId: string
+  }) => {
+    openApp('notes', action.document)
+    setCommandOpen(false)
+    scrollToNotesSection(action.sectionId)
+  }
+
+  const openCommandUrl = (url: string) => {
+    setCommandOpen(false)
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
   const refreshGithub = useCallback(() => {
     setGithubData(null)
     setGithubError(null)
@@ -336,8 +382,11 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
       <AnimatePresence>
         {commandOpen ? (
           <CommandPalette
+            githubData={githubData}
             onClose={() => setCommandOpen(false)}
-            onOpenTarget={openCommandTarget}
+            onOpenSection={openCommandSection}
+            onOpenTarget={(action) => openCommandTarget(action.app, action.document)}
+            onOpenUrl={openCommandUrl}
           />
         ) : null}
         {visibleWindows.map((window) => (
