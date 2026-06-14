@@ -865,7 +865,7 @@ pre code {
 }
 .felix-arcade-title-crash {
   font-family: "Press Start 2P", ui-monospace, monospace;
-  color: #BC5A3C;
+  color: var(--destructive);
   text-shadow: 4px 4px 0 var(--sea-ink);
 }
 .felix-arcade-screen {

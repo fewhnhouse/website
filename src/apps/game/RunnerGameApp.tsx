@@ -37,12 +37,7 @@ type GameModel = {
   velocityY: number
 }
 
-type SpriteKey =
-  | 'forestBack'
-  | 'forestFront'
-  | 'forestLights'
-  | 'forestMiddle'
-  | 'otter'
+type SpriteKey = 'otter'
 
 type SpriteAssets = Partial<Record<SpriteKey, HTMLImageElement>>
 
@@ -65,12 +60,23 @@ const jumpVelocity = -860
 const scoresEndpoint = '/api/runner/scores'
 const initialGroundY = 300
 const spriteSources = {
-  forestBack: '/game/parallax-forest-back-trees.png',
-  forestFront: '/game/parallax-forest-front-trees.png',
-  forestLights: '/game/parallax-forest-lights.png',
-  forestMiddle: '/game/parallax-forest-middle-trees.png',
   otter: '/spritesheet.webp',
 } satisfies Record<SpriteKey, string>
+
+// Canvas palette — mirrors the design-system tokens in src/styles.css (canvas
+// can't read CSS vars per-frame cheaply, so keep these in sync by value).
+const palette = {
+  ink: '#1F1E1D',
+  inkSoft: '#3D3A35',
+  bone: '#ECE9DD',
+  paper: '#F6F4EC',
+  stone: '#E0DCCB',
+  violet: '#4B37D6',
+  violetDeep: '#3826B0',
+  violetSoft: '#DAD3F7',
+  gold: '#C68A1E',
+  danger: '#B5453C',
+} as const
 // The otter spritesheet is a clean 8 columns × 9 rows grid of 192 × 208 cells.
 const spriteCellWidth = 192
 const spriteCellHeight = 208
@@ -742,7 +748,7 @@ function drawGame(
   if (!context) return
 
   context.clearRect(0, 0, canvasWidth, canvasHeight)
-  drawBackground(context, model, sprites)
+  drawBackground(context, model)
   drawGround(context, model)
 
   model.obstacles.forEach((obstacle) => drawObstacle(context, model, obstacle))
@@ -757,24 +763,50 @@ function drawScore(context: CanvasRenderingContext2D, score: number) {
   context.textBaseline = 'top'
 
   context.textAlign = 'left'
-  context.fillStyle = '#BC5A3C'
+  context.fillStyle = palette.violetDeep
   context.fillText('SCORE', 22, 22)
 
   context.textAlign = 'right'
-  context.fillStyle = '#1F1E1D'
+  context.fillStyle = palette.ink
   context.fillText(value, canvasWidth - 20, 24)
-  context.fillStyle = '#D97757'
+  context.fillStyle = palette.violet
   context.fillText(value, canvasWidth - 22, 22)
   context.restore()
 }
 
-function drawBackground(
-  context: CanvasRenderingContext2D,
-  model: GameModel,
-  sprites: SpriteAssets,
-) {
-  // Flat warm-paper sky — no gradients, matches the OS canvas
-  context.fillStyle = '#F0EEE6'
+// Procedural flat-pixel pine layers (replacing the old brown forest PNGs).
+// Each layer tiles a fixed period of pines and parallax-scrolls with distance.
+type Pine = { x: number; w: number; h: number }
+type ForestLayer = { period: number; pines: Pine[] }
+
+const FOREST_FAR: ForestLayer = {
+  period: 380,
+  pines: [
+    { x: 24, w: 124, h: 232 },
+    { x: 200, w: 150, h: 268 },
+    { x: 318, w: 92, h: 188 },
+  ],
+}
+const FOREST_MID: ForestLayer = {
+  period: 300,
+  pines: [
+    { x: 18, w: 96, h: 168 },
+    { x: 150, w: 116, h: 214 },
+    { x: 250, w: 72, h: 138 },
+  ],
+}
+const FOREST_NEAR: ForestLayer = {
+  period: 236,
+  pines: [
+    { x: 10, w: 74, h: 124 },
+    { x: 120, w: 96, h: 158 },
+    { x: 192, w: 56, h: 98 },
+  ],
+}
+
+function drawBackground(context: CanvasRenderingContext2D, model: GameModel) {
+  // Flat bone sky — no gradients, matches the OS canvas
+  context.fillStyle = palette.bone
   context.fillRect(0, 0, canvasWidth, canvasHeight)
 
   // 16px pixel grid overlay (subtle)
@@ -786,45 +818,55 @@ function drawBackground(
     context.fillRect(0, y, canvasWidth, 1)
   }
 
-  drawParallaxLayer(context, sprites.forestBack, model.distance, 0.08, 2.35, 0, 0.45)
-  drawParallaxLayer(context, sprites.forestLights, model.distance, 0.13, 2.35, 0, 0.4)
-  drawParallaxLayer(context, sprites.forestMiddle, model.distance, 0.22, 2.35, 0, 0.55)
-  drawParallaxLayer(context, sprites.forestFront, model.distance, 0.36, 2.35, 0, 0.75)
+  // Three parallax pine layers: ink mist, violet mid, ink near.
+  drawForestLayer(context, model.distance, 0.1, 'rgba(31, 30, 29, 0.08)', FOREST_FAR, model.groundY)
+  drawForestLayer(context, model.distance, 0.18, 'rgba(75, 55, 214, 0.12)', FOREST_MID, model.groundY)
+  drawForestLayer(context, model.distance, 0.3, 'rgba(31, 30, 29, 0.2)', FOREST_NEAR, model.groundY)
 }
 
-function drawParallaxLayer(
+function drawForestLayer(
   context: CanvasRenderingContext2D,
-  image: HTMLImageElement | undefined,
   distance: number,
   speed: number,
-  scale: number,
-  y: number,
-  opacity: number,
+  color: string,
+  layer: ForestLayer,
+  groundY: number,
 ) {
-  if (!image?.complete || image.naturalWidth === 0) return
-
-  const width = image.naturalWidth * scale
-  const height = image.naturalHeight * scale
-  const offset = -((distance * speed) % width)
-
   context.save()
-  context.globalAlpha = opacity
-  context.imageSmoothingEnabled = false
-
-  for (let x = offset - width; x < canvasWidth + width; x += width) {
-    context.drawImage(image, x, y, width, height)
+  context.fillStyle = color
+  const scroll = (distance * speed) % layer.period
+  for (let base = -layer.period; base < canvasWidth + layer.period; base += layer.period) {
+    for (const pine of layer.pines) {
+      drawPine(context, base + pine.x - scroll, groundY, pine.w, pine.h)
+    }
   }
-
   context.restore()
 }
 
+// A flat-pixel pine standing on baseY: a trunk plus stacked canopy bands that
+// narrow toward the top. Pixel-snapped for the stamped, low-res look.
+function drawPine(context: CanvasRenderingContext2D, x: number, baseY: number, w: number, h: number) {
+  const trunkW = Math.max(6, Math.round(w * 0.14))
+  const trunkH = Math.round(h * 0.18)
+  context.fillRect(Math.round(x + w / 2 - trunkW / 2), baseY - trunkH, trunkW, trunkH)
+
+  const canopyH = h - trunkH
+  const bands = 4
+  const bandH = Math.ceil(canopyH / bands) + 1
+  for (let i = 0; i < bands; i += 1) {
+    const bandWidth = Math.round(w * (1 - (i / bands) * 0.62))
+    const bandY = Math.round(baseY - trunkH - canopyH * ((i + 1) / bands))
+    context.fillRect(Math.round(x + (w - bandWidth) / 2), bandY, bandWidth, bandH)
+  }
+}
+
 function drawGround(context: CanvasRenderingContext2D, model: GameModel) {
-  // Ground: warm stone fill with 2px ink top edge — matches design system
-  context.fillStyle = '#E8E5D9'
+  // Ground: bone stone fill with 2px ink top edge — matches design system
+  context.fillStyle = palette.stone
   context.fillRect(0, model.groundY, canvasWidth, canvasHeight - model.groundY)
-  context.fillStyle = '#1F1E1D'
+  context.fillStyle = palette.ink
   context.fillRect(0, model.groundY, canvasWidth, 2)
-  context.fillStyle = 'rgba(188, 90, 60, 0.28)'
+  context.fillStyle = 'rgba(198, 138, 30, 0.32)'
 
   const tileWidth = 36
   const offset = -((model.distance * 0.62) % tileWidth)
@@ -864,42 +906,42 @@ function drawObstacle(context: CanvasRenderingContext2D, model: GameModel, obsta
 
 function drawHedgeObstacle(context: CanvasRenderingContext2D, obstacle: Obstacle) {
   const { x, y, width, height } = obstacle
-  // Trunk
-  context.fillStyle = '#5a3a1c'
+  // Trunk (ink)
+  context.fillStyle = palette.ink
   context.fillRect(x + width / 2 - 3, y + height - 14, 6, 14)
-  // Bush body (dark green base)
-  context.fillStyle = '#23502c'
+  // Bush body (violet-deep base)
+  context.fillStyle = palette.violetDeep
   context.fillRect(x + 2, y + 10, width - 4, height - 18)
-  // Lighter green crown
-  context.fillStyle = '#3c8b3f'
+  // Lighter violet crown
+  context.fillStyle = palette.violet
   context.fillRect(x + 6, y + 4, width - 12, 18)
   context.fillRect(x, y + 16, 10, 14)
   context.fillRect(x + width - 10, y + 16, 10, 14)
-  // Pixel highlights
-  context.fillStyle = '#7ad06a'
+  // Pixel highlights (violet-soft)
+  context.fillStyle = palette.violetSoft
   context.fillRect(x + 12, y + 6, 6, 4)
   context.fillRect(x + width - 22, y + 14, 6, 4)
   context.fillRect(x + 4, y + 28, 4, 3)
-  // Berries
-  context.fillStyle = '#e84545'
+  // Berries (gold)
+  context.fillStyle = palette.gold
   context.fillRect(x + 18, y + 26, 4, 4)
   context.fillRect(x + width - 22, y + 36, 4, 4)
 }
 
 function drawSpikeObstacle(context: CanvasRenderingContext2D, obstacle: Obstacle) {
-  context.fillStyle = '#e66e45'
+  context.fillStyle = palette.gold
   context.beginPath()
   context.moveTo(obstacle.x, obstacle.y + obstacle.height)
   context.lineTo(obstacle.x + obstacle.width / 2, obstacle.y)
   context.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height)
   context.closePath()
   context.fill()
-  context.fillStyle = '#f4c36b'
+  context.fillStyle = palette.ink
   context.fillRect(obstacle.x + obstacle.width / 2 - 3, obstacle.y + 13, 6, 16)
 }
 
 function drawMushroomObstacle(context: CanvasRenderingContext2D, obstacle: Obstacle) {
-  context.fillStyle = '#e95b48'
+  context.fillStyle = palette.violet
   context.beginPath()
   context.ellipse(
     obstacle.x + obstacle.width / 2,
@@ -911,23 +953,23 @@ function drawMushroomObstacle(context: CanvasRenderingContext2D, obstacle: Obsta
     0,
   )
   context.fill()
-  context.fillStyle = '#f6d7a4'
+  context.fillStyle = palette.paper
   context.fillRect(obstacle.x + 13, obstacle.y + 20, 13, 24)
-  context.fillStyle = '#f9ead0'
+  context.fillStyle = palette.violetSoft
   context.fillRect(obstacle.x + 8, obstacle.y + 13, 6, 5)
   context.fillRect(obstacle.x + 24, obstacle.y + 9, 5, 5)
 }
 
 function drawLogObstacle(context: CanvasRenderingContext2D, obstacle: Obstacle) {
-  context.fillStyle = '#7a4f2c'
+  context.fillStyle = palette.ink
   context.fillRect(obstacle.x, obstacle.y + 8, obstacle.width, 20)
-  context.fillStyle = '#a06a39'
+  context.fillStyle = palette.inkSoft
   context.fillRect(obstacle.x + 5, obstacle.y + 12, obstacle.width - 10, 4)
-  context.fillStyle = '#d0a15b'
+  context.fillStyle = palette.gold
   context.beginPath()
   context.ellipse(obstacle.x + obstacle.width - 6, obstacle.y + 18, 8, 10, 0, 0, Math.PI * 2)
   context.fill()
-  context.fillStyle = '#59361e'
+  context.fillStyle = palette.violetDeep
   context.beginPath()
   context.ellipse(obstacle.x + obstacle.width - 6, obstacle.y + 18, 4, 5, 0, 0, Math.PI * 2)
   context.fill()
@@ -947,16 +989,16 @@ function drawBirdObstacle(
 
   const bodyColor =
     obstacle.kind === 'birdSky'
-      ? '#ffb3d1'
+      ? palette.violet
       : obstacle.kind === 'birdLow'
-        ? '#f0d47b'
-        : '#d7e7ef'
+        ? palette.gold
+        : palette.paper
   const wingColor =
     obstacle.kind === 'birdSky'
-      ? '#a53266'
+      ? palette.violetDeep
       : obstacle.kind === 'birdLow'
-        ? '#6c4428'
-        : '#496575'
+        ? palette.ink
+        : palette.violet
   context.fillStyle = bodyColor
   context.fillRect(centerX - 10, centerY - 6, 20, 13)
   context.fillStyle = wingColor
@@ -972,7 +1014,7 @@ function drawBirdObstacle(
   context.lineTo(centerX + 6, centerY + 7)
   context.closePath()
   context.fill()
-  context.fillStyle = '#151b18'
+  context.fillStyle = palette.ink
   context.fillRect(centerX + 5, centerY - 4, 3, 3)
 }
 
@@ -1009,11 +1051,11 @@ function drawPlayer(
     return
   }
 
-  context.fillStyle = '#eaf7f3'
+  context.fillStyle = palette.violetSoft
   context.fillRect(player.x, y, player.width, player.height)
-  context.fillStyle = '#081719'
+  context.fillStyle = palette.ink
   context.fillRect(player.x + 22, y + 10, 5, 5)
-  context.fillStyle = '#7fdad1'
+  context.fillStyle = palette.violet
   context.fillRect(player.x + 6, y + player.height - 8, 9, 8)
   context.fillRect(player.x + 22, y + player.height - 8, 9, 8)
 }
