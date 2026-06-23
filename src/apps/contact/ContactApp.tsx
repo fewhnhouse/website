@@ -49,14 +49,14 @@ export function ContactApp() {
             <div className="min-w-0">
               <h2 className="m-0 text-[1.12rem] tracking-normal">Get in touch</h2>
               <p className="mt-1 mb-0 text-meta leading-relaxed text-os-ink-muted">
-                Drafts a message to{' '}
+                For projects, questions, or sharp ideas, write to{' '}
                 <a
                   className="font-black text-os-ink underline decoration-os-border-strong underline-offset-2"
                   href={`mailto:${contactEmail}`}
                 >
                   {contactEmail}
-                </a>{' '}
-                and opens it in your email client.
+                </a>
+                .
               </p>
             </div>
           </header>
