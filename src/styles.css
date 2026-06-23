@@ -903,17 +903,42 @@ pre code {
 }
 
 /* italic group labels (*Engineering Leadership*, highlight titles) become
-   small uppercase header labels instead of plain italic body text */
-.felix-pdf-mdx.felix-mdx-content p:has(> em:only-child) {
+   small uppercase header labels instead of plain italic body text.
+   Excludes italic paragraphs that contain links/code (e.g. home's note line),
+   which are real prose, not section labels. */
+.felix-pdf-mdx.felix-mdx-content p:has(> em:only-child):not(:has(a, code)) {
   margin: 0.7rem 0 0.18rem;
 }
-.felix-pdf-mdx.felix-mdx-content p:has(> em:only-child) em {
+.felix-pdf-mdx.felix-mdx-content p:has(> em:only-child):not(:has(a, code)) em {
   font-style: normal;
   font-weight: 700;
   font-size: 0.8rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--sea-ink);
+}
+
+/* Home export — clean up the ProfileHeader hero to match the CV's
+   document aesthetic (no pixel font, no mono/boxed meta chips). */
+.felix-pdf-mdx .felix-profile-header h1 {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: -0.01em;
+}
+.felix-pdf-mdx .felix-profile-header__meta div {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+.felix-pdf-mdx .felix-profile-header__meta dt { font-family: var(--font-sans); }
+.felix-pdf-mdx .felix-profile-header__meta dd { font-family: var(--font-sans); }
+
+/* home's intro note — a small muted line, not a header */
+.felix-pdf-mdx.felix-mdx-content p:has(> em:only-child):has(a) {
+  margin: 0.55rem 0 0.2rem;
+  font-size: 0.8rem;
+  color: var(--sea-ink-soft);
 }
 
 /* ─────────────────────────────────────────────────────────────────
