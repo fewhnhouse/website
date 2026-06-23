@@ -39,10 +39,15 @@ import { DesktopWidgets } from './widgets/DesktopWidgets'
 
 type DesktopProps = {
   initialGithubData?: GithubData | null
+  initialStravaResult?: StravaDataResult | null
   routeApp: RouteApp
 }
 
-export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
+export function Desktop({
+  initialGithubData = null,
+  initialStravaResult = null,
+  routeApp,
+}: DesktopProps) {
   const {
     closeWindow,
     focusedWindow,
@@ -64,7 +69,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   const [issuesData, setIssuesData] = useState<IssuesBoardData | null>(null)
   const [issuesError, setIssuesError] = useState<string | null>(null)
   const [issuesLoading, setIssuesLoading] = useState(false)
-  const [stravaResult, setStravaResult] = useState<StravaDataResult | null>(null)
+  const [stravaResult, setStravaResult] = useState<StravaDataResult | null>(initialStravaResult)
   const [stravaError, setStravaError] = useState<string | null>(null)
   const [stravaLoading, setStravaLoading] = useState(false)
   const [notesMarkdown, setNotesMarkdown] = useState<NotesMarkdownByDocument>(() => ({
@@ -82,16 +87,8 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
     () => windows.filter((window) => !window.minimized),
     [windows],
   )
-  const githubIsVisible = useMemo(
-    () => visibleWindows.some((window) => window.app === 'github'),
-    [visibleWindows],
-  )
   const issuesIsVisible = useMemo(
     () => visibleWindows.some((window) => window.app === 'issues'),
-    [visibleWindows],
-  )
-  const stravaIsVisible = useMemo(
-    () => visibleWindows.some((window) => window.app === 'strava'),
     [visibleWindows],
   )
 
@@ -180,7 +177,15 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
   }, [initialGithubData])
 
   useEffect(() => {
-    if (!githubIsVisible || githubData || githubLoading) return
+    if (initialStravaResult) {
+      setStravaResult(initialStravaResult)
+      setStravaError(null)
+      stravaRequestAttempted.current = true
+    }
+  }, [initialStravaResult])
+
+  useEffect(() => {
+    if (githubData || githubLoading) return
 
     setGithubError(null)
     setGithubLoading(true)
@@ -194,10 +199,10 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
       .finally(() => {
         setGithubLoading(false)
       })
-  }, [githubData, githubIsVisible, githubLoading])
+  }, [githubData, githubLoading])
 
   useEffect(() => {
-    if (!stravaIsVisible || stravaResult || stravaLoading || stravaRequestAttempted.current) return
+    if (stravaResult || stravaLoading || stravaRequestAttempted.current) return
 
     stravaRequestAttempted.current = true
     setStravaError(null)
@@ -212,7 +217,7 @@ export function Desktop({ initialGithubData = null, routeApp }: DesktopProps) {
       .finally(() => {
         setStravaLoading(false)
       })
-  }, [stravaIsVisible, stravaLoading, stravaResult])
+  }, [stravaLoading, stravaResult])
 
   useEffect(() => {
     if (!issuesIsVisible || issuesData || issuesLoading) return

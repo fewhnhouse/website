@@ -3,8 +3,8 @@ import { createServerFn } from '@tanstack/react-start'
 const STRAVA_AUTH_URL = 'https://www.strava.com/oauth/authorize'
 const STRAVA_OAUTH_URL = 'https://www.strava.com/oauth/token'
 const STRAVA_API_URL = 'https://www.strava.com/api/v3'
-const STRAVA_CACHE_MS = 24 * 60 * 60 * 1000
-const STRAVA_CACHE_CONTROL = 'public, max-age=0, s-maxage=86400, stale-while-revalidate=86400'
+export const STRAVA_CACHE_MS = 24 * 60 * 60 * 1000
+export const STRAVA_CACHE_CONTROL = 'public, max-age=0, s-maxage=86400, stale-while-revalidate=86400'
 const STRAVA_TOKEN_BLOB_PATH = 'private/strava/oauth-token.json'
 const STRAVA_SCOPES = ['read', 'profile:read_all', 'activity:read_all'] as const
 

@@ -22,10 +22,15 @@ import type { AppId, NotesDocumentId, RouteApp } from '@/desktop/types'
 
 type MobileAppPageProps = {
   initialGithubData?: GithubData | null
+  initialStravaResult?: StravaDataResult | null
   routeApp: Exclude<RouteApp, 'none'>
 }
 
-export function MobileAppPage({ initialGithubData = null, routeApp }: MobileAppPageProps) {
+export function MobileAppPage({
+  initialGithubData = null,
+  initialStravaResult = null,
+  routeApp,
+}: MobileAppPageProps) {
   const navigate = useNavigate()
   const [githubData, setGithubData] = useState<GithubData | null>(initialGithubData)
   const [githubError, setGithubError] = useState<string | null>(null)
@@ -33,7 +38,7 @@ export function MobileAppPage({ initialGithubData = null, routeApp }: MobileAppP
   const [issuesData, setIssuesData] = useState<IssuesBoardData | null>(null)
   const [issuesError, setIssuesError] = useState<string | null>(null)
   const [issuesLoading, setIssuesLoading] = useState(false)
-  const [stravaResult, setStravaResult] = useState<StravaDataResult | null>(null)
+  const [stravaResult, setStravaResult] = useState<StravaDataResult | null>(initialStravaResult)
   const [stravaError, setStravaError] = useState<string | null>(null)
   const [stravaLoading, setStravaLoading] = useState(false)
   const [screensaverMinutes, setScreensaverMinutes] = useState(
@@ -48,6 +53,14 @@ export function MobileAppPage({ initialGithubData = null, routeApp }: MobileAppP
       setGithubError(null)
     }
   }, [initialGithubData])
+
+  useEffect(() => {
+    if (initialStravaResult) {
+      setStravaResult(initialStravaResult)
+      setStravaError(null)
+      stravaRequestAttempted.current = true
+    }
+  }, [initialStravaResult])
 
   useEffect(() => {
     if (routeApp.app !== 'github' || githubData || githubLoading) return

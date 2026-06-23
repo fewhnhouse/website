@@ -1,7 +1,9 @@
 import { HeadContent, Outlet, Scripts, createRootRoute, useRouterState } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
 
+import { GITHUB_CACHE_MS, getGithubData } from '@/apps/github/githubData'
 import type { GithubData } from '@/apps/github/types'
+import { getStravaData, type StravaDataResult } from '@/apps/strava/stravaData'
 import { MobileAppPage } from '@/apps/mobile/MobileAppPage'
 import { MobileNotesPage } from '@/apps/notes/MobileNotesPage'
 import { BootScreen } from '@/desktop/BootScreen'
@@ -40,6 +42,16 @@ const DevtoolsPanel = import.meta.env.DEV
   : null
 
 export const Route = createRootRoute({
+  loader: async () => {
+    const [github, strava] = await Promise.all([
+      getGithubData().catch(() => null),
+      getStravaData().catch(() => null),
+    ])
+
+    return { github, strava }
+  },
+  staleTime: GITHUB_CACHE_MS,
+  gcTime: GITHUB_CACHE_MS * 2,
   component: RootApp,
   head: () => ({
     meta: [
@@ -64,15 +76,29 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 })
 
+type RootLoaderData = {
+  github: GithubData | null
+  strava: StravaDataResult | null
+}
+
 function RootApp() {
-  const { githubData, pathname, search } = useRouterState({
-    select: (state) => ({
-      pathname: state.location.pathname,
-      search: state.location.search,
-      githubData: state.matches.find((match) => match.routeId === '/github')?.loaderData as
-        | GithubData
-        | undefined,
-    }),
+  const { githubData, pathname, search, stravaResult } = useRouterState({
+    select: (state) => {
+      const rootData = state.matches.find((match) => match.routeId === '__root__')?.loaderData as
+        | RootLoaderData
+        | undefined
+      const githubRouteData = state.matches.find((match) => match.routeId === '/github')
+        ?.loaderData as GithubData | undefined
+      const stravaRouteData = state.matches.find((match) => match.routeId === '/strava')
+        ?.loaderData as StravaDataResult | undefined
+
+      return {
+        pathname: state.location.pathname,
+        search: state.location.search,
+        githubData: githubRouteData ?? rootData?.github ?? undefined,
+        stravaResult: stravaRouteData ?? rootData?.strava ?? undefined,
+      }
+    },
   })
   const routeApp = routeAppFromPathname(pathname, search)
   const isMobileNoteRoute = pathname === '/home' || pathname === '/cv'
@@ -83,7 +109,11 @@ function RootApp() {
   return (
     <>
       <div className="hidden md:block">
-        <Desktop initialGithubData={githubData ?? null} routeApp={routeApp} />
+        <Desktop
+          initialGithubData={githubData ?? null}
+          initialStravaResult={stravaResult ?? null}
+          routeApp={routeApp}
+        />
       </div>
       <div className="md:hidden">
         {isMobileNoteRoute ? (
@@ -91,7 +121,11 @@ function RootApp() {
         ) : routeApp === 'none' ? (
           <MobileNotesPage document="home" />
         ) : (
-          <MobileAppPage initialGithubData={githubData ?? null} routeApp={routeApp} />
+          <MobileAppPage
+            initialGithubData={githubData ?? null}
+            initialStravaResult={stravaResult ?? null}
+            routeApp={routeApp}
+          />
         )}
       </div>
       {showBoot ? <BootScreen onComplete={completeBoot} /> : null}
