@@ -13,7 +13,7 @@ import {
 } from '@/apps/shared/appStyles'
 import { cn } from '@/lib/cn'
 
-const contactEmail = 'felix.wohnhaas@outlook.com'
+const contactEmail = 'contact@felixwohnhaas.de'
 
 export function ContactApp() {
   const [subject, setSubject] = useState('')
