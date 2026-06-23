@@ -1,7 +1,7 @@
 import { Github, Linkedin } from '@/components/PixelIcon'
 
 const GITHUB = 'https://github.com/fewhnhouse'
-const LINKEDIN = 'https://www.linkedin.com/in/felix-wohnhaas-b44623142/'
+const LINKEDIN = 'https://www.linkedin.com/in/felix-wohnhaas/'
 
 type SocialLinksProps = {
   className?: string

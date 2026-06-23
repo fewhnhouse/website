@@ -98,7 +98,7 @@ export function NotesApp({
             Download PDF (reset edits first)
           </button>
         ) : (
-          <a className={osBtnSmClass} href={`/api/notes/${document}/pdf`} download={pdfFilename}>
+          <a className={osBtnSmClass} href={`/${pdfFilename}`} download={pdfFilename}>
             Download PDF
           </a>
         )}

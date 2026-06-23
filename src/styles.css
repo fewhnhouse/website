@@ -844,6 +844,78 @@ pre code {
 
 .felix-pdf-mdx { min-height: auto; background: white; }
 
+/* PDF/print: the on-screen terminal aesthetic (pixel font, lowercase name,
+   hard "chip" link boxes) doesn't read as a professional printed CV.
+   These overrides are scoped to the PDF render only — the website keeps its style. */
+.felix-pdf-mdx .felix-cv-header__name {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: -0.01em;
+}
+.felix-pdf-mdx .felix-cv-header__links a {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* PDF/print typography — a proper printed-CV hierarchy.
+   The on-screen WYSIWYG model (literal blank lines -> spacer divs, a loose
+   1.78 body line-height, italic group labels) doesn't read as a professional
+   document, so the PDF render gets purpose-built spacing and heading styles.
+   Scoped to `.felix-pdf-mdx.felix-mdx-content` so it also wins over the
+   `@media print` rules below. */
+.felix-pdf-mdx.felix-mdx-content {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* vertical rhythm comes from element margins, not from blank lines */
+.felix-pdf-mdx .felix-mdx-blank-lines { display: none; }
+.felix-pdf-mdx.felix-mdx-content p { margin: 0 0 0.3rem; }
+.felix-pdf-mdx.felix-mdx-content ul { margin: 0.1rem 0 0.5rem; }
+.felix-pdf-mdx.felix-mdx-content li { margin: 0 0 0.08rem; }
+
+/* H2 — section dividers (Profile, Experience, Education, Highlights) */
+.felix-pdf-mdx.felix-mdx-content h2 {
+  margin: 1.45rem 0 0.5rem;
+  padding-top: 0.7rem;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+}
+.felix-pdf-mdx.felix-mdx-content .felix-cv-header + h2 { margin-top: 0.5rem; }
+
+/* H3 — entry / subsection titles (job titles, degrees, Core strengths) */
+.felix-pdf-mdx.felix-mdx-content h3 {
+  margin: 0.95rem 0 0.2rem;
+  font-size: 0.97rem;
+}
+
+/* date / meta line sitting directly under an entry title */
+.felix-pdf-mdx.felix-mdx-content h3 + .felix-mdx-blank-lines + p {
+  margin: 0 0 0.4rem;
+  color: var(--sea-ink-soft);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* italic group labels (*Engineering Leadership*, highlight titles) become
+   small uppercase header labels instead of plain italic body text */
+.felix-pdf-mdx.felix-mdx-content p:has(> em:only-child) {
+  margin: 0.7rem 0 0.18rem;
+}
+.felix-pdf-mdx.felix-mdx-content p:has(> em:only-child) em {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sea-ink);
+}
+
 /* ─────────────────────────────────────────────────────────────────
    ARCADE STYLES (game) — preserved verbatim. Press Start 2P + VT323
    are already an excellent pixel typography pair, and the game's

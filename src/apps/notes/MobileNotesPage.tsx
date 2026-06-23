@@ -41,7 +41,7 @@ export function MobileNotesPage({ document, print = false }: MobileNotesPageProp
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <a
-                href={`/api/notes/${document}/pdf`}
+                href={`/${pdfFilename}`}
                 download={pdfFilename}
                 className={mobileHeaderActionClass}
               >
